@@ -97,6 +97,14 @@ class Loc(list):
             except TypeError:
                 ret.append(self[i] / other)
         return ret
+    def __floordiv__(self, other):
+        ret = Loc()
+        for i in range(len(self)):
+            try:
+                ret.append(self[i] // other[i])
+            except TypeError:
+                ret.append(self[i] // other)
+        return ret
     def __pow__(self, other):
         ret = Loc()
         for i in range(len(self)):
@@ -120,6 +128,9 @@ class Loc(list):
         self = self * other
         return self
     def __itruediv__(self, other):
+        self = self / other
+        return self
+    def __ifloordiv__(self, other):
         self = self / other
         return self
     def copy(self):
