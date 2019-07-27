@@ -6,10 +6,17 @@ Run start for FactoryGame test suite.
 RUN_GUI_TESTS = 1
 
 
-def main():
-    if RUN_GUI_TESTS:
-        # Run test for tkutils.
-        from test.core.utils.tkutils_test import *
+if __name__ != "__main__":
+    exit(1)
 
-if __name__ == "__main__":
-    main()
+if RUN_GUI_TESTS:
+    # Create gui_test_manager object for root window.
+    from test.template.template_gui import GuiTestManager
+    gui_test_manager = GuiTestManager()
+    
+    # Add test for tkutils.
+    from test.core.utils.tkutils_test import TkutilsTest
+    gui_test_manager.add_test(TkutilsTest)
+
+    # Start mainloop.
+    gui_test_manager.mainloop()

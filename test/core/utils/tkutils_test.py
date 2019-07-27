@@ -1,15 +1,14 @@
 from tkinter import Tk, Label
 from factorygame.core.utils.tkutils import MotionInput
+from test.template.template_gui import GuiTest
 
-def on_horiz_mov(event):
-    print(event.delta)
+class TkutilsTest(GuiTest):
+    def on_horiz_mov(self, event):
+        print(event.delta)
 
-window = Tk()
+    def start(self):
+        l = Label(self, text="Drag Here")
+        l.pack()
 
-l = Label(window, text="Drag Here")
-l.pack()
-
-m = MotionInput(l)
-m.bind("<Motion-X>", on_horiz_mov)
-
-window.mainloop()
+        m = MotionInput(l)
+        m.bind("<Motion-X>", self.on_horiz_mov)
