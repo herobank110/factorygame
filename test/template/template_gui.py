@@ -31,6 +31,12 @@ class GuiTest(Toplevel):
         # Set window title.
         self.title(self.get_test_name())
 
+        # Create title lable to clearly show which test this is (user can open
+        # multiple tests at once).
+        Label(self, text=self.get_test_name(),
+            font=("Comic Sans MS", "24")
+            ).pack(padx=3, pady=3)
+
         # Run this test's suite. Override start method for tests.
         self.start()
 
