@@ -2,9 +2,6 @@
 Default program start for FactoryGame.
 """
 
-class a:
-    varx = 2
-
 def main():
     print("starting factory game...")
 
