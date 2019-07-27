@@ -14,10 +14,10 @@ ClassName=TProjectRunConfiguationsNode
 
 [Project\ChildNodes\Node1\ChildNodes\Node0]
 ClassName=TProjectRunConfiguationNode
-Name=default
+Name=FactoryGame Main
 
 [Project\ChildNodes\Node1\ChildNodes\Node0\RunConfig]
-ScriptName=$[ActiveScript-Dir]/default.py
+ScriptName=$[Project-Dir]/main.py
 Description=Default program start for FactoryGame.
 EngineType=peRemote
 ReinitializeBeforeRun=TRUE
