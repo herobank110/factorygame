@@ -2,7 +2,7 @@ from factorygame.core.utils.tkutils import MotionInput
 from test.template.template_gui import GuiTest
 from factorygame.core.utils.loc import Loc
 from tkinter import Label, Canvas
-from tkinter.ttk import Labelframe
+from tkinter.ttk import Labelframe, Button
 
 class MotionInputTest(GuiTest):
     # Colors to use for vertical, horizontal and any direction visualisation.
@@ -125,6 +125,11 @@ class MotionInputTest(GuiTest):
         l = Label(horiz_frame, text="DRAG ME", relief="ridge")
         l.pack(ipadx=10, ipady=10, padx=20, pady=20)
 
+        # Create button to reset canvas.
+        Button(horiz_frame, text="Reset",
+            command=lambda: self.hcanvas.delete("delta")
+            ).pack(padx=3, pady=3)
+
         # Motion input (the actual thing being tested!)
         m = MotionInput(l)
         m.bind("<Motion-X>", self.on_horiz_mov)
@@ -145,6 +150,11 @@ class MotionInputTest(GuiTest):
         l = Label(vert_frame, text="DRAG ME", relief="ridge")
         l.pack(ipadx=10, ipady=10, padx=20, pady=20)
 
+        # Create button to reset canvas.
+        Button(vert_frame, text="Reset",
+            command=lambda: self.vcanvas.delete("delta")
+            ).pack(padx=3, pady=3)
+
         # Motion input (the actual thing being tested!)
         m = MotionInput(l)
         m.bind("<Motion-Y>", self.on_vert_mov)
@@ -153,7 +163,7 @@ class MotionInputTest(GuiTest):
         # Any movement
 
         any_frame = Labelframe(self, text="Any Direction")
-        any_frame.pack(side="left")
+        any_frame.pack(side="left", padx=10, pady=10)
 
         # Canvas for previewing delta movement.
         self.acanvas = Canvas(any_frame, width=200, height=200)
@@ -164,6 +174,11 @@ class MotionInputTest(GuiTest):
         # Label for dragging from.
         l = Label(any_frame, text="DRAG ME", relief="ridge")
         l.pack(ipadx=10, ipady=10, padx=20, pady=20)
+
+        # Create button to reset canvas.
+        Button(any_frame, text="Reset",
+            command=lambda: self.acanvas.delete("delta")
+            ).pack(padx=3, pady=3)
 
         # Motion input (the actual thing being tested!)
         m = MotionInput(l)
