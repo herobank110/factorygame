@@ -1,5 +1,6 @@
 """GUI helpers for tkinter application."""
 from factorygame.core.utils.loc import Loc
+from factorygame.core.utils.mymath import MathStat
 
 class MotionInput(object):
     def __init__(self, *args, **kw):
@@ -41,9 +42,6 @@ class MotionInput(object):
         """Binds func to be called on event_code.
         Event codes is written in the format <MODIFIER-MODIFIER-IDENTIFIER>.
         Available MODIFIERS:
-##            Button1
-##            Button2
-##            Button3
             Motion
         Available IDENTIFIERS:
             X
