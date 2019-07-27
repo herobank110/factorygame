@@ -4,7 +4,7 @@ from factorygame.core.utils.loc import Loc
 from tkinter import Label, Canvas
 from tkinter.ttk import Labelframe
 
-class TkutilsTest(GuiTest):
+class MotionInputTest(GuiTest):
     # Colors to use for vertical, horizontal and any direction visualisation.
     hcol = "dark green"
     vcol = "dark cyan"
