@@ -12,6 +12,13 @@
             "console": "internalConsole"
         },
         {
+            "name": "Python: FactoryGame Run Test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/run_test.py",
+            "console": "internalConsole"
+        },
+        {
             "name": "Python: Current File (Integrated Terminal)",
             "type": "python",
             "request": "launch",

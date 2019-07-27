@@ -33,8 +33,29 @@ ApplicationName=$[PythonExe-Short]
 Parameters=$[ActiveScript-Short]
 WorkingDirectory=$[ActiveScript-Dir]
 
+[Project\ChildNodes\Node1\ChildNodes\Node1]
+ClassName=TProjectRunConfiguationNode
+Name=FactoryGame Run Test
+
+[Project\ChildNodes\Node1\ChildNodes\Node1\RunConfig]
+ScriptName=$[Project-Dir]/run_test.py
+Description=Run start for FactoryGame test suite.
+EngineType=peRemote
+ReinitializeBeforeRun=TRUE
+WorkingDir=$[ActiveScript-Dir]
+WriteOutputToFile=FALSE
+OutputFileName=$[ActiveScript-NoExt].log
+AppendToFile=FALSE
+
+[Project\ChildNodes\Node1\ChildNodes\Node1\RunConfig\ExternalRun]
+Caption=External Run
+Description=Run script using an external Python Interpreter
+ApplicationName=$[PythonExe-Short]
+Parameters=$[ActiveScript-Short]
+WorkingDirectory=$[ActiveScript-Dir]
+
 [Project\ChildNodes\Node1\ChildNodes]
-Count=1
+Count=2
 
 [Project\ChildNodes]
 Count=2
