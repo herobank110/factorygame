@@ -122,9 +122,9 @@ class MotionInput(object):
                                           -self._normalised_delta_max,
                                           self._normalised_delta_max, -1, 1))
 
-    def _is_held(self, button):
-        """returns whether the button is held"""
-        return button in self._held_buttons and self._held_buttons[button]
+    # def _is_held(self, button):
+    #     """returns whether the button is held"""
+    #     return button in self._held_buttons and self._held_buttons[button]
 
     def inp_press(self, event, func=None):
         """Bind this to a widget on a ButtonPress-X event"""
