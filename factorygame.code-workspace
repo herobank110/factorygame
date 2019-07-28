@@ -7,6 +7,10 @@
 		{
 			"name": "Testing",
 			"path": "test"
+		},
+		{
+			"name": "root",
+			"path": "."
 		}
 	],
 	"settings": {
