@@ -14,8 +14,12 @@
 		}
 	],
 	"settings": {
-		"files.exclude": {
-			"**/__pycache__": true
+		"files.exclude": {			
+			"**/__pycache__": true,
+
+			// Ignore project folders in root folder.
+			"**/factorygame":true,
+			"**/test":true
 		}
-	}
+	},
 }
