@@ -1,6 +1,6 @@
 """GUI helpers for tkinter application."""
-from factorygame.core.utils.loc import Loc
-from factorygame.core.utils.mymath import MathStat
+from factorygame.utils.loc import Loc
+from factorygame.utils.mymath import MathStat
 
 class MotionInput(object):
     def __init__(self, *args, **kw):

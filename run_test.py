@@ -15,7 +15,7 @@ if RUN_GUI_TESTS:
     gui_test_manager = GuiTestManager()
     
     # Add test for tkutils.
-    from test.core.utils.tkutils_test import MotionInputTest
+    from test.utils.tkutils_test import MotionInputTest
     gui_test_manager.add_test(MotionInputTest)
 
     # Start mainloop.

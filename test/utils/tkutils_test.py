@@ -1,6 +1,6 @@
-from factorygame.core.utils.tkutils import MotionInput
+from factorygame.utils.tkutils import MotionInput
 from test.template.template_gui import GuiTest
-from factorygame.core.utils.loc import Loc
+from factorygame.utils.loc import Loc
 from tkinter import Label, Canvas
 from tkinter.ttk import Labelframe, Button
 
