@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "FactoryGame",
+			"path": "factorygame"
+		},
+		{
+			"name": "Testing",
+			"path": "test"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/__pycache__": true
+		}
+	}
+}
