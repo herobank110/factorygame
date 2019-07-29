@@ -1,6 +1,6 @@
 """Utilities for working with gameplay mechanics."""
 
-class GameplayStatics(object):
+class __GameplayStatics(object):
     """Holds central information about the running game."""
 
     # GameEngine
@@ -21,3 +21,6 @@ class GameplayStatics(object):
     @classmethod
     def set_world(cls, value):
         cls._world = value
+
+# Initialise an object to work with properties.
+GameplayStatics = __GameplayStatics()

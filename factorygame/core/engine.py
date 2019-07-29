@@ -166,7 +166,7 @@ class World(EngineObject):
 
         # call tick event on other actors
         for actor in self._ticking_actors:
-            actor._tick(dt)
+            actor.tick(dt)
 
         # schedule next tick
         self._tk_obj.after(dt, self._tick_loop)
@@ -174,15 +174,13 @@ class World(EngineObject):
     def set_actor_tick_enabled(self, actor, new_tick_enabled):
         """
         Set whether an actor should tick and schedule/cancel tick events
-        for the future
+        for the future. Shouldn't be called directly, call from the actor itself.
         """
         if new_tick_enabled:
             self._ticking_actors.add(actor)
-            actor.tick_enabled = True
         else:
             try:
                 self._ticking_actors.remove(actor)
-                actor.tick_enabled = False
             except KeyError:
                 pass
 
