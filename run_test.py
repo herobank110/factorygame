@@ -22,5 +22,9 @@ if RUN_GUI_TESTS:
     from test.core.blueprint_test import GraphMotionTest
     gui_test_manager.add_test(GraphMotionTest)
 
+    # Add test for engine.
+    from test.core.engine_test import EngineTickTest
+    gui_test_manager.add_test(EngineTickTest)
+
     # Start mainloop.
     gui_test_manager.mainloop()
