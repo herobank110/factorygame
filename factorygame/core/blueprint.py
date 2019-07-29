@@ -36,9 +36,8 @@ class GraphBase(Canvas):
     """Base blueprint graph for displaying drawable objects."""
 
     ## Constant for button to hold and drag to move graph.
-    ## Default is 3 (tkinter mouse button code for right mouse button).
-    @property
-    def GRAPH_MOTION_BUTTON(self): return 3
+    ## Default is 3 (right mouse button).
+    GRAPH_MOTION_BUTTON = property(lambda self: 3)
 
     def __init__(self, master=None, cnf={}, **kw):
         """Initialiase blueprint graph in widget MASTER."""

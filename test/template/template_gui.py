@@ -29,7 +29,7 @@ class GuiTest(Toplevel):
         Toplevel.__init__(self, master=master, width=400, height=300, **kw)
 
         # Set window title.
-        self.title(self.get_test_name())
+        self.title("%s - GUI Test" % self.get_test_name())
 
         # Create title lable to clearly show which test this is (user can open
         # multiple tests at once).
@@ -93,9 +93,13 @@ class GuiTestManager(Tk):
         self.refresh_available()
 
     def add_test(self, test_class):
-        """Add a GUI test class to the test manager."""
-        # Will do nothing if already added this test.
-        self.all_tests = list(set(self.all_tests + [test_class]))
+        """
+        Add a GUI test class to the test manager. Will do nothing if already
+        added this test.
+        """
+        if test_class in self.all_tests:
+            return
+        self.all_tests.append(test_class)
         self.refresh_available()
 
     def refresh_available(self):
