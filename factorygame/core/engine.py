@@ -72,7 +72,9 @@ class GameEngine(EngineObject):
             self._window.destroy()
         
         # Delete world and all actors.
-        GameplayStatics.world.begin_destroy()
+        world = GameplayStatics.world
+        if world is not None:
+            world.begin_destroy()
 
         # Delete gameplay statics, which holds many references.
         GameplayStatics.clear_all()
