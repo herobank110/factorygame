@@ -3,11 +3,22 @@ from uuid import uuid4
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput
 
-class DrawableObject(object):
-    """Base class for all blueprint drawable objects."""
+class Drawable(object):
+    """Abstract base class for objects receiving draw calls."""
+
+    def clear(self):
+        """Called every frame before drawing to clear current drawing."""
+        pass
+
+    def draw(self):
+        """Called every frame to create new drawing."""
+        pass
+
+class NodeBase(Drawable):
+    """Base class for nodes in a graph with visual representation."""
 
     def __init__(self, owner, location=None):
-        """Initialiase drawable object with canvas OWNER at LOCATION."""
+        """Initialiase drawable object with graph OWNER at LOCATION."""
 
         ## Blueprint graph this object is in.
         self.owner = owner
@@ -24,15 +35,8 @@ class DrawableObject(object):
 
         ## Random, unique ID for this drawable object.
         self.unique_id = uuid4()
-        
-    def clear(self):
-        """Called every frame before drawing to clear current drawn representation."""
 
-    def draw(self):
-        """Called every frame to create the drawn representation."""
-        pass
-
-class GraphBase(Canvas):
+class GraphBase(Canvas, Drawable):
     """Base blueprint graph for displaying drawable objects."""
 
     ## Constant for button to hold and drag to move graph.
@@ -45,11 +49,13 @@ class GraphBase(Canvas):
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
 
-        # Create and bind motion input object so we can receive motion events.
-        self.motioninput = MotionInput()
-        self.motioninput.bind_to_widget(self, button=self.GRAPH_MOTION_BUTTON)
+        # Create and bind motion input object to receive motion events.
+        self.motioninput = MotionInput(self, self.GRAPH_MOTION_BUTTON)
         self.motioninput.bind("Motion-XY", self.on_graph_motion_input)
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
         print("motion delta: %s" % round(event.delta, 2))
+
+    def draw(self):
+        pass
