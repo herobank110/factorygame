@@ -32,7 +32,7 @@ class DrawableObject(object):
         """Called every frame to create the drawn representation."""
         pass
 
-class Graph(Canvas):
+class GraphBase(Canvas):
     """Base blueprint graph for displaying drawable objects."""
 
     ## Constant for button to hold and drag to move graph.

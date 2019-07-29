@@ -18,5 +18,9 @@ if RUN_GUI_TESTS:
     from test.utils.tkutils_test import MotionInputTest
     gui_test_manager.add_test(MotionInputTest)
 
+    # Add test for blueprints.
+    from test.core.blueprint_test import GraphMotionTest
+    gui_test_manager.add_test(GraphMotionTest)
+
     # Start mainloop.
     gui_test_manager.mainloop()
