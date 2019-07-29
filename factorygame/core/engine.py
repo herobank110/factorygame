@@ -24,7 +24,13 @@ class EngineObject(EngineObjectBase):
         """
         pass
 
-class GameEngine(EngineObjectBase):
+    def begin_destroy(self):
+        """
+        Called before this object will be destroyed.
+        """
+        pass
+
+class GameEngine(EngineObject):
     """
     High level engine object that initialises other components when the
     game is created.
@@ -51,6 +57,27 @@ class GameEngine(EngineObjectBase):
         # Initialise a default world.
         world = World(self._window)
         GameplayStatics.set_world(world)
+
+    def close_game(self):
+        """
+        Completely close down the engine and all currently
+        running processes, including all worlds and spawned actors.
+        
+        Will not exit Python execution process.
+        """
+        if not GameplayStatics.is_game_valid():
+            return
+
+        # Attempt to close game window.
+        if self._window is not None and self._window.winfo_exists():
+            # It does exist. Close it.
+            self._window.destroy()
+        
+        # Delete world and all actors.
+        GameplayStatics.world.begin_destroy()
+
+        # Delete gameplay statics, which holds many references.
+        GameplayStatics.clear_all()
 
 
 class World(EngineObject):
@@ -183,6 +210,13 @@ class World(EngineObject):
                 self._ticking_actors.remove(actor)
             except KeyError:
                 pass
+
+    def begin_destroy(self):
+        """Destroy all actors."""
+        for actor in self._actors:
+            actor.begin_destroy()
+            self._actors.pop(0)
+            self._ticking_actors.remove(actor)
 
 class Actor(EngineObject):
     """

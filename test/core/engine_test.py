@@ -12,14 +12,13 @@ class MyActor(Actor):
         # Actors are set to tick by default.
         self.frame_count += 1
         self.label.config(text=str(self.frame_count))
-        print(self.frame_count)
 
 class EngineTickTest(GuiTest):
     _test_name = "Engine Tick"
 
     def start(self):
         # Create a label to show frame count.
-        frame_count_label = Label(self, text="default")
+        frame_count_label = Label(self, text="you should not see this")
         frame_count_label.pack()
 
         # Create the engine in this Toplevel window.
@@ -31,4 +30,11 @@ class EngineTickTest(GuiTest):
         actor.label = frame_count_label
         actor.frame_count = 0
         GameplayStatics.world.finish_deferred_spawn_actor(actor)
+        
+        # Ensure we stop the game engine when closing the test, 
+        # so that subsequent runs are fully restarted.
+        self.bind("<Destroy>", self.on_destroy)
 
+    def on_destroy(self, event):
+        """Called when test window is destroyed."""
+        GameplayStatics.game_engine.close_game()
