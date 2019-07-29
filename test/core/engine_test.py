@@ -1,6 +1,6 @@
 from test.template.template_gui import GuiTest
 from factorygame.core.engine import GameEngine, Actor, World
-from factorygame.utils.gameplay import GameplayStatics
+from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
 from tkinter.ttk import Label
 
 
@@ -37,4 +37,4 @@ class EngineTickTest(GuiTest):
 
     def on_destroy(self, event):
         """Called when test window is destroyed."""
-        GameplayStatics.game_engine.close_game()
+        GameplayUtilities.close_game()

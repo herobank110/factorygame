@@ -60,10 +60,8 @@ class GameEngine(EngineObject):
 
     def close_game(self):
         """
-        Completely close down the engine and all currently
-        running processes, including all worlds and spawned actors.
-        
-        Will not exit Python execution process.
+        Close the game engine. Shouldn't be called directly, call
+        from GameplayUtilities instead.
         """
         if not GameplayStatics.is_game_valid():
             return
@@ -78,7 +76,6 @@ class GameEngine(EngineObject):
 
         # Delete gameplay statics, which holds many references.
         GameplayStatics.clear_all()
-
 
 class World(EngineObject):
     """

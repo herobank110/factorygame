@@ -36,8 +36,16 @@ class __GameplayStatics(object):
         cls._world = value
 
 class GameplayUtilities(object):
-    def close_game(self):
-        """Close the game."""
+    @staticmethod
+    def close_game():
+        """
+        Completely close down the engine and all currently
+        running processes, including all worlds and spawned actors.
+        
+        Will not exit Python execution process.
+        """
+        if GameplayStatics.is_game_valid():
+            GameplayStatics.game_engine.close_game()
 
 # Initialise an object to work with properties.
 GameplayStatics = __GameplayStatics()
