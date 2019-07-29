@@ -40,7 +40,7 @@ class GameEngine(EngineObject):
     FRAME_RATE   = property(lambda self: self._frame_rate) # in frames per second
     FRAME_TIME   = property(lambda self: 1000 // self.FRAME_RATE) # in miliseconds
 
-    def __init__(self, master=None):
+    def __init__(self):
         """Initialise game engine in widget MASTER. If omitted a new window is made."""
 
         ## Name to use in window title.
@@ -48,6 +48,12 @@ class GameEngine(EngineObject):
 
         ## Number of times to update game per second.
         self._frame_rate   = 30
+
+    def create_game(self, master=None):
+        """
+        Create the game engine. Shouldn't be called directly, call
+        from GameplayUtilities instead.
+        """
 
         # Set central reference to game engine.
         GameplayStatics.set_game_engine(self)
@@ -63,6 +69,9 @@ class GameEngine(EngineObject):
         # Initialise a default world.
         world = World(self._window)
         GameplayStatics.set_world(world)
+
+        if master is None:
+            return self._window.mainloop()
 
     def close_game(self):
         """

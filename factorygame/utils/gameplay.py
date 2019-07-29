@@ -36,10 +36,30 @@ class __GameplayStatics(object):
         cls._world = value
 
 class GameplayUtilities(object):
+
+    @staticmethod
+    def create_game_engine(engine_class, master=None):
+        """
+        Create new game engine instance. Only one game engine can 
+        exist at a time. Will fail if one already exists.
+
+        :return: a new game engine
+        """
+        if GameplayStatics.is_game_valid():
+            raise RuntimeWarning("Attempted to create game engine when valid game engine already exists.")
+        
+        # Initialise to set default values.
+        engine = engine_class()
+        
+        # Call create game on base class.
+        engine.create_game(master=master)
+
+        return engine
+
     @staticmethod
     def close_game():
         """
-        Completely close down the engine and all currently
+        Completely close down the active engine and all currently
         running processes, including all worlds and spawned actors.
         
         Will not exit Python execution process.

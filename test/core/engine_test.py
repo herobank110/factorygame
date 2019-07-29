@@ -1,5 +1,5 @@
 from test.template.template_gui import GuiTest
-from factorygame.core.engine import GameEngine, Actor, World
+from factorygame.core.engine_base import GameEngine, Actor
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
 from tkinter.ttk import Label
 
@@ -21,8 +21,8 @@ class EngineTickTest(GuiTest):
         frame_count_label = Label(self, text="you should not see this")
         frame_count_label.pack()
 
-        # Create the engine in this Toplevel window.
-        GameEngine(self)
+        # Create the base class engine in this Toplevel window.
+        GameplayUtilities.create_game_engine(GameEngine, master=self)
 
         # Spawn the ticking actor.        
         actor = GameplayStatics.world.deferred_spawn_actor(MyActor, (0, 0))
