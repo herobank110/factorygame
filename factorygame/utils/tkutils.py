@@ -3,6 +3,8 @@ from factorygame.utils.loc import Loc
 from factorygame.utils.mymath import MathStat
 
 class MotionInput(object):
+    """Add motion input event to widgets."""
+    
     def __init__(self, *args, **kw):
         """initialise attributes. optionally call bind_to_widget with
         specified args if args are not empty

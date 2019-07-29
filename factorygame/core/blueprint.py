@@ -1,6 +1,7 @@
 from tkinter import Canvas
 from uuid import uuid4
 from factorygame.utils.loc import Loc
+from factorygame.utils.tkutils import MotionInput
 
 class DrawableObject(object):
     """Base class for all blueprint drawable objects."""
@@ -30,3 +31,26 @@ class DrawableObject(object):
     def draw(self):
         """Called every frame to create the drawn representation."""
         pass
+
+class Graph(Canvas):
+    """Base blueprint graph for displaying drawable objects."""
+
+    ## Constant for button to hold and drag to move graph.
+    ## Default is 3 (tkinter mouse button code for right mouse button).
+    @property
+    def GRAPH_MOTION_BUTTON(self): return 3
+
+    def __init__(self, master=None, cnf={}, **kw):
+        """Initialiase blueprint graph in widget MASTER."""
+
+        # Initialise canvas parent.
+        Canvas.__init__(self, master, cnf, **kw)
+
+        # Create and bind motion input object so we can receive motion events.
+        self.motioninput = MotionInput()
+        self.motioninput.bind_to_widget(self, button=self.GRAPH_MOTION_BUTTON)
+        self.motioninput.bind("Motion-XY", self.on_graph_motion_input)
+
+    def on_graph_motion_input(self, event):
+        """Called when a motion event occurs on the graph."""
+        print("motion delta: %s" % round(event.delta, 2))
