@@ -51,8 +51,8 @@ class GameplayUtilities(object):
         # Initialise to set default values.
         engine = engine_class()
         
-        # Call create game on base class.
-        engine.create_game(master=master)
+        # Initialise game engine on base class.
+        engine.__init_game_engine__(master=master)
 
         return engine
 
@@ -66,6 +66,27 @@ class GameplayUtilities(object):
         """
         if GameplayStatics.is_game_valid():
             GameplayStatics.game_engine.close_game()
+
+    @staticmethod
+    def create_engine_object(object_class):
+        """
+        Create an EngineObject instance.
+        Requires GameEngine to be created.
+        """
+        if not GameplayStatics.is_game_valid():
+            raise RuntimeWarning("Attempted to create engine object '%s' without valid game engine."
+                % object_class.__name__)
+
+        # Call default constructor.
+        # Should set up attributes with default values.
+        obj = object_class()
+
+        # Call begin play.
+        # Should start any gameplay actions.
+        obj.begin_play()
+
+        # Return newly created engine object.
+        return obj
 
 # Initialise an object to work with properties.
 GameplayStatics = __GameplayStatics()
