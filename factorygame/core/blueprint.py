@@ -46,19 +46,17 @@ class GraphBase(Canvas, Drawable):
     ## Default is 3 (right mouse button).
     GRAPH_MOTION_BUTTON = property(lambda self: 3)
 
-    ## Integer property for zoom level [1-20].
-    ## Higher values zoom out further.
-    zoom_ratio = property()
-
-    @zoom_ratio.getter
     def __get_zoom_ratio(self):
         return self._zoom_ratio
-    @zoom_ratio.setter
     def __set_zoom_ratio(self, value):
         # Only allow values between 1 and 20.
-        self._zoom_ratio = MathStat.clamp(value, 1, 20)
+        self._zoom_ratio = int(MathStat.clamp(value, 1, 20))
         # Calculate zoom amount for later calculations.
         self._zoom_amt = 1 / self._zoom_ratio
+
+    ## Integer property for zoom level [1-20].
+    ## Higher values zoom out further.
+    zoom_ratio = property(__get_zoom_ratio, __set_zoom_ratio)
 
     def __init__(self, master=None, cnf={}, **kw):
         """Initialiase blueprint graph in widget MASTER."""
@@ -83,10 +81,20 @@ class GraphBase(Canvas, Drawable):
             normalise=False)
         self.motioninput.bind("Motion-XY", self.on_graph_motion_input)
 
+        # Bind mouse wheel events for zoom.
+        self.bind("<MouseWheel>", self.on_graph_wheel_input)
+
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
         self._view_offset += event.delta
-        print("view offset: ", self._view_offset)
+        print("view offset:", round(self._view_offset, 2))
+
+    def on_graph_wheel_input(self, event):
+        """Called when a mouse wheel event occurs on the graph."""
+        # On windows wheel delta is in 120x
+        # Zoom out on scroll down
+        self.zoom_ratio += (-event.delta / 120)
+        print("zoom ratio: 1:%s" % self.zoom_ratio)
 
     def draw(self):
         pass
