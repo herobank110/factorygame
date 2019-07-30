@@ -44,12 +44,15 @@ class GameEngine(EngineObject):
         """Initialise game engine in widget MASTER. If omitted a new window is made."""
 
         ## Name to use in window title.
-        self._window_title = "engine_base"
+        self._window_title      = "engine_base"
 
         ## Number of times to update game per second.
-        self._frame_rate   = 30
+        self._frame_rate        = 30
 
-    def create_game(self, master=None):
+        ## Class to use for initial world creation. If omitted default world will be used.
+        self._starting_world    = None
+
+    def __init_game_engine__(self, master=None):
         """
         Create the game engine. Shouldn't be called directly, call
         from GameplayUtilities instead.
@@ -57,6 +60,9 @@ class GameEngine(EngineObject):
 
         # Set central reference to game engine.
         GameplayStatics.set_game_engine(self)
+
+
+        # Create/setup the game window.
 
         if master is None:
             # Create window for game.
@@ -66,9 +72,25 @@ class GameEngine(EngineObject):
             # Use existing window.
             self._window = master
 
-        # Initialise a default world.
-        world = World(self._window)
-        GameplayStatics.set_world(world)
+
+        # Create the starting world.
+
+        if self._starting_world is None:
+            # Choose default world if not specified.
+            self._starting_world = World
+
+        try:
+            world = self._starting_world()
+            world.__init_world__(self._window)
+            GameplayStatics.set_world(world)
+            world.begin_play()
+        except:
+            # The starting world is not a valid class.
+            raise ValueError("Starting world for engine '%s' is not valid."
+                % type(self).__name__)
+
+
+        # Start game window tkinter event loop.
 
         if master is None:
             return self._window.mainloop()
@@ -101,19 +123,23 @@ class World(EngineObject):
     gameplay events such as tick.
     """
 
-    _ticking_actors = set()    # all spawned actors to receive tick events
-    _actors = []    # all spawned actors in the world
+    def __init__(self):
+        """Set default values."""
 
-    def __init__(self, tk_obj):
-        """Initialise world with any active tkinter object TK_OBJ."""
+        ## All spawned actors to receive tick events.
+        self._ticking_actors    = set()
+
+        ## All spawned actors in the world.
+        self._actors            = []
 
         ## Tkinter object reference for tick loop timer.
+        self._tk_obj            = None
+
+    def __init_world__(self, tk_obj):
+        """Initialise world with any active tkinter object TK_OBJ."""
+
+        # Prepare for starting tick timer.
         self._tk_obj = tk_obj
-
-        # Call begin play on self.
-        self.begin_play() 
-
-        # Attempt to start tick loop.
         self.__try_start_tick_loop()
 
     def spawn_actor(self, actor_class, loc):
