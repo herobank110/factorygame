@@ -4,40 +4,59 @@ from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput
 from factorygame.utils.gameplay import GameplayStatics
 from factorygame.utils.mymath import MathStat
-from factorygame.core.engine_base import World
+from factorygame.core.engine_base import World, Actor
 
 class Drawable(object):
     """Abstract base class for objects receiving draw calls."""
 
-    def clear(self):
-        """Called every frame before drawing to clear current drawing."""
+    def start_cycle(self):
+        """Start a full draw cycle."""
+        self._clear()
+        self._draw()
+
+    def _clear(self):
+        """
+        Called every draw cycle before drawing to clear previous drawing.
+        
+        Override for clearing behaviour.
+        """
         pass
 
-    def draw(self):
-        """Called every frame to create new drawing."""
+    def _draw(self):
+        """
+        Called every draw cycle to create new drawing.
+
+        Override for drawing behaviour.
+        """
         pass
 
-class NodeBase(Drawable):
-    """Base class for nodes in a graph with visual representation."""
+class DrawnActor(Drawable, Actor):
+    """Base class for drawable actors who receive a draw cycle each frame."""
+    def tick(self, dt):
+        """Called every frame to perform draw cycle."""
+        self.start_cycle()
 
-    def __init__(self, owner, location=None):
-        """Initialiase drawable object with graph OWNER at LOCATION."""
+# class NodeBase(Drawable):
+#     """Base class for nodes in a graph with visual representation."""
 
-        ## Blueprint graph this object is in.
-        self.owner = owner
+#     def __init__(self, owner, location=None):
+#         """Initialiase drawable object with graph OWNER at LOCATION."""
 
-        ## 2D blueprint location with depth as Z.
-        if location is None:
-            self.location = Loc(0.0, 0.0, 0)
-        else:
-            # Use provided location.
-            self.location = Loc(location)
-            if len(location) < 3:
-                # Use 0 depth if depth not provided.
-                self.location.append(0)
+#         ## Blueprint graph this object is in.
+#         self.owner = owner
 
-        ## Random, unique ID for this drawable object.
-        self.unique_id = uuid4()
+#         ## 2D blueprint location with depth as Z.
+#         if location is None:
+#             self.location = Loc(0.0, 0.0, 0)
+#         else:
+#             # Use provided location.
+#             self.location = Loc(location)
+#             if len(location) < 3:
+#                 # Use 0 depth if depth not provided.
+#                 self.location.append(0)
+
+#         ## Random, unique ID for this drawable object.
+#         self.unique_id = uuid4()
 
 class GraphBase(Canvas, Drawable):
     """Base blueprint graph for displaying drawable objects."""
@@ -96,8 +115,44 @@ class GraphBase(Canvas, Drawable):
         self.zoom_ratio += (-event.delta / 120)
         print("zoom ratio: 1:%s" % self.zoom_ratio)
 
-    def draw(self):
-        pass
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Start of drawable interface.
+
+    def _clear(self):
+        """Clear old drawn canvas elements."""
+        # Delete old grid lines.
+        self.delete("grid")
+
+    def _draw(self):
+        """Create new canvas elements."""
+
+        GRID_SIZE = 30
+
+        # Get dimensions of canvas.
+        dim = self.get_canvas_dim()
+        num_elem = (dim // GRID_SIZE) + 1
+        print(num_elem)
+
+
+    # End of drawable interface.
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+    def get_canvas_dim(self):
+        """Return dimensions of canvas in pixels as a Loc."""
+        return Loc(int(self.cget("width")), int(self.cget("height")))
+
+    def get_view_dim(self):
+        """Return dimensions of viewport in coordinates as a Loc."""
+        return self.get_canvas_dim() * self.zoom_ratio
+
+    def get_view_coords(self):
+        """Return top left and bottom right coordinates of viewport
+        as a 2 tuple of Loc."""
+        center = self._view_offset
+        half_bounds = self.get_view_dim() / 2
+        tl = center + half_bounds
+        br = center - half_bounds
+        return tl, br
 
 class WorldGraph(World, GraphBase):
     """
