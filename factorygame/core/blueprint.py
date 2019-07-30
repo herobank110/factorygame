@@ -99,7 +99,7 @@ class GraphBase(Canvas, Drawable):
     def draw(self):
         pass
 
-class EngineGraph(World, GraphBase):
+class WorldGraph(World, GraphBase):
     """
     Engine blueprint graph integrated with engine World,
     containing actor tracking capabilities for nodes.

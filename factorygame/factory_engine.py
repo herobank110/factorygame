@@ -1,5 +1,5 @@
 from factorygame.core.engine_base import GameEngine
-from factorygame.core.blueprint import EngineGraph
+from factorygame.core.blueprint import WorldGraph
 
 class FactoryEngine(GameEngine):
     """Game engine class for factories."""
@@ -8,4 +8,4 @@ class FactoryEngine(GameEngine):
         # Set default properties.
         self._window_title      = "FactoryGame"
         self._frame_rate        = 30
-        self._starting_world    = EngineGraph
+        self._starting_world    = WorldGraph
