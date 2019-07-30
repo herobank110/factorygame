@@ -2,8 +2,9 @@ from tkinter import Canvas
 from uuid import uuid4
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput
-from factorygame.core.engine_base import World
 from factorygame.utils.gameplay import GameplayStatics
+from factorygame.utils.mymath import MathStat
+from factorygame.core.engine_base import World
 
 class Drawable(object):
     """Abstract base class for objects receiving draw calls."""
@@ -45,19 +46,47 @@ class GraphBase(Canvas, Drawable):
     ## Default is 3 (right mouse button).
     GRAPH_MOTION_BUTTON = property(lambda self: 3)
 
+    ## Integer property for zoom level [1-20].
+    ## Higher values zoom out further.
+    zoom_ratio = property()
+
+    @zoom_ratio.getter
+    def __get_zoom_ratio(self):
+        return self._zoom_ratio
+    @zoom_ratio.setter
+    def __set_zoom_ratio(self, value):
+        # Only allow values between 1 and 20.
+        self._zoom_ratio = MathStat.clamp(value, 1, 20)
+        # Calculate zoom amount for later calculations.
+        self._zoom_amt = 1 / self._zoom_ratio
+
     def __init__(self, master=None, cnf={}, **kw):
         """Initialiase blueprint graph in widget MASTER."""
+
+        # Set default values.
+
+        ## Offset of viewport from center of the graph in pixels.
+        self._view_offset   = Loc(0, 0)
+
+        ## Relative zoom factor of the viewport.
+        self._zoom_amt      = 0.0
+
+        ## Set zoom ratio. Default is 3.
+        self._zoom_ratio    = 3
+        
 
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
 
         # Create and bind motion input object to receive motion events.
-        self.motioninput = MotionInput(self, self.GRAPH_MOTION_BUTTON)
+        self.motioninput = MotionInput(self, self.GRAPH_MOTION_BUTTON,
+            normalise=False)
         self.motioninput.bind("Motion-XY", self.on_graph_motion_input)
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
-        print("motion delta: %s" % round(event.delta, 2))
+        self._view_offset += event.delta
+        print("view offset: ", self._view_offset)
 
     def draw(self):
         pass
