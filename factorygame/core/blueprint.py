@@ -126,12 +126,19 @@ class GraphBase(Canvas, Drawable):
     def _draw(self):
         """Create new canvas elements."""
 
-        GRID_SIZE = 30
+        GRID_SIZE = 30 * self.zoom_ratio
 
         # Get dimensions of canvas.
         dim = self.get_canvas_dim()
         num_elem = (dim // GRID_SIZE) + 1
-        print(num_elem)
+        tr, bl = self.get_view_coords()
+
+        # Create vertical grid lines.        
+        for i in range(num_elem.x):
+            pos = tr.x + 0
+
+
+        print(num_elem, tl, br)
 
 
     # End of drawable interface.
@@ -146,13 +153,13 @@ class GraphBase(Canvas, Drawable):
         return self.get_canvas_dim() * self.zoom_ratio
 
     def get_view_coords(self):
-        """Return top left and bottom right coordinates of viewport
+        """Return top right and bottom left coordinates of viewport
         as a 2 tuple of Loc."""
         center = self._view_offset
         half_bounds = self.get_view_dim() / 2
-        tl = center + half_bounds
-        br = center - half_bounds
-        return tl, br
+        tr = center + half_bounds
+        bl = center - half_bounds
+        return tr, bl
 
 class WorldGraph(World, GraphBase):
     """
