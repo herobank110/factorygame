@@ -2,6 +2,8 @@ from tkinter import Canvas
 from uuid import uuid4
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput
+from factorygame.core.engine_base import World
+from factorygame.utils.gameplay import GameplayStatics
 
 class Drawable(object):
     """Abstract base class for objects receiving draw calls."""
@@ -59,3 +61,17 @@ class GraphBase(Canvas, Drawable):
 
     def draw(self):
         pass
+
+class EngineGraph(World, GraphBase):
+    """
+    Engine blueprint graph integrated with engine World,
+    containing actor tracking capabilities for nodes.
+    """
+    def __init__(self):
+        # Initialise world.
+        World.__init__(self)
+
+        # Initialise canvas parent.
+        GraphBase.__init__(self, master=GameplayStatics.root_window)
+        # Pack the graph in the given window.
+        self.pack()

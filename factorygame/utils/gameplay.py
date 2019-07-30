@@ -35,6 +35,16 @@ class __GameplayStatics(object):
     def set_world(cls, value):
         cls._world = value
 
+
+    # Root window
+
+    _root_window = None
+    root_window  = property(lambda self: self._root_window)
+
+    @classmethod
+    def set_root_window(cls, value):
+        cls._root_window = value
+
 class GameplayUtilities(object):
 
     @staticmethod

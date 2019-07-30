@@ -70,7 +70,11 @@ class GameEngine(EngineObject):
             self._window.title(self.WINDOW_TITLE)
         else:
             # Use existing window.
+            # Doesn't guarantee that it is a Toplevel widget.
             self._window = master
+
+        # Set reference to the window.
+        GameplayStatics.set_root_window(self._window)
 
 
         # Create the starting world.
@@ -84,10 +88,10 @@ class GameEngine(EngineObject):
             world.__init_world__(self._window)
             GameplayStatics.set_world(world)
             world.begin_play()
-        except:
+        except AttributeError as e:
             # The starting world is not a valid class.
-            raise ValueError("Starting world for engine '%s' is not valid."
-                % type(self).__name__)
+            raise AttributeError("Starting world '%s' for engine '%s' is not valid. %s"
+                % (self._starting_world.__name__, type(self).__name__, e)) from e
 
 
         # Start game window tkinter event loop.
