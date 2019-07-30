@@ -108,12 +108,18 @@ class GraphBase(Canvas, Drawable):
         self._view_offset += event.delta
         print("view offset:", round(self._view_offset, 2))
 
+        # Redraw the graph.
+        self.start_cycle()
+
     def on_graph_wheel_input(self, event):
         """Called when a mouse wheel event occurs on the graph."""
         # On windows wheel delta is in 120x
         # Zoom out on scroll down
         self.zoom_ratio += (-event.delta / 120)
         print("zoom ratio: 1:%s" % self.zoom_ratio)
+
+        # Redraw the graph.
+        self.start_cycle()
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
@@ -128,17 +134,27 @@ class GraphBase(Canvas, Drawable):
 
         GRID_SIZE = 30 * self.zoom_ratio
 
-        # Get dimensions of canvas.
         dim = self.get_canvas_dim()
-        num_elem = (dim // GRID_SIZE) + 1
+        num_elem = (self.get_view_dim() // GRID_SIZE) + 1
         tr, bl = self.get_view_coords()
 
+        print("tr %s, bl %s" % (tr, bl))
+        print("view bounds:", self.get_view_dim())
+
         # Create vertical grid lines.        
+        draw_pos = Loc(0, 0)
         for i in range(num_elem.x):
-            pos = tr.x + 0
+            draw_pos.x = bl.x + GRID_SIZE * i
+            self.create_line(draw_pos, draw_pos + (0, dim.y),
+                tags=("grid"))
 
-
-        print(num_elem, tl, br)
+        # Create horizontal grid lines.
+        draw_pos = Loc(0, 0)
+        for i in range(num_elem.y):
+            draw_pos.y = bl.y + GRID_SIZE * i
+            print("draw_pos:", draw_pos)
+            self.create_line(draw_pos, draw_pos + (dim.x, 0),
+                tags=("grid"))
 
 
     # End of drawable interface.
