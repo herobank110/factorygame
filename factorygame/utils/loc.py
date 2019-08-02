@@ -81,6 +81,14 @@ class Loc(list):
             except TypeError:
                 ret.append(self[i] * other)
         return ret
+    def __mod__(self, other):
+        ret = Loc()
+        for i in range(len(self)):
+            try:
+                ret.append(self[i] % other[i])
+            except TypeError:
+                ret.append(self[i] % other)
+        return ret
     def __sub__(self, other):
         ret = Loc()
         for i in range(len(self)):
@@ -126,6 +134,9 @@ class Loc(list):
         return self
     def __imul__(self, other):
         self = self * other
+        return self
+    def __imod__(self, other):
+        self = self % other
         return self
     def __itruediv__(self, other):
         self = self / other
