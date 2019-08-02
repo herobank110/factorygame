@@ -135,7 +135,10 @@ class GraphBase(Canvas, Drawable):
         """Create new canvas elements."""
 
         GRID_SIZE   = 30## * self.zoom_ratio
-        BORDER      = 5
+        BORDER      = Loc(5, 5)
+
+        bord2 = BORDER * 2
+        bord4 = BORDER * 4
 
         dim = self.get_canvas_dim()
         num_elem = (self.get_view_dim() // GRID_SIZE) + 2
@@ -143,17 +146,17 @@ class GraphBase(Canvas, Drawable):
         # Remove signs for MODULO operation, but reapply afterwards.
         edge_offset = (+self._view_offset % GRID_SIZE)
         edge_offset *= [1 if it >= 0 else -1 for it in self._view_offset]
-        edge_border_max = dim.x - BORDER
+        edge_border_max = dim - bord2
 
         # Create vertical grid lines.   
         # Start at the bottom left corner.     
         draw_pos = bl.copy()
         for i in range(num_elem.x):
             draw_pos.x = bl.x + edge_offset.x + GRID_SIZE * i
-            c1 = self.view_to_canvas(draw_pos)
+            c1 = self.view_to_canvas(draw_pos) + (0, bord2.y)
             # Stretch to the other edge of the canvas.
-            c2 = c1 + (0, dim.y)
-            if c1.x > 5 and c1.x < edge_border_max:
+            c2 = c1 + (0, dim.y) - (0, bord4.y)
+            if c1.x > bord2.x and c1.x < edge_border_max.x:
                 self.create_line(c1, c2, tags=("grid"))
 
         # Create horizontal grid lines.
@@ -161,10 +164,10 @@ class GraphBase(Canvas, Drawable):
         draw_pos = bl.copy()
         for i in range(num_elem.y):
             draw_pos.y = bl.y + edge_offset.y + GRID_SIZE * i
-            c1 = self.view_to_canvas(draw_pos)
+            c1 = self.view_to_canvas(draw_pos) + (bord2.x, 0)
             # Stretch to the other edge of the canvas.
-            c2 = c1 + (dim.x, 0)
-            if c1.y > 5 and c1.y < edge_border_max:
+            c2 = c1 + (dim.x, 0) - (bord4.x, 0)
+            if c1.y > bord2.y and c1.y < edge_border_max.y:
                 self.create_line(c1, c2, tags=("grid"))
 
     # End of drawable interface.
