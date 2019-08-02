@@ -1,9 +1,10 @@
 from tkinter import Variable
+from math import sqrt
 
 class Loc(list):
     """Structure for representing coordinates, with basic arithmetic.
 
-    Usage example: 
+    Usage example:
     ```
     a = Loc([0]*3) # Make 3D Loc like (X=0, Y=0, Z=0).
     b = Loc(-20, 0, 20)
@@ -121,6 +122,18 @@ class Loc(list):
             except TypeError:
                 ret.append(pow(self[i], other))
         return ret
+    def __pos__(self):
+        ret = Loc()
+        for i in range(len(self)):
+            ret.append(abs(self[i]))
+        return ret
+    def __neg__(self):
+        ret = Loc()
+        for i in range(len(self)):
+            ret.append(-self[i])
+        return ret
+    def __abs__(self):
+        return sqrt(sum(it**2 for it in self))
     def __round__(self, *args):
         ret = Loc()
         for i in range(len(self)):
