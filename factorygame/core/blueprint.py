@@ -59,7 +59,13 @@ class DrawnActor(Drawable, Actor):
 #         self.unique_id = uuid4()
 
 class GraphBase(Canvas, Drawable):
-    """Base blueprint graph for displaying drawable objects."""
+    """
+    Base blueprint graph for displaying drawable objects.
+    
+    :warning: Does not redraw graph automatically, to avoid
+    redraw lags with constant motion. Call `start_cycle()` to 
+    redraw.
+    """
 
     ## Constant for button to hold and drag to move graph.
     ## Default is 3 (right mouse button).
@@ -111,23 +117,15 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
-        self._view_offset += event.delta * self.zoom_ratio
-        print("view offset:", round(self._view_offset, 2))
-
-        # Redraw the graph.
-        self.start_cycle()
+        self._view_offset += event.delta * self.zoom_ratio * 3
 
     def on_graph_wheel_input(self, event):
         """Called when a mouse wheel event occurs on the graph."""
         # On windows wheel delta is in 120x
         # Zoom out on scroll down
         self.zoom_ratio += (-event.delta / 120)
-        print("zoom ratio: 1:%s" % self.zoom_ratio)
 
         # TODO: also change _view_offset to use mouse cursor as center of zoom.
-
-        # Redraw the graph.
-        self.start_cycle()
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
@@ -205,6 +203,26 @@ class GraphBase(Canvas, Drawable):
         return Loc(MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
             MathStat.map_range(in_coords.y, bl.y, tr.y, 0, canvas_dim.y))
 
+class RenderManager(Actor):
+    """
+    Abstract actor class to process rendering blueprint
+    world graph in the world every frame.
+    """
+    def __init__(self):
+        """Set default values."""
+
+        world = GameplayStatics.world
+
+        if world and isinstance(world, Drawable):
+            self.blueprint_world = world
+
+        else:
+            raise ValueError("World type not valid for blueprint rendering. " \
+                "Expected 'Drawable' but got '%s'" % type(world).__name__)
+
+    def tick(self, dt):
+        self.blueprint_world.start_cycle()
+
 class WorldGraph(World, GraphBase):
     """
     Engine blueprint graph integrated with engine World,
@@ -218,3 +236,8 @@ class WorldGraph(World, GraphBase):
         GraphBase.__init__(self, master=GameplayStatics.root_window)
         # Pack the graph in the given window.
         self.pack()
+
+    def begin_play(self):
+        # Spawn the render manager to redraw the blueprint
+        # graph according to game framerate.
+        self.spawn_actor(RenderManager, (0, 0))
