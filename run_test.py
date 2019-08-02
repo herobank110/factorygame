@@ -19,8 +19,9 @@ if RUN_GUI_TESTS:
     gui_test_manager.add_test(MotionInputTest)
 
     # Add test for blueprints.
-    from test.core.blueprint_test import GraphMotionTest
+    from test.core.blueprint_test import GraphMotionTest, GraphResizeTest
     gui_test_manager.add_test(GraphMotionTest)
+    gui_test_manager.add_test(GraphResizeTest)
 
     # Add test for engine.
     from test.core.engine_test import EngineTickTest
