@@ -105,7 +105,7 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
-        self._view_offset += event.delta
+        self._view_offset += event.delta * self.zoom_ratio
         print("view offset:", round(self._view_offset, 2))
 
         # Redraw the graph.
@@ -117,6 +117,8 @@ class GraphBase(Canvas, Drawable):
         # Zoom out on scroll down
         self.zoom_ratio += (-event.delta / 120)
         print("zoom ratio: 1:%s" % self.zoom_ratio)
+
+        # TODO: also change _view_offset to use mouse cursor as center of zoom.
 
         # Redraw the graph.
         self.start_cycle()
@@ -132,30 +134,38 @@ class GraphBase(Canvas, Drawable):
     def _draw(self):
         """Create new canvas elements."""
 
-        GRID_SIZE = 30 * self.zoom_ratio
+        GRID_SIZE   = 30## * self.zoom_ratio
+        BORDER      = 5
 
         dim = self.get_canvas_dim()
-        num_elem = (self.get_view_dim() // GRID_SIZE) + 1
-        tr, bl = self.get_view_coords()
+        num_elem = (self.get_view_dim() // GRID_SIZE) + 2
+        _, bl = self.get_view_coords()
+        # Remove signs for MODULO operation, but reapply afterwards.
+        edge_offset = (+self._view_offset % GRID_SIZE)
+        edge_offset *= [1 if it >= 0 else -1 for it in self._view_offset]
+        edge_border_max = dim.x - BORDER
 
-        print("tr %s, bl %s" % (tr, bl))
-        print("view bounds:", self.get_view_dim())
-
-        # Create vertical grid lines.        
-        draw_pos = Loc(0, 0)
+        # Create vertical grid lines.   
+        # Start at the bottom left corner.     
+        draw_pos = bl.copy()
         for i in range(num_elem.x):
-            draw_pos.x = bl.x + GRID_SIZE * i
-            self.create_line(draw_pos, draw_pos + (0, dim.y),
-                tags=("grid"))
+            draw_pos.x = bl.x + edge_offset.x + GRID_SIZE * i
+            c1 = self.view_to_canvas(draw_pos)
+            # Stretch to the other edge of the canvas.
+            c2 = c1 + (0, dim.y)
+            if c1.x > 5 and c1.x < edge_border_max:
+                self.create_line(c1, c2, tags=("grid"))
 
         # Create horizontal grid lines.
-        draw_pos = Loc(0, 0)
+        # Start at the bottom left corner.
+        draw_pos = bl.copy()
         for i in range(num_elem.y):
-            draw_pos.y = bl.y + GRID_SIZE * i
-            print("draw_pos:", draw_pos)
-            self.create_line(draw_pos, draw_pos + (dim.x, 0),
-                tags=("grid"))
-
+            draw_pos.y = bl.y + edge_offset.y + GRID_SIZE * i
+            c1 = self.view_to_canvas(draw_pos)
+            # Stretch to the other edge of the canvas.
+            c2 = c1 + (dim.x, 0)
+            if c1.y > 5 and c1.y < edge_border_max:
+                self.create_line(c1, c2, tags=("grid"))
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -176,6 +186,18 @@ class GraphBase(Canvas, Drawable):
         tr = center + half_bounds
         bl = center - half_bounds
         return tr, bl
+
+    def view_to_canvas(self, in_coords):
+        """
+        Return viewport coordinates in canvas coordinates as a Loc.
+        
+        :param in_coords: Viewport coordinates as a Loc.
+        """
+        canvas_dim = self.get_canvas_dim()
+        tr, bl = self.get_view_coords()
+
+        return Loc(MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
+            MathStat.map_range(in_coords.y, bl.y, tr.y, 0, canvas_dim.y))
 
 class WorldGraph(World, GraphBase):
     """
