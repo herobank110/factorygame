@@ -235,7 +235,7 @@ class WorldGraph(World, GraphBase):
         # Initialise canvas parent.
         GraphBase.__init__(self, master=GameplayStatics.root_window)
         # Pack the graph in the given window.
-        self.pack()
+        self.pack(fill="both", expand=True)
 
     def begin_play(self):
         # Spawn the render manager to redraw the blueprint
