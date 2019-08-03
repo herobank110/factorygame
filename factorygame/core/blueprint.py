@@ -176,7 +176,7 @@ class GraphBase(Canvas, Drawable):
 
     def get_canvas_dim(self):
         """Return dimensions of canvas in pixels as a Loc."""
-        return Loc(int(self.cget("width")), int(self.cget("height")))
+        return Loc(self.winfo_width(), self.winfo_height())
 
     def get_view_dim(self):
         """Return dimensions of viewport in coordinates as a Loc."""
