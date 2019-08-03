@@ -2,8 +2,10 @@
 Run start for FactoryGame test suite.
 """
 
+import sys
+
 ## Whether to run GUI tests.
-RUN_GUI_TESTS = 1
+RUN_GUI_TESTS = "nogui" not in sys.argv
 
 
 if __name__ != "__main__":

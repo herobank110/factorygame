@@ -19,6 +19,16 @@
             "console": "internalConsole"
         },
         {
+            "name": "Python: FactoryGame Run Test NOGUI",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/run_test.py",
+            "console": "internalConsole",
+            "args": [
+                "nogui"
+            ]
+        },
+        {
             "name": "Python: Current File (Integrated Terminal)",
             "type": "python",
             "request": "launch",

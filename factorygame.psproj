@@ -54,8 +54,30 @@ ApplicationName=$[PythonExe-Short]
 Parameters=$[ActiveScript-Short]
 WorkingDirectory=$[ActiveScript-Dir]
 
+[Project\ChildNodes\Node1\ChildNodes\Node2]
+ClassName=TProjectRunConfiguationNode
+Name=FactoryGame Run Test NOGUI
+
+[Project\ChildNodes\Node1\ChildNodes\Node2\RunConfig]
+ScriptName=$[Project-Dir]/run_test.py
+Description=Run start for FactoryGame test suite without any GUI tests.
+EngineType=peRemote
+ReinitializeBeforeRun=TRUE
+Parameters=nogui
+WorkingDir=$[Project-Dir]
+WriteOutputToFile=FALSE
+OutputFileName=$[ActiveScript-NoExt].log
+AppendToFile=FALSE
+
+[Project\ChildNodes\Node1\ChildNodes\Node2\RunConfig\ExternalRun]
+Caption=External Run
+Description=Run script using an external Python Interpreter
+ApplicationName=$[PythonExe-Short]
+Parameters=$[ActiveScript-Short]
+WorkingDirectory=$[ActiveScript-Dir]
+
 [Project\ChildNodes\Node1\ChildNodes]
-Count=2
+Count=3
 
 [Project\ChildNodes]
 Count=2
