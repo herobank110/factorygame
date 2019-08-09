@@ -138,16 +138,28 @@ class GraphBase(Canvas, Drawable):
     def _draw(self):
         """Create new canvas elements."""
 
+        # Draw the grid lines.
+        self.__draw_grid()
+
+        # TODO: Add additional draw functions here.
+
+    def __draw_grid(self):
+        """Create grid lines."""
+        
         bord2 = self.draw_border * 2
         bord4 = self.draw_border * 4
-
-        dim = self.get_canvas_dim()
-        num_elem = (self.get_view_dim() // self.grid_size) + 2
         _, bl = self.get_view_coords()
-        # Remove signs for MODULO operation, but reapply afterwards.
-        edge_offset = (+self._view_offset % self.grid_size)
-        edge_offset *= [1 if it >= 0 else -1 for it in self._view_offset]
-        edge_border_max = dim - bord2
+        dim = self.get_canvas_dim()
+
+        edge_border_max = self.get_canvas_dim() - bord2
+        num_elem = (self.get_view_dim() // self.grid_size) + 2
+
+        # Make all components positive for correct modulo output.
+        edge_offset = +self._view_offset % self.grid_size
+        # Reapply signs afterward if necessary.
+        for i, it in enumerate(self._view_offset):
+            if it < 0:
+                edge_offset[i] *= -1
 
         # Create vertical grid lines.   
         # Start at the bottom left corner.     
