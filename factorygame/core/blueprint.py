@@ -1,5 +1,6 @@
 from tkinter import Canvas
 from uuid import uuid4
+from math import floor
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput
 from factorygame.utils.gameplay import GameplayStatics
@@ -138,22 +139,36 @@ class GraphBase(Canvas, Drawable):
     def _draw(self):
         """Create new canvas elements."""
 
+        # Draw the grid lines.
+        self.__draw_grid()
+
+        # TODO: Add additional draw functions here.
+
+    def __draw_grid(self):
+        """Create grid lines."""
+        
         bord2 = self.draw_border * 2
         bord4 = self.draw_border * 4
-
-        dim = self.get_canvas_dim()
-        num_elem = (self.get_view_dim() // self.grid_size) + 2
         _, bl = self.get_view_coords()
-        # Remove signs for MODULO operation, but reapply afterwards.
-        edge_offset = (+self._view_offset % self.grid_size)
-        edge_offset *= [1 if it >= 0 else -1 for it in self._view_offset]
-        edge_border_max = dim - bord2
+        
+        dim = self.get_canvas_dim()
+        edge_border_max = self.get_canvas_dim() - bord2
+        edge_offset = +self._view_offset % self.grid_size
+        for i, it in enumerate(self._view_offset):
+            # Reapply signs afterward if necessary.
+            if it < 0:
+                edge_offset[i] *= -1
+
+        num_elem = (self.get_view_dim() // self.grid_size) + 2
+        gap_size = self.grid_size
+        # TODO: Set num_elem and gap_size depending on zoom ratio
+        # using floor function.
 
         # Create vertical grid lines.   
         # Start at the bottom left corner.     
         draw_pos = bl.copy()
         for i in range(num_elem.x):
-            draw_pos.x = bl.x + edge_offset.x + self.grid_size * i
+            draw_pos.x = bl.x + edge_offset.x + gap_size * i
             c1 = self.view_to_canvas(draw_pos) + (0, bord2.y)
             # Stretch to the other edge of the canvas.
             c2 = c1 + (0, dim.y) - (0, bord4.y)
@@ -164,7 +179,7 @@ class GraphBase(Canvas, Drawable):
         # Start at the bottom left corner.
         draw_pos = bl.copy()
         for i in range(num_elem.y):
-            draw_pos.y = bl.y + edge_offset.y + self.grid_size * i
+            draw_pos.y = bl.y + edge_offset.y + gap_size * i
             c1 = self.view_to_canvas(draw_pos) + (bord2.x, 0)
             # Stretch to the other edge of the canvas.
             c2 = c1 + (dim.x, 0) - (bord4.x, 0)
