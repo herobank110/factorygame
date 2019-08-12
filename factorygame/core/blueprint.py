@@ -1,6 +1,5 @@
 from tkinter import Canvas
 from uuid import uuid4
-from math import floor
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput
 from factorygame.utils.gameplay import GameplayStatics
@@ -99,7 +98,7 @@ class GraphBase(Canvas, Drawable):
         self._zoom_ratio    = 3
 
         ## Average size of each square grid, in pixels.
-        self.grid_size      = 30
+        self.grid_size      = 150
 
         ## Area of empty space to leave around rendered grid, in pixels.
         self.draw_border    = Loc(5, 5)
@@ -159,10 +158,16 @@ class GraphBase(Canvas, Drawable):
             if it < 0:
                 edge_offset[i] *= -1
 
-        num_elem = (self.get_view_dim() // self.grid_size) + 2
+
+        # Gap between lines, in world units.
+        grid_mult = self.zoom_ratio // 10 # Density of grid lines.
         gap_size = self.grid_size
-        # TODO: Set num_elem and gap_size depending on zoom ratio
-        # using floor function.
+
+        # Adjust density for zoom.
+        # When further zoomed out, increase
+        # density (decrease gap size).
+        gap_size += self.grid_size * grid_mult
+        num_elem = (self.get_view_dim() // gap_size) + 2
 
         # Create vertical grid lines.   
         # Start at the bottom left corner.     
