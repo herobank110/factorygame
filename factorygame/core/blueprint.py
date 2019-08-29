@@ -1,7 +1,8 @@
 from tkinter import Canvas
 from uuid import uuid4
+import base64
 from factorygame.utils.loc import Loc
-from factorygame.utils.tkutils import MotionInput
+from factorygame.utils.tkutils import MotionInput, ScalingImage
 from factorygame.utils.gameplay import GameplayStatics
 from factorygame.utils.mymath import MathStat
 from factorygame.core.engine_base import World, Actor
@@ -114,6 +115,12 @@ class GraphBase(Canvas, Drawable):
 
         # Bind mouse wheel events for zoom.
         self.bind("<MouseWheel>", self.on_graph_wheel_input)
+
+        with open("factorygame/core/mygif.gif", "rb") as fp:
+            data = base64.b64encode(fp.read())
+
+        self.img = ScalingImage( data=data, file="factorygame/core/ACU_Young_Élise_Arno.png",)
+        self.create_image(25, 25, image=self.img, anchor="nw")
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
