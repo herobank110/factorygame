@@ -280,10 +280,10 @@ class ScalingImage(PhotoImage):
             subsample_x, subsample_y)
         return out_image
 
-    def _on_scale_fast(self, zoom_x, zoom_y, subsample_x, subsample_y)
-    """Internal function to scale the image to the specified proportion
+    def _on_scale_fast(self, zoom_x, zoom_y, subsample_x, subsample_y):
+        """Internal function to scale the image to the specified proportion
         with efficient but lossy quality."""
-    out_image = self.get_original_image()
-    out_image = out_image.subsample(
-        subsample_x, subsample_y).zoom(zoom_x, zoom_y)
-    return out_image
+        out_image = self.get_original_image()
+        out_image = out_image.subsample(
+            subsample_x, subsample_y).zoom(zoom_x, zoom_y)
+        return out_image
