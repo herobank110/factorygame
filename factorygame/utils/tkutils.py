@@ -215,7 +215,7 @@ class ScalingImage(PhotoImage):
         super().__init__(name=name, cnf=cnf, master=master, **kw)
 
     def scale(self, x, y=None):
-        """Return a new PhotoScaleImage with the same image as this widget
+        """Return a new ScalingImage with the same image as this widget
         but scale it with a factor of x in the X direction and y in the Y
         direction.  If y is not given, the default value is the same as x.
 
@@ -226,13 +226,12 @@ class ScalingImage(PhotoImage):
         except TypeError:
             # The argument cannot be unpacked.
             # It is a single decimal value.
-            decimal = x
-            self._on_scale(decimal=decimal)
+            return self._on_scale_decimal(x)
         else:
-            self._on_scale(numer=numer, denom=denom)
+            return self._on_scale_frac(numer, denom)
 
     def scale_continuous(self, x, y=None):
-        """Return a new PhotoScaleImage with the same image as this widget
+        """Return a new ScalingImage with the same image as this widget
         but in low quality for fast computation.  Should be used when the
         scaling operation will happen multiple times in quick succession,
         and the given scale is not final."""
@@ -244,7 +243,7 @@ class ScalingImage(PhotoImage):
         pass
 
     def scale_continuous_end(self):
-        """Return a new PhotoScaleImage with the same image and scale
+        """Return a new ScalingImage with the same image and scale
         as this widget in the highest quality after continuous scaling has
         been finalised.  This is optional, but will reduce the time lag to
         delivering the highest quality image."""
@@ -272,18 +271,11 @@ class ScalingImage(PhotoImage):
 
         return out_image
 
-    def _on_scale(self, zoom_x, zoom_y, subsample_x, subsample_y):
-        """Internal function to scale the image to the specified proportion
-        with inefficient but good quality."""
+    def _on_scale(self, zoom_x, zoom_y, subsample_x, subsample_y, use_fast_mode=None):
+        """Internal function to scale the image to the specified proportion. If USE_FAST_MODE
+        is true the efficient but low quality mode will be used."""
         out_image = self.get_original_image()
-        out_image = out_image.zoom(zoom_x, zoom_y).subsample(
-            subsample_x, subsample_y)
-        return out_image
-
-    def _on_scale_fast(self, zoom_x, zoom_y, subsample_x, subsample_y):
-        """Internal function to scale the image to the specified proportion
-        with efficient but lossy quality."""
-        out_image = self.get_original_image()
-        out_image = out_image.subsample(
-            subsample_x, subsample_y).zoom(zoom_x, zoom_y)
-        return out_image
+        if use_fast_mode:
+            return out_image.subsample(subsample_x, subsample_y).zoom(zoom_x, zoom_y)
+        else:
+            return out_image.zoom(zoom_x, zoom_y).subsample(subsample_x, subsample_y)
