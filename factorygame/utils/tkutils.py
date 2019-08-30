@@ -1,5 +1,7 @@
 """GUI helpers for tkinter application."""
 from tkinter import PhotoImage
+from fractions import Fraction
+import itertools
 
 from factorygame.utils.loc import Loc
 from factorygame.utils.mymath import MathStat
@@ -211,7 +213,20 @@ class ScalingImage(PhotoImage):
         Valid resource names: data, format, file, gamma, height, palette,
         width.
         """
-        self.current_frac = [0, 0]
+
+        # Currently displayed image proportion as an integer fraction.
+        # Store in a list to avoid instant simplification where possible.
+        self.current_frac = [1, 1]
+
+        # Currently displayed image proportion when using fast mode (continuous).
+        # This is a inaccurate temporary value, current_frac will be used on
+        # contiuous end.
+        self.current_fast_frac = [1, 1]
+
+        # Sensitivity to unprecise easy to compute figures
+        # Greater remainder tolerance means less precision is retained.
+        self.remainder_tolerance = 1
+
         super().__init__(name=name, cnf=cnf, master=master, **kw)
 
     def scale(self, x, y=None):
@@ -221,14 +236,17 @@ class ScalingImage(PhotoImage):
 
         Zoom factors can be given in 2-tuple integer fractions, `(3, 4)`
         or a floating point value, `0.75`."""
+        if y is None:
+            y = x
+
+        # TODO: also use y value!
+
         try:
-            numer, denom = x
+            return self._on_scale_frac(*x)
         except TypeError:
-            # The argument cannot be unpacked.
+            # The argument is not iterable.
             # It is a single decimal value.
             return self._on_scale_decimal(x)
-        else:
-            return self._on_scale_frac(numer, denom)
 
     def scale_continuous(self, x, y=None):
         """Return a new ScalingImage with the same image as this widget
@@ -250,11 +268,51 @@ class ScalingImage(PhotoImage):
         pass
 
     def _on_scale_decimal(self, decimal):
-        pass
+        decimal = round(abs(decimal), 5)
 
-    def _on_scale_frac(self, numer, denom):
+        # Find accurate fraction
+        # frac = fractions.Fraction(decimal).limit_denominator(40)
+        # numer = abs(frac.numerator)
+        # denom = abs(frac.denominator)
+
+        # Find fast and easy to compute fraction
+        denom = 40  # Greater denominator means more precision is kept
+        numer = abs(int(denom * decimal))
+
+        return self._on_scale_frac(numer, denom)
+
+    def _on_scale_frac(self, numer, denom, use_fast_mode=None):
         """Internal function to scale the image."""
-        pass
+        numer = self.current_frac[0] if not numer else abs(int(numer))
+        denom = self.current_frac[1] if not denom else abs(int(denom))
+
+        if denom > 3 or numer/denom > 0.25:
+            # Attempt to simplify the proportions.
+
+            if use_fast_mode:
+                # Find common factors. Larger range means possibly less precision.
+                for i in range(7, 1, -1):
+                    if numer % i + denom % i <= self.remainder_tolerance:
+                        # Simplify if both are exactly divisble
+                        numer //= i
+                        denom //= i
+                        break
+
+            else:
+                # Convert to a fraction for quick simplification
+                # Comment out to use less accurate simplification.
+                frac = Fraction(numer, denom)
+                numer = frac.numerator
+                denom = frac.denominator
+
+        # Avoid really tiny scale.
+        i = itertools.count()
+        while numer/denom < 0.01:
+            numer += 1
+            if next(i) > 10:
+                return self  # don't scale anything
+
+        return self._on_scale(numer, numer, denom, denom, use_fast_mode)
 
     def get_original_image(self):
         """Return the original full size image"""
@@ -262,10 +320,10 @@ class ScalingImage(PhotoImage):
         # File option will be favoured over data,
         # so only use it if data is unavailable
         # to avoid unnecessary disk operations.
-        data = self["data"]
-        file = self["file"] if data == "" else ""
+        # data = self["data"]
+        # file = self["file"] if data == "" else ""
 
-        out_image = PhotoImage(data=data, format=self["format"], file=file,
+        out_image = PhotoImage(data=self["data"], format=self["format"], file=self["file"],
                                gamma=self["gamma"], height=self["height"], palette=self["palette"],
                                width=self["width"])
 
@@ -276,6 +334,11 @@ class ScalingImage(PhotoImage):
         is true the efficient but low quality mode will be used."""
         out_image = self.get_original_image()
         if use_fast_mode:
-            return out_image.subsample(subsample_x, subsample_y).zoom(zoom_x, zoom_y)
+            out_image = out_image.subsample(
+                subsample_x, subsample_y).zoom(zoom_x, zoom_y)
         else:
-            return out_image.zoom(zoom_x, zoom_y).subsample(subsample_x, subsample_y)
+            out_image = out_image.zoom(zoom_x, zoom_y).subsample(
+                subsample_x, subsample_y)
+
+        out_image.current_frac = [zoom_x, subsample_x]
+        return out_image

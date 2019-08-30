@@ -120,6 +120,9 @@ class GraphBase(Canvas, Drawable):
             data = base64.b64encode(fp.read())
 
         self.img = ScalingImage( data=data, file="factorygame/core/ACU_Young_Élise_Arno.png",)
+        #self.img = self.img.scale((100, 4))
+        self.img = self.img.scale((1.3))
+
         self.create_image(25, 25, image=self.img, anchor="nw")
 
     def on_graph_motion_input(self, event):
