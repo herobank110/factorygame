@@ -192,8 +192,7 @@ class ScalingImageTest(GuiTest):
         #img = self.img.get_original_image()
         img = ScalingImage(data=self.imgdata)
         img = img.scale_continuous(x, y)
-        self.img = img
-        self.my_label.config(image=self.img)
+        self._assign_image(img)
 
     def on_end_zoom(self):
         # TODO: fix get_original_image
@@ -201,6 +200,32 @@ class ScalingImageTest(GuiTest):
         # img = self.img.scale_continuous_end()
         # self.img = img
         # self.my_label.config(image=self.img)
+
+    def on_reset(self):
+        # img = self.img.get_original_image()
+        # (data=self["data"], format=self["format"], file=self["file"],
+        #                          gamma=self["gamma"], height=self["height"], palette=self["palette"],
+        #                          width=self["width"]
+        #print("data is", self.img._imgdata)
+
+
+        #img = self.img.get_original_image()
+        
+        with open("test/utils/ACU_Young_Élise_Arno.png", "rb") as fp:
+            imgdata = base64.b64encode(fp.read())
+            # For some reason it is faster to decode it straight away!
+            imgdata = base64.b64decode(imgdata)
+
+        img = ScalingImage(data=imgdata)
+
+        print("is the same?", imgdata == self.img._imgdata, type(self.img._imgdata))
+
+        self._assign_image(img)
+
+    def _assign_image(self, img):
+        self.img = img
+        self.my_label.config(image=img)
+
 
     def on_frac_changed(self):
         frac_x = (self.numer_var.get(), self.denom_var.get())
@@ -226,7 +251,9 @@ class ScalingImageTest(GuiTest):
             # For some reason it is faster to decode it straight away!
             self.imgdata = base64.b64decode(self.imgdata)
 
-        self.img = ScalingImage(data=self.imgdata)
+        # self.img = ScalingImage(data=self.imgdata)
+
+        self.img = ScalingImage(file="test/utils/ACU_Young_Élise_Arno.png")
 
         self.my_label = Label(Toplevel(self), image=self.img)
         self.my_label.__image = self.img
@@ -297,3 +324,6 @@ class ScalingImageTest(GuiTest):
         decimal_scale.pack()
 
         Label(decimal_frame, textvariable=self.decimal_display_var).pack()
+
+
+        Button(self, text="Reset", command=self.on_reset).pack(side="left")

@@ -1,7 +1,7 @@
 """GUI helpers for tkinter application."""
 from tkinter import PhotoImage
 from fractions import Fraction
-import itertools
+import itertools, base64
 
 from factorygame.utils.loc import Loc
 from factorygame.utils.mymath import MathStat
@@ -202,10 +202,37 @@ class LocalPlayer(object):
         """Setup input bindings to input_component using widget bindings"""
         pass
 
-
+from tkinter import _cnfmerge
 class ScalingImage(PhotoImage):
     """Widget which can display images in PGM, PPM, GIF, PNG format with
     enhanced support for scaling to arbitrary proportions."""
+
+    def configure(self, **kw):
+        """Configure the image."""
+        # Check if we can store the image data as base64 instead of filename.
+        self._load_image_data(kw)
+        print("configure called")
+        super().configure(**kw)
+    config = configure
+
+    def _load_image_data(self, kw):
+        """Load the image data from FILENAME to base64 encoded data."""
+
+        # Check keywords for valid image data arguments.        
+        filename = kw.pop("file", None)
+        imgdata = kw.get("data")
+
+        if filename:
+            with open(filename, "rb") as fp:
+                imgdata = base64.b64encode(fp.read())
+                # For some reason it is faster to decode it straight away!
+                #imgdata = base64.b64decode(imgdata)
+                kw["data"] = imgdata
+
+        elif imgdata is not None: pass
+        else: return
+            
+        self._imgdata = imgdata
 
     def __init__(self, name=None, cnf={}, master=None, **kw):
         """Create an image with NAME.
@@ -226,6 +253,16 @@ class ScalingImage(PhotoImage):
         # Sensitivity to unprecise easy to compute figures
         # Greater remainder tolerance means less precision is retained.
         self.remainder_tolerance = 1
+
+        # Cached image data.        
+        # Use preloaded base64 data so we don't have to read
+        # from HDD every time (slower)
+        self._imgdata = None
+
+        # Attempt to load image data.
+        kw.update(cnf)
+        cnf = {}
+        self._load_image_data(kw)
 
         super().__init__(name=name, cnf=cnf, master=master, **kw)
 
@@ -344,10 +381,11 @@ class ScalingImage(PhotoImage):
         # data = self["data"]
         # file = self["file"] if data == "" else ""
 
-        out_image = ScalingImage(data=self["data"], format=self["format"], file=self["file"],
-                                 gamma=self["gamma"], height=self["height"], palette=self["palette"],
-                                 width=self["width"])
+        # out_image = ScalingImage(data=self._imgdata, format=self["format"], file=self["file"],
+        #                          gamma=self["gamma"], height=self["height"], palette=self["palette"],
+        #                          width=self["width"])
 
+        out_image = ScalingImage(data=self._imgdata)
         return out_image
 
     def _on_scale(self, zoom_x, zoom_y, subsample_x, subsample_y, use_fast_mode=None):
