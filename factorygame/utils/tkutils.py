@@ -218,10 +218,10 @@ class ScalingImage(PhotoImage):
         # Store in a list to avoid instant simplification where possible.
         self.current_frac = Loc(Loc(1, 1), Loc(1, 1))
 
-        # Currently displayed image proportion when using fast mode (continuous).
-        # This is a inaccurate temporary value, current_frac will be used on
-        # contiuous end.
-        self.current_fast_frac = Loc(Loc(1, 1), Loc(1, 1))
+        # Current input values received from using fast mode (continuous). When
+        # scale_continuous_end is called the accurate value will be computed from
+        # these values.
+        self.current_fast_input = (1, 1)
 
         # Sensitivity to unprecise easy to compute figures
         # Greater remainder tolerance means less precision is retained.
@@ -236,30 +236,7 @@ class ScalingImage(PhotoImage):
 
         Zoom factors can be given in 2-tuple integer fractions, `(3, 4)`
         or a floating point value, `0.75`."""
-
-        if y is None:
-            y = x
-
-        try:
-            numer_x, denom_x = x
-        except TypeError:
-            # X is not iterable, it is a single decimal value.
-            numer_x, denom_x = self._decimal_to_frac(x)
-        finally:
-            numer_x, denom_x = self._simplify_frac(numer_x, denom_x)
-
-        try:
-            numer_y, denom_y = y
-        except TypeError:
-            # Y is not iterable, it is a single decimal value.
-            numer_y, denom_y = self._decimal_to_frac(y)
-        finally:
-            numer_y, denom_y = self._simplify_frac(numer_y, denom_y, False)
-
-        self.current_frac.x *= (numer_x, denom_x)
-        self.current_frac.y *= (numer_y, denom_y)
-
-        return self._on_scale(numer_x, numer_y, denom_x, denom_y, False)
+        return self._scale(x, y, False)
 
     def scale_continuous(self, x, y=None):
         """Return a new ScalingImage with the same image as this widget
@@ -270,14 +247,42 @@ class ScalingImage(PhotoImage):
         # This should store the input proportions and the current continuous
         # proportion separately so that scale_continuous_end can use the most
         # accurate scaling and this can be as fast as possible.
-        pass
+        self.current_fast_input = (x, y)
+        return self._scale(x, y, True)
 
     def scale_continuous_end(self):
         """Return a new ScalingImage with the same image and scale
         as this widget in the highest quality after continuous scaling has
         been finalised.  This is optional, but will reduce the time lag to
         delivering the highest quality image."""
-        pass
+        #img = self.get_original_image()
+        return self.scale(*self.current_fast_input)
+
+    def _scale(self, x, y, use_fast_mode):
+
+        if y is None:
+            y = x
+
+        try:
+            numer_x, denom_x = x
+        except TypeError:
+            # X is not iterable, it is a single decimal value.
+            numer_x, denom_x = self._decimal_to_frac(x)
+        finally:
+            numer_x, denom_x = self._simplify_frac(numer_x, denom_x, use_fast_mode)
+
+        try:
+            numer_y, denom_y = y
+        except TypeError:
+            # Y is not iterable, it is a single decimal value.
+            numer_y, denom_y = self._decimal_to_frac(y)
+        finally:
+            numer_y, denom_y = self._simplify_frac(numer_y, denom_y, use_fast_mode)
+
+        self.current_frac.x *= (numer_x, denom_x)
+        self.current_frac.y *= (numer_y, denom_y)
+
+        return self._on_scale(numer_x, numer_y, denom_x, denom_y, use_fast_mode)
 
     def _decimal_to_frac(self, decimal):
         """Convert a decimal to non simpified fraction."""
@@ -363,6 +368,7 @@ class ScalingImage(PhotoImage):
                 subsample_x, subsample_y)
 
         out_image.current_frac = self.current_frac
+        out_image.current_fast_input = self.current_fast_input
         return out_image
 
     # Overrides from tkinter PhotoImage to return correct class.

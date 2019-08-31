@@ -191,12 +191,16 @@ class ScalingImageTest(GuiTest):
     def on_zoom(self, x, y=None):
         #img = self.img.get_original_image()
         img = ScalingImage(data=self.imgdata)
-        img = img.scale(x, y)
+        img = img.scale_continuous(x, y)
         self.img = img
         self.my_label.config(image=self.img)
 
     def on_end_zoom(self):
-        self.img.scale_continuous_end()
+        # TODO: fix get_original_image
+        pass
+        # img = self.img.scale_continuous_end()
+        # self.img = img
+        # self.my_label.config(image=self.img)
 
     def on_frac_changed(self):
         frac_x = (self.numer_var.get(), self.denom_var.get())
@@ -246,12 +250,12 @@ class ScalingImageTest(GuiTest):
 
         frac_numer_scale = Scale(frac_frame, variable=self.numer_var, from_=1, to=100,
             orient="vertical", command=lambda i: self.on_frac_changed())
-        frac_numer_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom)
+        frac_numer_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom())
         frac_numer_scale.pack(side="left")
 
         frac_denom_scale = Scale(frac_frame, variable=self.denom_var, from_=1, to=100,
             orient="vertical",command=lambda i: self.on_frac_changed())
-        frac_denom_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom)
+        frac_denom_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom())
         frac_denom_scale.pack(side="left")
 
         Label(frac_frame, textvariable=self.numer_display_var).pack()
@@ -271,7 +275,7 @@ class ScalingImageTest(GuiTest):
 
         zoom_scale = Scale(numer_scale_frame, from_=1, to=60, variable=self.numer_scale_var,
             orient="horizontal", command=lambda i: self.on_numer_scale_changed())
-        zoom_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom)
+        zoom_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom())
         zoom_scale.pack(fill="x")
 
         Label(numer_scale_frame, textvariable=self.numer_scale_display_var).pack()
@@ -289,7 +293,7 @@ class ScalingImageTest(GuiTest):
 
         decimal_scale = Scale(decimal_frame, variable=self.decimal_scale_var, from_=0.01, to=3,
             command=lambda i: self.on_decimal_changed())
-        decimal_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom)
+        decimal_scale.bind("<ButtonRelease>", lambda e: self.on_end_zoom())
         decimal_scale.pack()
 
         Label(decimal_frame, textvariable=self.decimal_display_var).pack()
