@@ -290,7 +290,8 @@ class ScalingImage(PhotoImage):
             # Attempt to simplify the proportions.
 
             if use_fast_mode:
-                # Find common factors. Larger range means possibly less precision.
+                # Less accurate than using Fraction class.
+                # Find common factors up to 7.
                 for i in range(7, 1, -1):
                     if numer % i + denom % i <= self.remainder_tolerance:
                         # Simplify if both are exactly divisble
@@ -300,7 +301,6 @@ class ScalingImage(PhotoImage):
 
             else:
                 # Convert to a fraction for quick simplification
-                # Comment out to use less accurate simplification.
                 frac = Fraction(numer, denom)
                 numer = frac.numerator
                 denom = frac.denominator
@@ -323,7 +323,7 @@ class ScalingImage(PhotoImage):
         # data = self["data"]
         # file = self["file"] if data == "" else ""
 
-        out_image = PhotoImage(data=self["data"], format=self["format"], file=self["file"],
+        out_image = ScalingImage(data=self["data"], format=self["format"], file=self["file"],
                                gamma=self["gamma"], height=self["height"], palette=self["palette"],
                                width=self["width"])
 
@@ -332,7 +332,12 @@ class ScalingImage(PhotoImage):
     def _on_scale(self, zoom_x, zoom_y, subsample_x, subsample_y, use_fast_mode=None):
         """Internal function to scale the image to the specified proportion. If USE_FAST_MODE
         is true the efficient but low quality mode will be used."""
-        out_image = self.get_original_image()
+        #out_image = self.get_original_image()
+        #out_image = self.copy()
+        
+        out_image = ScalingImage(master=self.tk)
+        self.tk.call(out_image, 'copy', self.name)
+
         if use_fast_mode:
             out_image = out_image.subsample(
                 subsample_x, subsample_y).zoom(zoom_x, zoom_y)
@@ -342,3 +347,29 @@ class ScalingImage(PhotoImage):
 
         out_image.current_frac = [zoom_x, subsample_x]
         return out_image
+
+    # Overrides from tkinter PhotoImage to return correct class.
+
+    def copy(self):
+        """Return a new ScalingImage with the same image as this widget."""
+        destImage = ScalingImage(master=self.tk)
+        self.tk.call(destImage, 'copy', self.name)
+        return destImage
+    def zoom(self, x, y=''):
+        """Return a new ScalingImage with the same image as this widget
+        but zoom it with a factor of x in the X direction and y in the Y
+        direction.  If y is not given, the default value is the same as x.
+        """
+        destImage = ScalingImage(master=self.tk)
+        if y=='': y=x
+        self.tk.call(destImage, 'copy', self.name, '-zoom',x,y)
+        return destImage
+    def subsample(self, x, y=''):
+        """Return a new ScalingImage based on the same image as this widget
+        but use only every Xth or Yth pixel.  If y is not given, the
+        default value is the same as x.
+        """
+        destImage = ScalingImage(master=self.tk)
+        if y=='': y=x
+        self.tk.call(destImage, 'copy', self.name, '-subsample',x,y)
+        return destImage
