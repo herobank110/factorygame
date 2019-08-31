@@ -216,12 +216,12 @@ class ScalingImage(PhotoImage):
 
         # Currently displayed image proportion as an integer fraction.
         # Store in a list to avoid instant simplification where possible.
-        self.current_frac = [1, 1]
+        self.current_frac = Loc(Loc(1, 1), Loc(1, 1))
 
         # Currently displayed image proportion when using fast mode (continuous).
         # This is a inaccurate temporary value, current_frac will be used on
         # contiuous end.
-        self.current_fast_frac = [1, 1]
+        self.current_fast_frac = Loc(Loc(1, 1), Loc(1, 1))
 
         # Sensitivity to unprecise easy to compute figures
         # Greater remainder tolerance means less precision is retained.
@@ -236,17 +236,30 @@ class ScalingImage(PhotoImage):
 
         Zoom factors can be given in 2-tuple integer fractions, `(3, 4)`
         or a floating point value, `0.75`."""
+
         if y is None:
             y = x
 
-        # TODO: also use y value!
+        try:
+            numer_x, denom_x = x
+        except TypeError:
+            # X is not iterable, it is a single decimal value.
+            numer_x, denom_x = self._decimal_to_frac(x)
+        finally:
+            numer_x, denom_x = self._simplify_frac(numer_x, denom_x)
 
         try:
-            return self._on_scale_frac(*x)
+            numer_y, denom_y = y
         except TypeError:
-            # The argument is not iterable.
-            # It is a single decimal value.
-            return self._on_scale_decimal(x)
+            # Y is not iterable, it is a single decimal value.
+            numer_y, denom_y = self._decimal_to_frac(y)
+        finally:
+            numer_y, denom_y = self._simplify_frac(numer_y, denom_y, False)
+
+        self.current_frac.x *= (numer_x, denom_x)
+        self.current_frac.y *= (numer_y, denom_y)
+
+        return self._on_scale(numer_x, numer_y, denom_x, denom_y, False)
 
     def scale_continuous(self, x, y=None):
         """Return a new ScalingImage with the same image as this widget
@@ -257,7 +270,6 @@ class ScalingImage(PhotoImage):
         # This should store the input proportions and the current continuous
         # proportion separately so that scale_continuous_end can use the most
         # accurate scaling and this can be as fast as possible.
-
         pass
 
     def scale_continuous_end(self):
@@ -267,7 +279,8 @@ class ScalingImage(PhotoImage):
         delivering the highest quality image."""
         pass
 
-    def _on_scale_decimal(self, decimal):
+    def _decimal_to_frac(self, decimal):
+        """Convert a decimal to non simpified fraction."""
         decimal = round(abs(decimal), 5)
 
         # Find accurate fraction
@@ -281,12 +294,13 @@ class ScalingImage(PhotoImage):
         denom = abs(int(40 // decimal))
         numer = abs(int(denom * decimal))
 
-        return self._on_scale_frac(numer, denom)
+        return numer, denom
+        #return self._simplify_frac(numer, denom)
 
-    def _on_scale_frac(self, numer, denom, use_fast_mode=None):
+    def _simplify_frac(self, numer, denom, use_fast_mode=None):
         """Internal function to scale the image."""
-        numer = self.current_frac[0] if not numer else abs(int(numer))
-        denom = self.current_frac[1] if not denom else abs(int(denom))
+        numer = 1 if not numer else abs(int(numer))
+        denom = 1 if not denom else abs(int(denom))
 
         if denom > 3 or numer/denom > 0.25:
             # Attempt to simplify the proportions.
@@ -312,9 +326,9 @@ class ScalingImage(PhotoImage):
         while numer/denom < 0.01:
             numer += 1
             if next(i) > 10:
-                return self  # don't scale anything
+                return  # don't scale anything
 
-        return self._on_scale(numer, numer, denom, denom, use_fast_mode)
+        return numer, denom
 
     def get_original_image(self):
         """Return the original full size image"""
@@ -326,19 +340,20 @@ class ScalingImage(PhotoImage):
         # file = self["file"] if data == "" else ""
 
         out_image = ScalingImage(data=self["data"], format=self["format"], file=self["file"],
-                               gamma=self["gamma"], height=self["height"], palette=self["palette"],
-                               width=self["width"])
+                                 gamma=self["gamma"], height=self["height"], palette=self["palette"],
+                                 width=self["width"])
 
         return out_image
 
     def _on_scale(self, zoom_x, zoom_y, subsample_x, subsample_y, use_fast_mode=None):
         """Internal function to scale the image to the specified proportion. If USE_FAST_MODE
-        is true the efficient but low quality mode will be used."""
+        is true the efficient but low quality mode will be used. Should be called after
+        self.current_frac is set to the same as the given parameters."""
+
+        # Scale using the current image. If the original image is wanted
+        # then caller should use get_original_image.
         #out_image = self.get_original_image()
-        #out_image = self.copy()
-        
-        out_image = ScalingImage(master=self.tk)
-        self.tk.call(out_image, 'copy', self.name)
+        out_image = self.copy()
 
         if use_fast_mode:
             out_image = out_image.subsample(
@@ -347,7 +362,7 @@ class ScalingImage(PhotoImage):
             out_image = out_image.zoom(zoom_x, zoom_y).subsample(
                 subsample_x, subsample_y)
 
-        out_image.current_frac = [zoom_x, subsample_x]
+        out_image.current_frac = self.current_frac
         return out_image
 
     # Overrides from tkinter PhotoImage to return correct class.
@@ -357,21 +372,25 @@ class ScalingImage(PhotoImage):
         destImage = ScalingImage(master=self.tk)
         self.tk.call(destImage, 'copy', self.name)
         return destImage
+
     def zoom(self, x, y=''):
         """Return a new ScalingImage with the same image as this widget
         but zoom it with a factor of x in the X direction and y in the Y
         direction.  If y is not given, the default value is the same as x.
         """
         destImage = ScalingImage(master=self.tk)
-        if y=='': y=x
-        self.tk.call(destImage, 'copy', self.name, '-zoom',x,y)
+        if y == '':
+            y = x
+        self.tk.call(destImage, 'copy', self.name, '-zoom', x, y)
         return destImage
+
     def subsample(self, x, y=''):
         """Return a new ScalingImage based on the same image as this widget
         but use only every Xth or Yth pixel.  If y is not given, the
         default value is the same as x.
         """
         destImage = ScalingImage(master=self.tk)
-        if y=='': y=x
-        self.tk.call(destImage, 'copy', self.name, '-subsample',x,y)
+        if y == '':
+            y = x
+        self.tk.call(destImage, 'copy', self.name, '-subsample', x, y)
         return destImage
