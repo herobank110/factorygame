@@ -120,7 +120,7 @@ class GraphBase(Canvas, Drawable):
             data = base64.b64encode(fp.read())
 
         self.img = ScalingImage( data=data, file="factorygame/core/ACU_Young_Élise_Arno.png",)
-        self.img = self.img.scale(3.6374653)
+        self.img = self.img.scale(10.213283)
         #self.img = self.img.scale(0.5)
         #self.img = self.img.scale((1.3))
 

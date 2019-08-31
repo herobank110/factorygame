@@ -276,7 +276,9 @@ class ScalingImage(PhotoImage):
         # denom = abs(frac.denominator)
 
         # Find fast and easy to compute fraction
-        denom = 40  # Greater denominator means more precision is kept
+        # Greater denominator means more precision is kept. Reduce precision
+        # at larger values.
+        denom = abs(int(40 // decimal))
         numer = abs(int(denom * decimal))
 
         return self._on_scale_frac(numer, denom)
