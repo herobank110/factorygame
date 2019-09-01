@@ -116,16 +116,6 @@ class GraphBase(Canvas, Drawable):
         # Bind mouse wheel events for zoom.
         self.bind("<MouseWheel>", self.on_graph_wheel_input)
 
-        with open("factorygame/core/mygif.gif", "rb") as fp:
-            data = base64.b64encode(fp.read())
-
-        self.img = ScalingImage( data=data, file="factorygame/core/ACU_Young_Élise_Arno.png",)
-        self.img = self.img.scale(3.236543453, (7, 3))
-        #self.img = self.img.scale(0.5)
-        #self.img = self.img.scale((1.3))
-
-        self.create_image(25, 25, image=self.img, anchor="nw")
-
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
         self._view_offset += event.delta * self.zoom_ratio * 3
