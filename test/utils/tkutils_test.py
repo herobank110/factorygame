@@ -186,10 +186,11 @@ class MotionInputTest(GuiTest):
 
 class ScalingImageTest(GuiTest):
     _test_name = "Scaling Image Test"
+    imgpath = "test/utils/ACU_Young_Élise_Arno.png"
 
     def on_zoom(self, x, y=None):
-        #img = self.img.get_original_image()
-        img = ScalingImage(data=self.imgdata)
+        # Scale the original image, not the current one!
+        img = self.img.get_original_image()
         img = img.scale_continuous(x, y)
         self._assign_image(img)
 
@@ -226,14 +227,7 @@ class ScalingImageTest(GuiTest):
     def start(self):
         """Called when initialised to create test widgets."""
 
-        with open("test/utils/ACU_Young_Élise_Arno.png", "rb") as fp:
-            self.imgdata = base64.b64encode(fp.read())
-            # For some reason it is faster to decode it straight away!
-            self.imgdata = base64.b64decode(self.imgdata)
-
-        # self.img = ScalingImage(data=self.imgdata)
-
-        self.img = ScalingImage(file="test/utils/ACU_Young_Élise_Arno.png")
+        self.img = ScalingImage(file=self.imgpath)
 
         self.my_label = Label(Toplevel(self), image=self.img)
         self.my_label.__image = self.img
