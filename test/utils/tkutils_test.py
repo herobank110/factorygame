@@ -216,11 +216,15 @@ class ScalingImageTest(GuiTest):
             # For some reason it is faster to decode it straight away!
             imgdata = base64.b64decode(imgdata)
 
-        img = ScalingImage(data=imgdata)
+        #img = ScalingImage(data=imgdata)
+        img = ScalingImage(file="test/utils/ACU_Young_Élise_Arno.png")
+        img = ScalingImage(data=img._imgdata)
 
-        print("is the same?", imgdata == self.img._imgdata, type(self.img._imgdata))
+        img2 = self.img.get_original_image()
 
-        self._assign_image(img)
+        print("is the same?", imgdata == img2._imgdata, type(img2._imgdata))
+
+        self._assign_image(img2)
 
     def _assign_image(self, img):
         self.img = img

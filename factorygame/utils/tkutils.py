@@ -211,7 +211,6 @@ class ScalingImage(PhotoImage):
         """Configure the image."""
         # Check if we can store the image data as base64 instead of filename.
         self._load_image_data(kw)
-        print("configure called")
         super().configure(**kw)
     config = configure
 
@@ -226,12 +225,11 @@ class ScalingImage(PhotoImage):
             with open(filename, "rb") as fp:
                 imgdata = base64.b64encode(fp.read())
                 # For some reason it is faster to decode it straight away!
-                #imgdata = base64.b64decode(imgdata)
+                imgdata = base64.b64decode(imgdata)
                 kw["data"] = imgdata
 
         elif imgdata is not None: pass
         else: return
-            
         self._imgdata = imgdata
 
     def __init__(self, name=None, cnf={}, master=None, **kw):
@@ -373,19 +371,9 @@ class ScalingImage(PhotoImage):
         return numer, denom
 
     def get_original_image(self):
-        """Return the original full size image"""
-
-        # File option will be favoured over data,
-        # so only use it if data is unavailable
-        # to avoid unnecessary disk operations.
-        # data = self["data"]
-        # file = self["file"] if data == "" else ""
-
-        # out_image = ScalingImage(data=self._imgdata, format=self["format"], file=self["file"],
-        #                          gamma=self["gamma"], height=self["height"], palette=self["palette"],
-        #                          width=self["width"])
-
-        out_image = ScalingImage(data=self._imgdata)
+        """Return the original full size image. Valid only if an image
+        is already loaded (from file or data arguments.)"""
+        out_image = ScalingImage(data=self._imgdata, format=self["format"])
         return out_image
 
     def _on_scale(self, zoom_x, zoom_y, subsample_x, subsample_y, use_fast_mode=None):
@@ -407,6 +395,7 @@ class ScalingImage(PhotoImage):
 
         out_image.current_frac = self.current_frac
         out_image.current_fast_input = self.current_fast_input
+        out_image._imgdata = self._imgdata
         return out_image
 
     # Overrides from tkinter PhotoImage to return correct class.
