@@ -19,7 +19,8 @@ class Drawable(object):
     def start_cycle(self):
         """Start a full draw cycle."""
         self._clear()
-        self._draw()
+        if self._should_draw():
+            self._draw()
 
     def _clear(self):
         """
@@ -66,21 +67,21 @@ class NodeBase(DrawnActor):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
 
-    def _clear(self):
-        self.world.delete(self.unique_id)
+    # def _clear(self):
+    #     self.world.delete(self.unique_id)
 
-    def _should_draw(self):
-        """Only draw if visible in the blueprint graph."""
-        graph = self.world
-        if graph:
-            my_coords = graph.view_to_canvas(self.location)
-            print(my_coords)
+    # def _should_draw(self):
+    #     """Only draw if visible in the blueprint graph."""
+    #     graph = self.world
+    #     my_coords = graph.view_to_canvas(self.location)
+    #     print(my_coords)
 
-        return True
+    #     return True
 
-    def _draw(self):
-        self.world.create_circle(self.location, self.location + 100,
-            id=(self.unique_id))
+    # def _draw(self):
+    #     c1 = self.world.view_to_canvas(self.location)
+    #     c2 = c1 + 100
+    #     self.world.create_oval(c1, c2, tags=(self.unique_id))
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -201,6 +202,13 @@ class GraphBase(Canvas, Drawable):
                 # Only draw for lines visible in the canvas.
                 self.create_line(c1, c2, tags=("grid"))
 
+            # TODO: Fix additional line being drawn to the left when 
+            # the graph is offset slightly to the right (drag mouse left)
+
+            c1.y = dim.y - 5
+            self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
+                anchor="sw", tags=("grid"))
+
         # Create horizontal grid lines.
         # Start at the bottom left corner.
         draw_pos = bl.copy()
@@ -210,6 +218,10 @@ class GraphBase(Canvas, Drawable):
             c2 = c1 + (dim.x, 0)
             if c1.y < dim.y:
                 self.create_line(c1, c2, tags=("grid"))
+
+            c1.x = 5
+            self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
+                anchor="nw", tags=("grid"))
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -283,4 +295,4 @@ class WorldGraph(World, GraphBase):
         # graph according to game framerate.
         self.spawn_actor(RenderManager, (0, 0))
 
-        #self.spawn_actor(DrawnActor, (50, 50))
+        self.spawn_actor(NodeBase, (50, 50))
