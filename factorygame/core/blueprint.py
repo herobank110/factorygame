@@ -67,21 +67,21 @@ class NodeBase(DrawnActor):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
 
-    # def _clear(self):
-    #     self.world.delete(self.unique_id)
+    def _clear(self):
+        self.world.delete(self.unique_id)
 
-    # def _should_draw(self):
-    #     """Only draw if visible in the blueprint graph."""
-    #     graph = self.world
-    #     my_coords = graph.view_to_canvas(self.location)
-    #     print(my_coords)
+    def _should_draw(self):
+        """Only draw if visible in the blueprint graph."""
+        graph = self.world
+        my_coords = graph.view_to_canvas(self.location)
+        del my_coords
 
-    #     return True
+        return True
 
-    # def _draw(self):
-    #     c1 = self.world.view_to_canvas(self.location)
-    #     c2 = c1 + 100
-    #     self.world.create_oval(c1, c2, tags=(self.unique_id))
+    def _draw(self):
+        c1 = self.world.view_to_canvas(self.location)
+        c2 = self.world.view_to_canvas(self.location + 100)
+        self.world.create_oval(c1, c2, tags=(self.unique_id))
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -194,7 +194,7 @@ class GraphBase(Canvas, Drawable):
         # Start at the bottom left corner.     
         draw_pos = bl.copy()
         for i in range(num_elem.x):
-            draw_pos.x = bl.x + edge_offset.x + gap_size * i
+            draw_pos.x = bl.x - edge_offset.x + gap_size * i
             c1 = self.view_to_canvas(draw_pos)
             # Stretch to the other edge of the canvas.
             c2 = c1 + (0, dim.y)
@@ -213,7 +213,7 @@ class GraphBase(Canvas, Drawable):
         # Start at the bottom left corner.
         draw_pos = bl.copy()
         for i in range(num_elem.y):
-            draw_pos.y = bl.y + edge_offset.y + gap_size * i
+            draw_pos.y = bl.y - edge_offset.y + gap_size * i
             c1 = self.view_to_canvas(draw_pos)
             c2 = c1 + (dim.x, 0)
             if c1.y < dim.y:
