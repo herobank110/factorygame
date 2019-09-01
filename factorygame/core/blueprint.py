@@ -101,9 +101,6 @@ class GraphBase(Canvas, Drawable):
         ## Average size of each square grid, in pixels.
         self.grid_size      = 150
 
-        ## Area of empty space to leave around rendered grid, in pixels.
-        self.draw_border    = Loc(5, 5)
-
 
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
@@ -146,13 +143,9 @@ class GraphBase(Canvas, Drawable):
 
     def __draw_grid(self):
         """Create grid lines."""
-        
-        bord2 = self.draw_border * 2
-        bord4 = self.draw_border * 4
-        _, bl = self.get_view_coords()
-        
+
+        _, bl = self.get_view_coords()        
         dim = self.get_canvas_dim()
-        edge_border_max = self.get_canvas_dim() - bord2
         edge_offset = +self._view_offset % self.grid_size
         for i, it in enumerate(self._view_offset):
             # Reapply signs afterward if necessary.
@@ -175,10 +168,11 @@ class GraphBase(Canvas, Drawable):
         draw_pos = bl.copy()
         for i in range(num_elem.x):
             draw_pos.x = bl.x + edge_offset.x + gap_size * i
-            c1 = self.view_to_canvas(draw_pos) + (0, bord2.y)
+            c1 = self.view_to_canvas(draw_pos)
             # Stretch to the other edge of the canvas.
-            c2 = c1 + (0, dim.y) - (0, bord4.y)
-            if c1.x > bord2.x and c1.x < edge_border_max.x:
+            c2 = c1 + (0, dim.y)
+            if c1.x < dim.x:
+                # Only draw for lines visible in the canvas.
                 self.create_line(c1, c2, tags=("grid"))
 
         # Create horizontal grid lines.
@@ -186,10 +180,9 @@ class GraphBase(Canvas, Drawable):
         draw_pos = bl.copy()
         for i in range(num_elem.y):
             draw_pos.y = bl.y + edge_offset.y + gap_size * i
-            c1 = self.view_to_canvas(draw_pos) + (bord2.x, 0)
-            # Stretch to the other edge of the canvas.
-            c2 = c1 + (dim.x, 0) - (bord4.x, 0)
-            if c1.y > bord2.y and c1.y < edge_border_max.y:
+            c1 = self.view_to_canvas(draw_pos)
+            c2 = c1 + (dim.x, 0)
+            if c1.y < dim.y:
                 self.create_line(c1, c2, tags=("grid"))
 
     # End of drawable interface.
