@@ -223,6 +223,19 @@ class GraphBase(Canvas, Drawable):
             self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
                 anchor="nw", tags=("grid"))
 
+
+        # Create lines for origin
+        # Horizontal
+        c1 = self.view_to_canvas(Loc(0, 0))
+        c1.x = 0
+        c2 = c1 + (dim.x, 0)
+        self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
+        # Vertical
+        c1 = self.view_to_canvas(Loc(0, 0))
+        c1.y = 0
+        c2 = c1 + (0, dim.y)
+        self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
+
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
