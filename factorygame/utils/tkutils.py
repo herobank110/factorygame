@@ -290,8 +290,11 @@ class ScalingImage(PhotoImage):
         as this widget in the highest quality after continuous scaling has
         been finalised.  This is optional, but will reduce the time lag to
         delivering the highest quality image."""
-        #img = self.get_original_image()
-        return self.scale(*self.current_fast_input)
+        img = self.get_original_image()
+        img = img.scale(*self.current_fast_input)
+        img.current_frac = self.current_frac
+        img._imgdata = self._imgdata
+        return img
 
     def _scale(self, x, y, use_fast_mode):
 
