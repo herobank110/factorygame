@@ -63,6 +63,28 @@ class NodeBase(DrawnActor):
         ## Random, serialisable unique ID for this drawable object.
         self.unique_id = uuid4()
 
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Start of drawable interface.
+
+    def _clear(self):
+        self.world.delete(self.unique_id)
+
+    def _should_draw(self):
+        """Only draw if visible in the blueprint graph."""
+        graph = self.world
+        if graph:
+            my_coords = graph.view_to_canvas(self.location)
+            print(my_coords)
+
+        return True
+
+    def _draw(self):
+        self.world.create_circle(self.location, self.location + 100,
+            id=(self.unique_id))
+
+    # End of drawable interface.
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 class GraphBase(Canvas, Drawable):
     """
     Base blueprint graph for displaying drawable objects.
@@ -260,3 +282,5 @@ class WorldGraph(World, GraphBase):
         # Spawn the render manager to redraw the blueprint
         # graph according to game framerate.
         self.spawn_actor(RenderManager, (0, 0))
+
+        #self.spawn_actor(DrawnActor, (50, 50))

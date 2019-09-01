@@ -185,7 +185,7 @@ class World(EngineObject):
 
         # initialise new actor object
         actor_object = actor_class()
-        actor_object.__spawn__(self, loc)
+        actor_object.__spawn__(self, Loc(loc))
 
         # return the newly created actor_object for further modification and
         # to pass in to finish_deferred_spawn_actor
@@ -298,7 +298,9 @@ class Actor(EngineObject):
         self._location = location
 
         ## Whether to receive tick events.
-        self.tick_enabled = self.start_with_tick_enabled
+        self._tick_enabled = self.start_with_tick_enabled
+        if self._tick_enabled:
+            world.set_actor_tick_enabled(self, True)
 
     def __init__(self):
         pass
