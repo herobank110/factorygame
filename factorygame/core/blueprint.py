@@ -197,7 +197,7 @@ class GraphBase(Canvas, Drawable):
             draw_pos.x = bl.x - edge_offset.x + gap_size * i
             c1 = self.view_to_canvas(draw_pos)
             # Stretch to the other edge of the canvas.
-            c2 = c1 + (0, dim.y)
+            c2 = c1 - (0, dim.y)
             if c1.x < dim.x:
                 # Only draw for lines visible in the canvas.
                 self.create_line(c1, c2, tags=("grid"))
@@ -265,8 +265,9 @@ class GraphBase(Canvas, Drawable):
         canvas_dim = self.get_canvas_dim()
         tr, bl = self.get_view_coords()
 
-        return Loc(MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
-            MathStat.map_range(in_coords.y, bl.y, tr.y, 0, canvas_dim.y))
+        coords = Loc(MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
+            MathStat.map_range(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
+        return coords
 
 class RenderManager(Actor):
     """
