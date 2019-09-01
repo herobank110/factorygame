@@ -256,17 +256,30 @@ class GraphBase(Canvas, Drawable):
         bl = center - half_bounds
         return tr, bl
 
-    def view_to_canvas(self, in_coords):
+    def view_to_canvas(self, in_coords, clamp_to_viewport=False):
         """
         Return viewport coordinates in canvas coordinates as a Loc.
         
         :param in_coords: Viewport coordinates as a Loc.
+
+        :param clamp_to_viewport: Whether to clamp coordinates to valid
+        canvas coordinates.
+
+        :return: Canvas coordinates converted from in_coords.
         """
         canvas_dim = self.get_canvas_dim()
         tr, bl = self.get_view_coords()
 
-        coords = Loc(MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
+        if clamp_to_viewport:
+            coords = Loc(
+            MathStat.map_range_clamped(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
+            MathStat.map_range_clamped(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
+
+        else:
+            coords = Loc(
+            MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
             MathStat.map_range(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
+
         return coords
 
 class RenderManager(Actor):
