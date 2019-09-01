@@ -282,9 +282,10 @@ class Actor(EngineObject):
 
     @tick_enabled.getter
     def __get_tick_enabled(self):
-        return self._location
+        return self._tick_enabled
     @tick_enabled.setter
     def __set_tick_enabled(self, value):
+        self._tick_enabled = value
         self.world.set_actor_tick_enabled(self, value)
 
     def __spawn__(self, world, location):
@@ -297,7 +298,7 @@ class Actor(EngineObject):
         self._location = location
 
         ## Whether to receive tick events.
-        self._tick_enabled = self.start_with_tick_enabled
+        self.tick_enabled = self.start_with_tick_enabled
 
     def __init__(self):
         pass

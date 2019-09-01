@@ -8,7 +8,13 @@ from factorygame.utils.mymath import MathStat
 from factorygame.core.engine_base import World, Actor
 
 class Drawable(object):
-    """Abstract base class for objects receiving draw calls."""
+    """
+    Abstract base class for objects receiving draw calls.
+    
+    Each draw cycle must be invoked with `start_cycle`, and
+    consists of these stages:
+    _clear, _should_draw, _draw
+    """
 
     def start_cycle(self):
         """Start a full draw cycle."""
@@ -23,6 +29,17 @@ class Drawable(object):
         """
         pass
 
+    def _should_draw(self):
+        """
+        Called every draw cycle before drawing to decide whether
+        anything should be drawn.
+
+        Override for special branching behaviour (default always true).
+
+        :return: (bool) Whether anything should be drawn.
+        """
+        return True
+
     def _draw(self):
         """
         Called every draw cycle to create new drawing.
@@ -31,33 +48,20 @@ class Drawable(object):
         """
         pass
 
-class DrawnActor(Drawable, Actor):
+class DrawnActor(Actor, Drawable):
     """Base class for drawable actors who receive a draw cycle each frame."""
     def tick(self, dt):
         """Called every frame to perform draw cycle."""
         self.start_cycle()
 
-# class NodeBase(Drawable):
-#     """Base class for nodes in a graph with visual representation."""
+class NodeBase(DrawnActor):
+    """Base class for nodes in a graph with visual representation."""
 
-#     def __init__(self, owner, location=None):
-#         """Initialiase drawable object with graph OWNER at LOCATION."""
+    def __init__(self):
+        """Set default values."""
 
-#         ## Blueprint graph this object is in.
-#         self.owner = owner
-
-#         ## 2D blueprint location with depth as Z.
-#         if location is None:
-#             self.location = Loc(0.0, 0.0, 0)
-#         else:
-#             # Use provided location.
-#             self.location = Loc(location)
-#             if len(location) < 3:
-#                 # Use 0 depth if depth not provided.
-#                 self.location.append(0)
-
-#         ## Random, unique ID for this drawable object.
-#         self.unique_id = uuid4()
+        ## Random, serialisable unique ID for this drawable object.
+        self.unique_id = uuid4()
 
 class GraphBase(Canvas, Drawable):
     """
@@ -235,6 +239,7 @@ class RenderManager(Actor):
                 "Expected 'Drawable' but got '%s'" % type(world).__name__)
 
     def tick(self, dt):
+        # Start cycle for the blueprint canvas.
         self.blueprint_world.start_cycle()
 
 class WorldGraph(World, GraphBase):
