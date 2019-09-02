@@ -142,7 +142,9 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
-        self._view_offset += event.delta * self.zoom_ratio * 3
+        motion = event.delta * self.zoom_ratio * 3
+        motion.x *= -1 # Invert x axis
+        self._view_offset += motion
 
     def on_graph_wheel_input(self, event):
         """Called when a mouse wheel event occurs on the graph."""
