@@ -126,7 +126,7 @@ class GraphBase(Canvas, Drawable):
         self._zoom_ratio    = 3
 
         ## Average size of each square grid, in pixels.
-        self.grid_size      = 150
+        self.grid_size      = 300
 
 
         # Initialise canvas parent.
@@ -203,8 +203,9 @@ class GraphBase(Canvas, Drawable):
             # TODO: Fix additional line being drawn to the left when 
             # the graph is offset slightly to the right (drag mouse left)
             if draw_axis_numbers:
+                c1.x += 3
                 c1.y = dim.y - 5
-                self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
+                self.create_text(c1, text="%d" % draw_pos.x,
                 anchor="sw", tags=("grid"))
 
             draw_pos.x += gap_size
@@ -221,7 +222,7 @@ class GraphBase(Canvas, Drawable):
 
             if draw_axis_numbers:
                 c1.x = 5
-                self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
+                self.create_text(c1, text="%d" % draw_pos.y,
                 anchor="nw", tags=("grid"))
 
             draw_pos.y += gap_size
