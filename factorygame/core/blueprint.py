@@ -1,6 +1,6 @@
 from tkinter import Canvas
 from uuid import uuid4
-import base64
+import base64, itertools
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput, ScalingImage
 from factorygame.utils.gameplay import GameplayStatics
@@ -174,7 +174,7 @@ class GraphBase(Canvas, Drawable):
     def __draw_grid(self, draw_axis_numbers=True):
         """Create grid lines."""
 
-        _, bl = self.get_view_coords()
+        tr, bl = self.get_view_coords()
         dim = self.get_canvas_dim()
         edge_offset = +self._view_offset % self.grid_size
         for i, it in enumerate(self._view_offset):
@@ -194,38 +194,40 @@ class GraphBase(Canvas, Drawable):
         num_elem = (self.get_view_dim() // gap_size) + 2
 
         # Create vertical grid lines.   
-        # Start at the bottom left corner.     
-        draw_pos = bl.copy()
-        for i in range(num_elem.x):
-            draw_pos.x = bl.x - edge_offset.x + gap_size * i
-            c1 = self.view_to_canvas(draw_pos)
-            # Stretch to the other edge of the canvas.
-            c2 = c1 - (0, dim.y)
-            if c1.x < dim.x:
-                # Only draw for lines visible in the canvas.
+        # Draw behind of x=0 line, then infront of it.
+        draw_pos = Loc(0, 0)
+        for direction in range(-1, 3, 2):
+            for i in itertools.count():
+                draw_pos.x += gap_size * direction
+                if draw_pos.x > tr.x or draw_pos.x < bl.x: break
+                c1 = self.view_to_canvas(draw_pos)
+                c1.y = 0
+                c2 = c1 + (0, dim.y)
                 self.create_line(c1, c2, tags=("grid"))
 
-            # TODO: Fix additional line being drawn to the left when 
-            # the graph is offset slightly to the right (drag mouse left)
-            if draw_axis_numbers:
-                c1.y = dim.y - 5
-                self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
-                anchor="sw", tags=("grid"))
+                # TODO: Fix additional line being drawn to the left when 
+                # the graph is offset slightly to the right (drag mouse left)
+                if draw_axis_numbers:
+                    c1.y = dim.y - 5
+                    self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
+                    anchor="sw", tags=("grid"))
 
         # Create horizontal grid lines.
         # Start at the bottom left corner.
-        draw_pos = bl.copy()
-        for i in range(num_elem.y):
-            draw_pos.y = bl.y - edge_offset.y + gap_size * i
-            c1 = self.view_to_canvas(draw_pos)
-            c2 = c1 + (dim.x, 0)
-            if c1.y < dim.y:
+        draw_pos = Loc(0, 0)
+        for direction in range(-1, 3, 2):
+            for i in itertools.count():
+                draw_pos.y += gap_size * direction
+                if draw_pos.y > tr.y or draw_pos.y < bl.y: break
+                c1 = self.view_to_canvas(draw_pos)
+                c1.x = 0
+                c2 = c1 + (dim.x, 0)
                 self.create_line(c1, c2, tags=("grid"))
 
-            if draw_axis_numbers:
-                c1.x = 5
-                self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
-                anchor="nw", tags=("grid"))
+                if draw_axis_numbers:
+                    c1.x = 5
+                    self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
+                    anchor="nw", tags=("grid"))
 
     def __draw_grid_origin_lines(self):
         """Create grid lines for origin lines of x and y."""
