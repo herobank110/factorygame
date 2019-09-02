@@ -167,13 +167,14 @@ class GraphBase(Canvas, Drawable):
 
         # Draw the grid lines.
         self.__draw_grid()
+        self.__draw_grid_origin_lines()
 
         # TODO: Add additional draw functions here.
 
-    def __draw_grid(self):
+    def __draw_grid(self, draw_axis_numbers=True):
         """Create grid lines."""
 
-        _, bl = self.get_view_coords()        
+        _, bl = self.get_view_coords()
         dim = self.get_canvas_dim()
         edge_offset = +self._view_offset % self.grid_size
         for i, it in enumerate(self._view_offset):
@@ -206,9 +207,9 @@ class GraphBase(Canvas, Drawable):
 
             # TODO: Fix additional line being drawn to the left when 
             # the graph is offset slightly to the right (drag mouse left)
-
-            c1.y = dim.y - 5
-            self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
+            if draw_axis_numbers:
+                c1.y = dim.y - 5
+                self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
                 anchor="sw", tags=("grid"))
 
         # Create horizontal grid lines.
@@ -221,22 +222,29 @@ class GraphBase(Canvas, Drawable):
             if c1.y < dim.y:
                 self.create_line(c1, c2, tags=("grid"))
 
-            c1.x = 5
-            self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
+            if draw_axis_numbers:
+                c1.x = 5
+                self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
                 anchor="nw", tags=("grid"))
 
+    def __draw_grid_origin_lines(self):
+        """Create grid lines for origin lines of x and y."""
 
-        # Create lines for origin
-        # Horizontal
-        c1 = self.view_to_canvas(Loc(0, 0))
-        c1.x = 0
-        c2 = c1 + (dim.x, 0)
-        self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
+        dim = self.get_canvas_dim()
+
         # Vertical
         c1 = self.view_to_canvas(Loc(0, 0))
-        c1.y = 0
-        c2 = c1 + (0, dim.y)
-        self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
+        if c1.x > 0 and c1.x < dim.x:
+            c1.y = 0
+            c2 = c1 + (0, dim.y)
+            self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
+
+        # Horizontal
+        c1 = self.view_to_canvas(Loc(0, 0))
+        if c1.y > 0 and c1.y < dim.y:
+            c1.x = 0
+            c2 = c1 + (dim.x, 0)
+            self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
