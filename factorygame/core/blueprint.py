@@ -176,12 +176,6 @@ class GraphBase(Canvas, Drawable):
 
         tr, bl = self.get_view_coords()
         dim = self.get_canvas_dim()
-        edge_offset = +self._view_offset % self.grid_size
-        for i, it in enumerate(self._view_offset):
-            # Reapply signs afterward if necessary.
-            if it < 0:
-                edge_offset[i] *= -1
-
 
         # Gap between lines, in world units.
         grid_mult = self.zoom_ratio // 10 # Density of grid lines.
@@ -191,43 +185,46 @@ class GraphBase(Canvas, Drawable):
         # When further zoomed out, increase
         # density (decrease gap size).
         gap_size += self.grid_size * grid_mult
-        num_elem = (self.get_view_dim() // gap_size) + 2
+
+        # Offset of the first leftmost line from the
+        # bottom left viewport corner.
+        bl_line_offset = -bl % gap_size
 
         # Create vertical grid lines.   
-        # Draw behind of x=0 line, then infront of it.
-        draw_pos = Loc(0, 0)
-        for direction in range(-1, 3, 2):
-            for i in itertools.count():
-                draw_pos.x += gap_size * direction
-                if draw_pos.x > tr.x or draw_pos.x < bl.x: break
-                c1 = self.view_to_canvas(draw_pos)
-                c1.y = 0
-                c2 = c1 + (0, dim.y)
-                self.create_line(c1, c2, tags=("grid"))
+        # Find left most line, then draw lines towards the right.
+        draw_pos = bl + bl_line_offset
+        for i in itertools.count():
+            if draw_pos.x > tr.x or draw_pos.x < bl.x: break
+            c1 = self.view_to_canvas(draw_pos)
+            c1.y = 0
+            c2 = c1 + (0, dim.y)
+            self.create_line(c1, c2, tags=("grid"))
 
-                # TODO: Fix additional line being drawn to the left when 
-                # the graph is offset slightly to the right (drag mouse left)
-                if draw_axis_numbers:
-                    c1.y = dim.y - 5
-                    self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
-                    anchor="sw", tags=("grid"))
+            # TODO: Fix additional line being drawn to the left when 
+            # the graph is offset slightly to the right (drag mouse left)
+            if draw_axis_numbers:
+                c1.y = dim.y - 5
+                self.create_text(c1, text="%d (%d)" % (draw_pos.x, c1.x),
+                anchor="sw", tags=("grid"))
+
+            draw_pos.x += gap_size
 
         # Create horizontal grid lines.
         # Start at the bottom left corner.
-        draw_pos = Loc(0, 0)
-        for direction in range(-1, 3, 2):
-            for i in itertools.count():
-                draw_pos.y += gap_size * direction
-                if draw_pos.y > tr.y or draw_pos.y < bl.y: break
-                c1 = self.view_to_canvas(draw_pos)
-                c1.x = 0
-                c2 = c1 + (dim.x, 0)
-                self.create_line(c1, c2, tags=("grid"))
+        draw_pos = bl + bl_line_offset
+        for i in itertools.count():
+            if draw_pos.y > tr.y or draw_pos.y < bl.y: break
+            c1 = self.view_to_canvas(draw_pos)
+            c1.x = 0
+            c2 = c1 + (dim.x, 0)
+            self.create_line(c1, c2, tags=("grid"))
 
-                if draw_axis_numbers:
-                    c1.x = 5
-                    self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
-                    anchor="nw", tags=("grid"))
+            if draw_axis_numbers:
+                c1.x = 5
+                self.create_text(c1, text="%d (%d)" % (draw_pos.y, c1.y),
+                anchor="nw", tags=("grid"))
+
+            draw_pos.y += gap_size
 
     def __draw_grid_origin_lines(self):
         """Create grid lines for origin lines of x and y."""
@@ -291,6 +288,32 @@ class GraphBase(Canvas, Drawable):
             coords = Loc(
             MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
             MathStat.map_range(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
+
+        return coords
+
+    def canvas_to_view(self, in_coords, clamp_to_canvas=False):
+        """
+        Return canvas coordinates in viewport coordinates as a Loc.
+        
+        :param in_coords: Canvas coordinates as a Loc.
+
+        :param clamp_to_canvas: Whether to clamp coordinates to valid
+        viewport coordinates.
+
+        :return: Viewport coordinates converted from in_coords.
+        """
+        canvas_dim = self.get_canvas_dim()
+        tr, bl = self.get_view_coords()
+
+        if clamp_to_canvas:
+            coords = Loc(
+            MathStat.map_range_clamped(in_coords.x, 0, canvas_dim.x, bl.x, tr.x),
+            MathStat.map_range_clamped(in_coords.y, canvas_dim.y, 0, bl.y, tr.y))
+
+        else:
+            coords = Loc(
+            MathStat.map_range(in_coords.x, 0, canvas_dim.x, bl.x, tr.x),
+            MathStat.map_range(in_coords.y, canvas_dim.y, 0, bl.y, tr.y))
 
         return coords
 
