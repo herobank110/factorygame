@@ -125,9 +125,6 @@ class GraphBase(Canvas, Drawable):
         ## Set zoom ratio. Default is 3.
         self._zoom_ratio    = 3
 
-        ## Average size of each square grid, in pixels.
-        self.grid_size      = 300
-
         ## Inversion scale for graph motion, for x and y independently.
         ## Should only be 1 or -1 per axis.
         self.axis_inversion = Loc(1, 1)
@@ -164,101 +161,6 @@ class GraphBase(Canvas, Drawable):
         self.zoom_ratio += (-event.delta / 120)
 
         # TODO: also change _view_offset to use mouse cursor as center of zoom.
-
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    # Start of drawable interface.
-
-    def _clear(self):
-        """Clear old drawn canvas elements."""
-        # Delete old grid lines.
-        self.delete("grid")
-
-    def _draw(self):
-        """Create new canvas elements."""
-
-        # Draw the grid lines.
-        self.__draw_grid()
-        self.__draw_grid_origin_lines()
-
-        # TODO: Add additional draw functions here.
-
-    def __draw_grid(self, draw_axis_numbers=True):
-        """Create grid lines."""
-
-        tr, bl = self.get_view_coords()
-        dim = self.get_canvas_dim()
-
-        # Gap between lines, in world units.
-        grid_mult = self.zoom_ratio // 10 # Density of grid lines.
-        gap_size = self.grid_size
-
-        # Adjust density for zoom.
-        # When further zoomed out, increase
-        # density (decrease gap size).
-        gap_size += self.grid_size * grid_mult
-
-        # Offset of the first leftmost line from the
-        # bottom left viewport corner.
-        bl_line_offset = -bl % gap_size
-
-        # Create vertical grid lines.   
-        # Find left most line, then draw lines towards the right.
-        draw_pos = bl + bl_line_offset
-        for i in itertools.count():
-            if draw_pos.x > tr.x or draw_pos.x < bl.x: break
-            c1 = self.view_to_canvas(draw_pos)
-            c1.y = 0
-            c2 = c1 + (0, dim.y)
-            self.create_line(c1, c2, tags=("grid"))
-
-            # TODO: Fix additional line being drawn to the left when 
-            # the graph is offset slightly to the right (drag mouse left)
-            if draw_axis_numbers:
-                c1.x += 3
-                c1.y = dim.y - 5
-                self.create_text(c1, text="%d" % draw_pos.x,
-                anchor="sw", tags=("grid"))
-
-            draw_pos.x += gap_size
-
-        # Create horizontal grid lines.
-        # Start at the bottom left corner.
-        draw_pos = bl + bl_line_offset
-        for i in itertools.count():
-            if draw_pos.y > tr.y or draw_pos.y < bl.y: break
-            c1 = self.view_to_canvas(draw_pos)
-            c1.x = 0
-            c2 = c1 + (dim.x, 0)
-            self.create_line(c1, c2, tags=("grid"))
-
-            if draw_axis_numbers:
-                c1.x = 5
-                self.create_text(c1, text="%d" % draw_pos.y,
-                anchor="nw", tags=("grid"))
-
-            draw_pos.y += gap_size
-
-    def __draw_grid_origin_lines(self):
-        """Create grid lines for origin lines of x and y."""
-
-        dim = self.get_canvas_dim()
-
-        # Vertical
-        c1 = self.view_to_canvas(Loc(0, 0))
-        if c1.x > 0 and c1.x < dim.x:
-            c1.y = 0
-            c2 = c1 + (0, dim.y)
-            self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
-
-        # Horizontal
-        c1 = self.view_to_canvas(Loc(0, 0))
-        if c1.y > 0 and c1.y < dim.y:
-            c1.x = 0
-            c2 = c1 + (dim.x, 0)
-            self.create_line(c1, c2, fill="red", width=3, tags=("grid"))
-
-    # End of drawable interface.
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     def get_canvas_dim(self):
         """Return dimensions of canvas in pixels as a Loc."""
@@ -336,26 +238,116 @@ class GraphBase(Canvas, Drawable):
 
         return coords
 
-class RenderManager(Actor):
+class GridGismo(NodeBase):
     """
-    Abstract actor class to process rendering blueprint
-    world graph in the world every frame.
+    Actor class to show grid lines on the viewport area
+    which is currently visible.
     """
+    
     def __init__(self):
         """Set default values."""
+        
+        ## Average size of each square grid, in pixels.
+        self.grid_size = 300
 
-        world = GameplayStatics.world
+        super().__init__()
+        
 
-        if world and isinstance(world, Drawable):
-            self.blueprint_world = world
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Start of drawable interface.
 
-        else:
-            raise ValueError("World type not valid for blueprint rendering. " \
-                "Expected 'Drawable' but got '%s'" % type(world).__name__)
+    def _clear(self):
+        """Clear old drawn canvas elements."""
+        # Delete old grid lines.
+        self.world.delete(self.unique_id)
 
-    def tick(self, dt):
-        # Start cycle for the blueprint canvas.
-        self.blueprint_world.start_cycle()
+    def _draw(self):
+        """Create new grid lines."""
+
+        # Draw the grid lines.
+        self.__draw_grid()
+        self.__draw_grid_origin_lines()
+
+        # TODO: Add additional draw functions here.
+
+    # End of drawable interface.
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+    def __draw_grid(self, draw_axis_numbers=True):
+        """Create grid lines."""
+
+        graph = self.world
+
+        tr, bl = graph.get_view_coords()
+        dim = graph.get_canvas_dim()
+
+        # Gap between lines, in world units.
+        grid_mult = graph.zoom_ratio // 10 # Density of grid lines.
+        gap_size = self.grid_size
+
+        # Adjust density for zoom.
+        # When further zoomed out, increase
+        # density (decrease gap size).
+        gap_size += self.grid_size * grid_mult
+
+        # Offset of the first leftmost line from the
+        # bottom left viewport corner.
+        bl_line_offset = -bl % gap_size
+
+        # Create vertical grid lines.   
+        # Find left most line, then draw lines towards the right.
+        draw_pos = bl + bl_line_offset
+        for i in itertools.count():
+            if draw_pos.x > tr.x or draw_pos.x < bl.x: break
+            c1 = graph.view_to_canvas(draw_pos)
+            c1.y = 0
+            c2 = c1 + (0, dim.y)
+            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_vertical"))
+
+            if draw_axis_numbers:
+                c1.x += 3
+                c1.y = dim.y - 5
+                graph.create_text(c1, text="%d" % draw_pos.x,
+                anchor="sw", tags=(self.unique_id, "axis_number_vertical"))
+
+            draw_pos.x += gap_size
+
+        # Create horizontal grid lines.
+        # Start at the bottom left corner.
+        draw_pos = bl + bl_line_offset
+        for i in itertools.count():
+            if draw_pos.y > tr.y or draw_pos.y < bl.y: break
+            c1 = graph.view_to_canvas(draw_pos)
+            c1.x = 0
+            c2 = c1 + (dim.x, 0)
+            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_horizontal"))
+
+            if draw_axis_numbers:
+                c1.x = 5
+                graph.create_text(c1, text="%d" % draw_pos.y,
+                anchor="nw", tags=(self.unique_id, "axis_number_horizontal"))
+
+            draw_pos.y += gap_size
+
+    def __draw_grid_origin_lines(self):
+        """Create grid lines for origin lines of x and y."""
+
+        graph = self.world
+        dim = graph.get_canvas_dim()
+
+        # Vertical
+        c1 = graph.view_to_canvas(Loc(0, 0))
+        if c1.x > 0 and c1.x < dim.x:
+            c1.y = 0
+            c2 = c1 + (0, dim.y)
+            graph.create_line(c1, c2, fill="red", width=3, tags=(self.unique_id, "origin_line_vertical"))
+
+        # Horizontal
+        c1 = graph.view_to_canvas(Loc(0, 0))
+        if c1.y > 0 and c1.y < dim.y:
+            c1.x = 0
+            c2 = c1 + (dim.x, 0)
+            graph.create_line(c1, c2, fill="red", width=3, tags=(self.unique_id, "origin_line_horizontal"))
 
 class WorldGraph(World, GraphBase):
     """
@@ -372,8 +364,5 @@ class WorldGraph(World, GraphBase):
         self.pack(fill="both", expand=True)
 
     def begin_play(self):
-        # Spawn the render manager to redraw the blueprint
-        # graph according to game framerate.
-        self.spawn_actor(RenderManager, (0, 0))
-
-        self.spawn_actor(NodeBase, (50, 50))
+        # Spawn the grid lines actor to show grid lines.
+        self.spawn_actor(GridGismo, Loc(0, 0))
