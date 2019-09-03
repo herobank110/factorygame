@@ -142,7 +142,7 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
-        motion = event.delta * self.zoom_ratio * 3
+        motion = event.delta * self.zoom_ratio * 3 * self.get_screen_size_factor()
         motion.x *= -1 # Invert x axis
         self._view_offset += motion
 
@@ -253,15 +253,22 @@ class GraphBase(Canvas, Drawable):
         """Return dimensions of canvas in pixels as a Loc."""
         return Loc(self.winfo_width(), self.winfo_height())
 
+    def get_screen_size_factor(self):
+        """Return the viewport scale factor to ensure the same
+        sized viewport is shown at all scales."""
+        return MathStat.clamp(max(MathStat.getpercent(self.get_canvas_dim(), Loc(3840, 2160), Loc(640, 480))), 0.5, 8)
+
     def get_view_dim(self):
         """Return dimensions of viewport in coordinates as a Loc."""
-        return self.get_canvas_dim() * self.zoom_ratio
+        screen_size_factor = self.get_screen_size_factor()
+        return self.get_canvas_dim() * self.zoom_ratio * screen_size_factor
 
     def get_view_coords(self):
         """Return top right and bottom left coordinates of viewport
         as a 2 tuple of Loc."""
         center = self._view_offset
-        half_bounds = self.get_view_dim() / 2
+        screen_size_factor = self.get_screen_size_factor()
+        half_bounds = (self.get_view_dim() / 2) * (screen_size_factor / 2)
         tr = center + half_bounds
         bl = center - half_bounds
         return tr, bl
