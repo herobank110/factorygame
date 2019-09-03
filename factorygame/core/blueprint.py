@@ -1,6 +1,6 @@
 from tkinter import Canvas
 from uuid import uuid4
-import base64, itertools
+import base64, itertools, math
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput, ScalingImage
 from factorygame.utils.gameplay import GameplayStatics
@@ -128,6 +128,10 @@ class GraphBase(Canvas, Drawable):
         ## Average size of each square grid, in pixels.
         self.grid_size      = 300
 
+        ## Inversion scale for graph motion, for x and y independently.
+        ## Should only be 1 or -1 per axis.
+        self.axis_inversion = Loc(1, 1)
+
 
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
@@ -142,8 +146,15 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
-        motion = event.delta * self.zoom_ratio * 3 * self.get_screen_size_factor()
-        motion.x *= -1 # Invert x axis
+        screen_size_factor = self.get_screen_size_factor()
+
+        motion = event.delta \
+            * self.axis_inversion \
+            * self.zoom_ratio \
+            * math.e \
+            * screen_size_factor
+
+        motion.x *= -1 # Invert x axis because delta motion is inverted
         self._view_offset += motion
 
     def on_graph_wheel_input(self, event):
