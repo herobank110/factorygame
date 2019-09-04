@@ -107,6 +107,62 @@ class NodeBase(DrawnActor):
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+class ImageNode(NodeBase):
+    """Node that shows an image."""
+    def __init__(self):
+        super().__init__()
+
+        ## Path to look in for the image.
+        self.image_path = ""
+
+        ## Reference to image that is shown by this node.
+        self.image_ref = None
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Start of actor interface.
+
+    def begin_play(self):
+        self._init_image()
+
+    # End of actor interface.
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+    def _init_image(self):
+        """Initialise the scaling image from image_path."""
+        self.image_ref = ScalingImage(file=self.image_path)
+        self._scale_image()
+
+    def _scale_image(self):
+        """Scale the image to match the current zoom ratio."""
+        graph = self.world
+        img = self.image_ref.get_original_image()
+
+        # Use the scale as a fraction (5 / 5x)
+        # higher denom means more precision
+        numer = 5
+        denom = graph.zoom_ratio * 5
+        new_scale = Loc(numer, denom)
+
+
+        # Get the original image, otherwise the
+        # scale would get multiplied each time.
+        img = img.scale_continuous(new_scale)
+        # TODO: Use a timer to call scale_continuous_end
+
+        self.image_ref = img
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Start of drawable interface.
+
+    def _draw(self):
+        self._scale_image()
+        c1 = self.world.view_to_canvas(self.location)
+        self.world.create_image(c1, image=self.image_ref,
+            tags=(self.unique_id))
+
+    # End of drawable interface.
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 class GraphBase(Canvas, Drawable):
     """
     Base blueprint graph for displaying drawable objects.
@@ -388,4 +444,9 @@ class WorldGraph(World, GraphBase):
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
 
-        self.spawn_actor(NodeBase, Loc(50, 50))
+
+        img_actor = self.deferred_spawn_actor(ImageNode, Loc(100, 100))
+        img_actor.image_path = "test/utils/ACU_Young_Élise_Arno.png"
+        self.finish_deferred_spawn_actor(img_actor)
+
+        self.spawn_actor(NodeBase, Loc(200, 200))
