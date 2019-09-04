@@ -297,7 +297,7 @@ class GridGismo(NodeBase):
         # Create vertical grid lines.   
         # Find left most line, then draw lines towards the right.
         draw_pos = bl + bl_line_offset
-        for i in itertools.count():
+        for _ in itertools.count():
             if draw_pos.x > tr.x or draw_pos.x < bl.x: break
             c1 = graph.view_to_canvas(draw_pos)
             c1.y = 0
@@ -315,7 +315,7 @@ class GridGismo(NodeBase):
         # Create horizontal grid lines.
         # Start at the bottom left corner.
         draw_pos = bl + bl_line_offset
-        for i in itertools.count():
+        for _ in itertools.count():
             if draw_pos.y > tr.y or draw_pos.y < bl.y: break
             c1 = graph.view_to_canvas(draw_pos)
             c1.x = 0
