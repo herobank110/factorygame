@@ -118,6 +118,9 @@ class ImageNode(NodeBase):
         ## Reference to image that is shown by this node.
         self.image_ref = None
 
+        ## Last scale used on the image.
+        self.image_scale = 1.0
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of actor interface.
 
@@ -137,16 +140,17 @@ class ImageNode(NodeBase):
         graph = self.world
         img = self.image_ref.get_original_image()
 
-        # Use the scale as a fraction (5 / 5x)
-        # higher denom means more precision
-        numer = 5
-        denom = graph.zoom_ratio * 5
-        new_scale = Loc(numer, denom)
+        # Use a real number for the scale.
+        new_scale = (1/graph.zoom_ratio) * graph.get_screen_size_factor()
+
+        # Only scale if scale changed.
+        if new_scale == self.image_scale: return
+        self.image_scale = new_scale
 
 
         # Get the original image, otherwise the
         # scale would get multiplied each time.
-        img = img.scale_continuous(new_scale)
+        img = img.scale(new_scale)
         # TODO: Use a timer to call scale_continuous_end
 
         self.image_ref = img
