@@ -51,12 +51,6 @@ class Drawable(object):
 
 class DrawnActor(Actor, Drawable):
     """Base class for drawable actors who receive a draw cycle each frame."""
-    def tick(self, dt):
-        """Called every frame to perform draw cycle."""
-        self.start_cycle()
-
-class NodeBase(DrawnActor):
-    """Base class for nodes in a graph with visual representation."""
 
     def __init__(self):
         """Set default values."""
@@ -64,19 +58,46 @@ class NodeBase(DrawnActor):
         ## Random, serialisable unique ID for this drawable object.
         self.unique_id = uuid4()
 
+    def tick(self, dt):
+        """Called every frame to perform draw cycle."""
+        self.start_cycle()
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
 
     def _clear(self):
         self.world.delete(self.unique_id)
 
+    # End of drawable interface.
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class NodeBase(DrawnActor):
+    """
+    Base class for nodes in a graph with visual representation.
+    By default it is only drawn when its location is in the viewport.
+    """
+
+    def __init__(self):
+        """Set default values."""
+        super().__init__()
+
+        ## Amount of viewport padding to give when deciding whether to draw
+        self.drawable_padding = Loc(300, 300)
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Start of drawable interface.
+
     def _should_draw(self):
         """Only draw if visible in the blueprint graph."""
         graph = self.world
-        my_coords = graph.view_to_canvas(self.location)
-        del my_coords
+        tr, bl = graph.get_view_coords()
+        tr += self.drawable_padding
+        bl -= self.drawable_padding
 
-        return True
+        my_coords = self.location
+
+        return (bl.x < my_coords.x < tr.x) \
+            and (bl.y < my_coords.y < tr.y)
 
     def _draw(self):
         c1 = self.world.view_to_canvas(self.location)
@@ -238,7 +259,7 @@ class GraphBase(Canvas, Drawable):
 
         return coords
 
-class GridGismo(NodeBase):
+class GridGismo(DrawnActor):
     """
     Actor class to show grid lines on the viewport area
     which is currently visible.
@@ -366,3 +387,5 @@ class WorldGraph(World, GraphBase):
     def begin_play(self):
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
+
+        self.spawn_actor(NodeBase, Loc(50, 50))
