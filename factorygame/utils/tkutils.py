@@ -257,6 +257,15 @@ class ScalingImage(PhotoImage):
         # from HDD every time (slower)
         self._imgdata = None
 
+        # Reference to timer for automatically calling scale_continuous_end
+        # after scaling is finished.
+        self._end_scale_timer = None
+
+        # Function to be called when scaling is finished and the reference to the
+        # new image must be used somewhere.
+        # :param: Reference to new image
+        self.on_assign_image = None
+
         # Attempt to load image data.
         kw.update(cnf)
         cnf = {}
@@ -282,18 +291,44 @@ class ScalingImage(PhotoImage):
         # This should store the input proportions and the current continuous
         # proportion separately so that scale_continuous_end can use the most
         # accurate scaling and this can be as fast as possible.
-        self.current_fast_input = (x, y)
-        return self._scale(x, y, True)
+
+        # How to make make a timer with _tkinter.tkapp class:
+        # my_timer = self.tk.createtimerhandler(1000, lambda : print("haha"))
+        # my_timer.deletetimerhandler()
+
+        # if self._end_scale_timer is not None:
+        #     # Cancel previously set timer to end scaling.
+        #     self._end_scale_timer.deletetimerhandler()
+
+
+        new_img = self._scale(x, y, True)
+        new_img.current_fast_input = (x, y)
+        # new_img._end_scale_timer = new_img.tk.createtimerhandler(500, new_img.scale_continuous_end)
+
+        return new_img
 
     def scale_continuous_end(self):
         """Return a new ScalingImage with the same image and scale
         as this widget in the highest quality after continuous scaling has
         been finalised.  This is optional, but will reduce the time lag to
-        delivering the highest quality image."""
+        delivering the highest quality image.
+        
+        Ensure to assign a function to `on_assign_image` to receive callback
+        when the image is finished scaling.
+        """
+        if self._end_scale_timer is not None:
+            # Cancel previously set timer to end scaling.
+            self._end_scale_timer.deletetimerhandler()
+            self._end_scale_timer = None
+
         img = self.get_original_image()
         img = img.scale(*self.current_fast_input)
         img.current_frac = self.current_frac
-        img._imgdata = self._imgdata
+        img._imgdata = self._imgdata        
+
+        if self.on_assign_image is not None:
+            self.on_assign_image.__call__(img)
+
         return img
 
     def _scale(self, x, y, use_fast_mode):
@@ -399,6 +434,7 @@ class ScalingImage(PhotoImage):
         out_image.current_frac = self.current_frac
         out_image.current_fast_input = self.current_fast_input
         out_image._imgdata = self._imgdata
+        out_image.on_assign_image = self.on_assign_image
         return out_image
 
     # Overrides from tkinter PhotoImage to return correct class.

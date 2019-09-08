@@ -118,6 +118,9 @@ class ImageNode(NodeBase):
         ## Reference to image that is shown by this node.
         self.image_ref = None
 
+        ## Scaling to always apply to image (before graph scaling).
+        self.image_base_scale = 1
+
         ## Last scale used on the image.
         self.image_scale = 1.0
 
@@ -133,6 +136,8 @@ class ImageNode(NodeBase):
     def _init_image(self):
         """Initialise the scaling image from image_path."""
         self.image_ref = ScalingImage(file=self.image_path)
+        # Setup callback for after scaling the image.
+        self.image_ref.on_assign_image = self.on_assign_image
         self._scale_image()
 
     def _scale_image(self):
@@ -141,7 +146,9 @@ class ImageNode(NodeBase):
         img = self.image_ref.get_original_image()
 
         # Use a real number for the scale.
-        new_scale = (1/graph.zoom_ratio) * graph.get_screen_size_factor()
+        #new_scale = self.image_base_scale \
+        new_scale = (1/graph.zoom_ratio) \
+            * graph.get_screen_size_factor()
 
         # Only scale if scale changed.
         if new_scale == self.image_scale: return
@@ -151,9 +158,14 @@ class ImageNode(NodeBase):
         # Get the original image, otherwise the
         # scale would get multiplied each time.
         img = img.scale(new_scale)
+        # img = img.scale_continuous(new_scale)
         # TODO: Use a timer to call scale_continuous_end
 
-        self.image_ref = img
+        self.on_assign_image(img)
+
+    def on_assign_image(self, image_to_use):
+        """Set the actively shown image to IMAGE_TO_USE."""
+        self.image_ref = image_to_use
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
@@ -163,6 +175,9 @@ class ImageNode(NodeBase):
         c1 = self.world.view_to_canvas(self.location)
         self.world.create_image(c1, image=self.image_ref,
             tags=(self.unique_id))
+
+        self.world.create_text(self.world.view_to_canvas(self.location),
+            text=round(self.image_scale, 2), tags=(self.unique_id))
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -450,7 +465,8 @@ class WorldGraph(World, GraphBase):
 
 
         img_actor = self.deferred_spawn_actor(ImageNode, Loc(100, 100))
-        img_actor.image_path = "test/utils/ACU_Young_Élise_Arno.png"
+        img_actor.image_path = "test/utils/ACU_Young_Élise_Arno_tiny.png"
+        img_actor.image_base_scale = 20
         self.finish_deferred_spawn_actor(img_actor)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
