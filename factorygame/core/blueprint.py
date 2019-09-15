@@ -146,8 +146,8 @@ class ImageNode(NodeBase):
         img = self.image_ref.get_original_image()
 
         # Use a real number for the scale.
-        #new_scale = self.image_base_scale \
-        new_scale = (1/graph.zoom_ratio) \
+        new_scale = self.image_base_scale \
+            * (1/graph.zoom_ratio) \
             * graph.get_screen_size_factor()
 
         # Only scale if scale changed.
@@ -466,7 +466,7 @@ class WorldGraph(World, GraphBase):
 
         img_actor = self.deferred_spawn_actor(ImageNode, Loc(100, 100))
         img_actor.image_path = "test/utils/ACU_Young_Élise_Arno_tiny.png"
-        img_actor.image_base_scale = 20
+        img_actor.image_base_scale = 50
         self.finish_deferred_spawn_actor(img_actor)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
