@@ -99,7 +99,7 @@ class NodeBase(DrawnActor):
         Must be called each draw cycle with each canvas shape to
         receive input.
         """
-        self.world.node_canvas_ids[canvas_id] = self
+        self.world.render_manager.node_canvas_ids[canvas_id] = self
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
@@ -297,10 +297,6 @@ class GraphBase(Canvas, Drawable):
         ## Should only be 1 or -1 per axis.
         self.axis_inversion = Loc(1, 1)
 
-        ## Dictionary of canvas ids belongs to a Node object. Used to 
-        ## map a given transient canvas id to a particular node.
-        self.node_canvas_ids = {}
-
 
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
@@ -347,16 +343,7 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_button_press_input(self, event):
         """Called when a mouse button press event occurs on the graph."""
-        # Find the node we pressed.
-        center = Loc(event.x, event.y)
-
-        # Found ids are returned in order of creation, not necessarily what
-        # is displayed at the top.
-        found_ids = self.find_overlapping(*center - 3, *center + 3)
-        for it in found_ids:
-            node = self.node_canvas_ids.get(it)
-            if node is not None:
-                node.on_click(event)
+        pass
 
     def get_canvas_dim(self):
         """Return dimensions of canvas in pixels as a Loc."""
@@ -559,7 +546,13 @@ class WorldGraph(World, GraphBase):
         # Pack the graph in the given window.
         self.pack(fill="both", expand=True)
 
+        ## Actor to control draw cycles. Receives tick event before other actors.
+        self._render_manager = None
+
     def begin_play(self):
+        # Spawn the world render manager first for tick priority.
+        self._render_manager = self.spawn_actor(RenderManager, Loc(0, 0))
+
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
 
@@ -568,3 +561,38 @@ class WorldGraph(World, GraphBase):
         self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
+
+    def on_graph_button_press_input(self, event):
+        """Call input events on nodes that are clicked."""
+        # Find the node we pressed.
+        center = Loc(event.x, event.y)
+
+        # Found ids are returned in order of creation, not necessarily what
+        # is displayed at the top.
+        found_ids = self.find_overlapping(*center - 3, *center + 3)
+        for it in found_ids:
+            node = self.render_manager.node_canvas_ids.get(it)
+            if node is not None:
+                node.on_click(event)
+
+    @property
+    def render_manager(self):
+        return self._render_manager
+
+class RenderManager(Actor, Drawable):
+    def __init__(self):
+        """Set default values."""
+        
+        ## Dictionary of canvas ids belongs to a Node object. Used to 
+        ## map a given transient canvas id to a particular node.
+        self.node_canvas_ids = {}
+
+    def _draw(self):
+        """This should be called before any other nodes receive draw calls."""
+
+        # Reset the transient canvas ids from the previous draw cycle.
+        try:
+            self.node_canvas_ids.clear()
+        except AttributeError:
+            # Py3.2 compatibility
+            self.node_canvas_ids = {}
