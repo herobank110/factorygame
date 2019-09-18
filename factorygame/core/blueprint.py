@@ -93,6 +93,14 @@ class NodeBase(DrawnActor):
         ## Amount of viewport padding to give when deciding whether to draw
         self.drawable_padding = Loc(300, 300)
 
+    def register_canvas_id(self, canvas_id):
+        """
+        Register a canvas id with the graph to enable input.
+        Must be called each draw cycle with each canvas shape to
+        receive input.
+        """
+        self.world.node_canvas_ids[canvas_id] = self
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
 
@@ -162,10 +170,14 @@ class PolygonNode(NodeBase):
 
         new_id = self.world.create_polygon(*transposed_verts,
             tags=(self.unique_id))
-        self.canvas_ids.add(new_id)
+
+        self.register_canvas_id(new_id)
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+    def on_click(self, event):
+        print("hello")
 
 class ImageNode(NodeBase):
     """Node that shows an image. EXPERIMENTAL!!!"""
@@ -285,6 +297,10 @@ class GraphBase(Canvas, Drawable):
         ## Should only be 1 or -1 per axis.
         self.axis_inversion = Loc(1, 1)
 
+        ## Dictionary of canvas ids belongs to a Node object. Used to 
+        ## map a given transient canvas id to a particular node.
+        self.node_canvas_ids = {}
+
 
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
@@ -337,8 +353,10 @@ class GraphBase(Canvas, Drawable):
         # Found ids are returned in order of creation, not necessarily what
         # is displayed at the top.
         found_ids = self.find_overlapping(*center - 3, *center + 3)
-        print("Found %s overlapping" % str(found_ids))
-
+        for it in found_ids:
+            node = self.node_canvas_ids.get(it)
+            if node is not None:
+                node.on_click(event)
 
     def get_canvas_dim(self):
         """Return dimensions of canvas in pixels as a Loc."""
