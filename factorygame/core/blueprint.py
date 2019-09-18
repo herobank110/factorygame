@@ -58,6 +58,10 @@ class DrawnActor(Actor, Drawable):
         ## Random, serialisable unique ID for this drawable object.
         self.unique_id = uuid4()
 
+        ## Set of transient canvas IDs this node represents for this draw cycle.
+        ## Used to determine if this canvas shape was clicked.
+        self.canvas_ids = set()
+
     def tick(self, dt):
         """Called every frame to perform draw cycle."""
         self.start_cycle()
@@ -67,6 +71,11 @@ class DrawnActor(Actor, Drawable):
 
     def _clear(self):
         self.world.delete(self.unique_id)
+        try:
+            self.canvas_ids.clear()
+        except AttributeError:
+            # Py3.2 compatibility
+            self.canvas_ids = set()
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -109,8 +118,8 @@ class NodeBase(DrawnActor):
 
 class PolygonNode(NodeBase):
     """
-    A polygon with a set of vertices. Optionally can
-    create regular polygon presets.
+    A single polygon with a set of vertices.
+    Contains methods to create regular polygon vertex sets.
     """
 
     def __init__(self):
@@ -151,8 +160,9 @@ class PolygonNode(NodeBase):
         transpose_func = self.world.view_to_canvas
         transposed_verts = map(transpose_func, self.vertices)
 
-        self.world.create_polygon(*transposed_verts,
+        new_id = self.world.create_polygon(*transposed_verts,
             tags=(self.unique_id))
+        self.canvas_ids.add(new_id)
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
