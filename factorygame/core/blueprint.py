@@ -107,6 +107,52 @@ class NodeBase(DrawnActor):
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+class PolygonNode(NodeBase):
+    """
+    A polygon with a set of vertices. Optionally can
+    create regular polygon presets.
+    """
+
+    def __init__(self):
+        """Set default values."""
+        super().__init__()
+
+        ## Set of vertex coordinates (Loc) that make up the polygon.
+        self._vertices = tuple()
+
+    @property
+    def vertices(self):
+        return self._vertices
+
+    @vertices.setter
+    def vertices(self, value):
+        # Only allow setting all vertices at once. Since Loc
+        # objects are mutable, the referenced objects can still
+        # be manipulated.
+
+        if len(value) < 3:
+            raise ValueError("Polygon must have at least 3 vertices")
+
+        self._vertices = tuple(value)
+
+    def __getitem__(self, index):
+        """Return the vertex at the given index."""
+        return self._vertices[index]
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # Start of drawable interface.
+
+    def _draw(self):
+        # Create a generator to convert vertices into canvas coordinates.
+        transpose_func = self.world.view_to_canvas
+        transposed_verts = map(transpose_func, self.vertices)
+
+        self.world.create_polygon(*transposed_verts,
+            tags=(self.unique_id))
+
+    # End of drawable interface.
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 class ImageNode(NodeBase):
     """Node that shows an image. EXPERIMENTAL!!!"""
     def __init__(self):
@@ -462,5 +508,9 @@ class WorldGraph(World, GraphBase):
     def begin_play(self):
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
+
+        my_poly = self.deferred_spawn_actor(PolygonNode, (0, 0))
+        my_poly.vertices = [Loc(100, 20), Loc(50, 100), Loc(-100, 0)]
+        self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
