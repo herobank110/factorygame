@@ -1,6 +1,6 @@
 from tkinter import Canvas
 from uuid import uuid4
-import base64, itertools, math
+import itertools, math
 from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput, ScalingImage
 from factorygame.utils.gameplay import GameplayStatics
