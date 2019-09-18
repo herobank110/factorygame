@@ -289,6 +289,11 @@ class GraphBase(Canvas, Drawable):
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
 
+        self.__setup_input_bindings()
+
+    def __setup_input_bindings(self):
+        """Construction helper to set widget input bindings."""
+
         # Create and bind motion input object to receive motion events.
         self.motioninput = MotionInput(self, self.GRAPH_MOTION_BUTTON,
             normalise=False)
