@@ -142,6 +142,10 @@ class PolygonNode(NodeBase):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
 
+    def _should_draw(self):
+        """Only draw if visible in graph and has vertices."""
+        return super()._should_draw() and self.vertices
+
     def _draw(self):
         # Create a generator to convert vertices into canvas coordinates.
         transpose_func = self.world.view_to_canvas
