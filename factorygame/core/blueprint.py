@@ -302,6 +302,12 @@ class GraphBase(Canvas, Drawable):
         # Bind mouse wheel events for zoom.
         self.bind("<MouseWheel>", self.on_graph_wheel_input)
 
+        # Since we aren't specifying the specific button to be pressed, tkinter
+        # will not callback if a more specific event is given. In this case
+        # motioninput uses right mouse button explicitly, se we won't receive
+        # RMB press events.
+        self.bind("<ButtonPress>", self.on_graph_button_press_input, True)
+
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
         screen_size_factor = self.get_screen_size_factor()
@@ -322,6 +328,17 @@ class GraphBase(Canvas, Drawable):
         self.zoom_ratio += (-event.delta / 120)
 
         # TODO: also change _view_offset to use mouse cursor as center of zoom.
+
+    def on_graph_button_press_input(self, event):
+        """Called when a mouse button press event occurs on the graph."""
+        # Find the node we pressed.
+        center = Loc(event.x, event.y)
+
+        # Found ids are returned in order of creation, not necessarily what
+        # is displayed at the top.
+        found_ids = self.find_overlapping(*center - 3, *center + 3)
+        print("Found %s overlapping" % str(found_ids))
+
 
     def get_canvas_dim(self):
         """Return dimensions of canvas in pixels as a Loc."""
