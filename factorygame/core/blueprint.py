@@ -108,7 +108,7 @@ class NodeBase(DrawnActor):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class ImageNode(NodeBase):
-    """Node that shows an image."""
+    """Node that shows an image. EXPERIMENTAL!!!"""
     def __init__(self):
         super().__init__()
 
@@ -462,11 +462,5 @@ class WorldGraph(World, GraphBase):
     def begin_play(self):
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
-
-
-        img_actor = self.deferred_spawn_actor(ImageNode, Loc(100, 100))
-        img_actor.image_path = "test/utils/ACU_Young_Élise_Arno_tiny.png"
-        img_actor.image_base_scale = 50
-        self.finish_deferred_spawn_actor(img_actor)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
