@@ -180,40 +180,6 @@ class PolygonNode(NodeBase):
     def on_click(self, event):
         print("hello")
 
-    @staticmethod
-    def generate_reg_poly(num_sides, **kw):
-        """
-        Generate a set of vertices for a regular polygon.
-
-        :param num_sides: (int) Number of sides of the polygon.
-        
-        :keyword radius: (float) Radius of the polygon.
-        Defaults to 1.0.
-        
-        :keyword center: (Loc) Center point of the polygon.
-        Defaults to origin.
-
-        :return: A generator that yields vertices as Loc objects.
-        """
-        radius = kw.get("radius", 1.0)
-
-        center = kw.get("center", Loc(0, 0))
-
-        for i in range(num_sides):
-            yield PolygonNode.get_circle_vertex_offset(i, num_sides, radius) \
-                + center
-
-    @staticmethod
-    def get_circle_vertex_offset(n, num_sides, radius):
-        """Return the offset of the nth vertex of circle of num_sides and radius."""
-
-        # Angle of vertex in relation to first vertex.
-        theta = (2*math.pi) / num_sides * n
-        # theta += (math.pi / num_sides) + radial_off # add radial offsets
-
-        # Offset of this vertex from the center of the polygon.
-        return Loc(radius * math.sin(theta), radius * math.cos(theta))
-
 class ImageNode(NodeBase):
     """Node that shows an image. EXPERIMENTAL!!!"""
     def __init__(self):
@@ -592,7 +558,7 @@ class WorldGraph(World, GraphBase):
         self.spawn_actor(GridGismo, Loc(0, 0))
 
         my_poly = self.deferred_spawn_actor(PolygonNode, (0, 0))
-        my_poly.vertices = list(PolygonNode.generate_reg_poly(8, radius=200.0, center=(-100, -200)))
+        my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0, center=(-150, 150)))
         self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
@@ -613,6 +579,76 @@ class WorldGraph(World, GraphBase):
     @property
     def render_manager(self):
         return self._render_manager
+
+class GeomHelper:
+    """Helper class to create geometric objects for the graph."""
+
+    @staticmethod
+    def generate_reg_poly(num_sides, **kw):
+        """
+        Generate a set of vertices for a regular polygon.
+
+        :param num_sides: (int) Number of sides of the polygon.
+        
+        :keyword center: (Loc) Center point of the polygon, in world coordinates.
+        Defaults to origin.
+        
+        :keyword radius: (float) Radius of the circle bounds by the polygon's
+        vertices, in world units.
+        Defaults to 1.0.
+
+        :keyword radial_offset: (float) Angle to rotate the polygon, in radians.
+        Defaults to 0.0.
+
+        :return: A generator that yields vertices as Loc objects.
+        """
+        radius = kw.get("radius", 1.0)
+
+        center = kw.get("center", Loc(0, 0))
+
+        # Rotate the polygon so that the top has a flat side.
+        radial_offset = math.pi / num_sides
+        print(radial_offset)
+        radial_offset += kw.get("radial_offset", 0.0)
+
+        for i in range(num_sides):
+            yield GeomHelper.get_nth_vertex_offset(i, num_sides, radius, radial_offset) \
+                + center
+
+    @staticmethod
+    def get_nth_vertex_offset(n, num_sides, radius, radial_offset=0.0):
+        """
+        Find the offset of the nth vertex of a round shape.
+        
+        :param n: (int) Vertex index to get offset of.
+
+        :param num_sides: (int) Total number of sides of the polygon.
+
+        :param radius: (float) Radius of the polygon.
+
+        :param radial_offset: (float) Angle to rotate the polygon, in radians.
+        Defaults to 0.0.
+
+        :return: (Loc) The offset of the nth vertex.        
+        """
+        # Angle of vertex in relation to first vertex.
+        theta = (2 * math.pi) / num_sides \
+            * n \
+            + radial_offset
+
+        # Extend direction by the shape's radius.
+        return GeomHelper.get_unit_vector(theta) * radius
+
+    @staticmethod
+    def get_unit_vector(angle):
+        """
+        Find the unit vector in the direction of the angle.
+        
+        :param angle: (float) Angle of vector, in radians.
+
+        :return: (Loc) The unit vector.
+        """
+        return Loc(math.sin(angle), math.cos(angle))
 
 class RenderManager(Actor, Drawable):
     def __init__(self):
