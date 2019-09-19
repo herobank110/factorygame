@@ -134,7 +134,8 @@ class PolygonNode(NodeBase):
         """Set default values."""
         super().__init__()
 
-        ## Set of vertex coordinates (Loc) that make up the polygon.
+        ## Set of vertex coordinates (Loc) that make up the polygon,
+        ## relative to the polygon's location.
         self._vertices = tuple()
 
     @property
@@ -165,7 +166,7 @@ class PolygonNode(NodeBase):
 
     def _draw(self):
         # Create a generator to convert vertices into canvas coordinates.
-        transpose_func = self.world.view_to_canvas
+        transpose_func = lambda v: self.location + self.world.view_to_canvas(v)
         transposed_verts = map(transpose_func, self.vertices)
 
         new_id = self.world.create_polygon(*transposed_verts,
@@ -557,8 +558,8 @@ class WorldGraph(World, GraphBase):
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
 
-        my_poly = self.deferred_spawn_actor(PolygonNode, (0, 0))
-        my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0, center=(-150, 150)))
+        my_poly = self.deferred_spawn_actor(PolygonNode, (-100, 0))
+        my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0))
         self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
@@ -590,7 +591,8 @@ class GeomHelper:
 
         :param num_sides: (int) Number of sides of the polygon.
         
-        :keyword center: (Loc) Center point of the polygon, in world coordinates.
+        :keyword center: (Loc) Center point of the polygon, in relative
+        coordinates.
         Defaults to origin.
         
         :keyword radius: (float) Radius of the circle bounds by the polygon's
