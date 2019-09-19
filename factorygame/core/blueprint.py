@@ -596,3 +596,6 @@ class RenderManager(Actor, Drawable):
         except AttributeError:
             # Py3.2 compatibility
             self.node_canvas_ids = {}
+
+    def tick(self, dt):
+        self.start_cycle()
