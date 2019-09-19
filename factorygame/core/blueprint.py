@@ -176,8 +176,43 @@ class PolygonNode(NodeBase):
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+    # TODO: create more robust input handling system
     def on_click(self, event):
         print("hello")
+
+    @staticmethod
+    def generate_reg_poly(num_sides, **kw):
+        """
+        Generate a set of vertices for a regular polygon.
+
+        :param num_sides: (int) Number of sides of the polygon.
+        
+        :keyword radius: (float) Radius of the polygon.
+        Defaults to 1.0.
+        
+        :keyword center: (Loc) Center point of the polygon.
+        Defaults to origin.
+
+        :return: A generator that yields vertices as Loc objects.
+        """
+        radius = kw.get("radius", 1.0)
+
+        center = kw.get("center", Loc(0, 0))
+
+        for i in range(num_sides):
+            yield PolygonNode.get_circle_vertex_offset(i, num_sides, radius) \
+                + center
+
+    @staticmethod
+    def get_circle_vertex_offset(n, num_sides, radius):
+        """Return the offset of the nth vertex of circle of num_sides and radius."""
+
+        # Angle of vertex in relation to first vertex.
+        theta = (2*math.pi) / num_sides * n
+        # theta += (math.pi / num_sides) + radial_off # add radial offsets
+
+        # Offset of this vertex from the center of the polygon.
+        return Loc(radius * math.sin(theta), radius * math.cos(theta))
 
 class ImageNode(NodeBase):
     """Node that shows an image. EXPERIMENTAL!!!"""
@@ -557,7 +592,7 @@ class WorldGraph(World, GraphBase):
         self.spawn_actor(GridGismo, Loc(0, 0))
 
         my_poly = self.deferred_spawn_actor(PolygonNode, (0, 0))
-        my_poly.vertices = [Loc(100, 20), Loc(50, 100), Loc(-100, 0)]
+        my_poly.vertices = list(PolygonNode.generate_reg_poly(8, radius=200.0, center=(-100, -200)))
         self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
