@@ -138,6 +138,10 @@ class PolygonNode(NodeBase):
         ## relative to the polygon's location.
         self._vertices = tuple()
 
+        ## Set of vertex coordinates (Loc) that make up the polygon,
+        ## in world coordinates. Should not be set directly.
+        self._world_vertices = tuple()
+
     @property
     def vertices(self):
         return self._vertices
@@ -151,7 +155,14 @@ class PolygonNode(NodeBase):
         if len(value) < 3:
             raise ValueError("Polygon must have at least 3 vertices")
 
+        # Store relative coordinates for convenience.
         self._vertices = tuple(value)
+        # Add node's world location, to avoid calculating per draw call.
+        self._world_vertices = tuple(map(lambda v: self.location + v, value))
+
+    @property
+    def world_vertices(self):
+        return self._world_vertices
 
     def __getitem__(self, index):
         """Return the vertex at the given index."""
@@ -166,8 +177,8 @@ class PolygonNode(NodeBase):
 
     def _draw(self):
         # Create a generator to convert vertices into canvas coordinates.
-        transpose_func = lambda v: self.location + self.world.view_to_canvas(v)
-        transposed_verts = map(transpose_func, self.vertices)
+        transpose_func = self.world.view_to_canvas
+        transposed_verts = map(transpose_func, self.world_vertices)
 
         new_id = self.world.create_polygon(*transposed_verts,
             tags=(self.unique_id))
