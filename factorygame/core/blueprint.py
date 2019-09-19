@@ -608,7 +608,6 @@ class GeomHelper:
 
         # Rotate the polygon so that the top has a flat side.
         radial_offset = math.pi / num_sides
-        print(radial_offset)
         radial_offset += kw.get("radial_offset", 0.0)
 
         for i in range(num_sides):
