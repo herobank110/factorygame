@@ -38,9 +38,9 @@ class MotionInput(object):
     def bind_to_widget(self, in_widget, button="1"):
         """binds relevant inputs to in_widget, optionally using the
         specified button (1=LMB, 2=MMB, 3=RMB)"""
-        in_widget.bind("<ButtonPress-%s>" % button, self.inp_press)
-        in_widget.bind("<ButtonRelease-%s>" % button, self.inp_release)
-        in_widget.bind("<Button%s-Motion>" % button, self.inp_motion)
+        in_widget.bind("<ButtonPress-%s>" % button, self.inp_press, True)
+        in_widget.bind("<ButtonRelease-%s>" % button, self.inp_release, True)
+        in_widget.bind("<Button%s-Motion>" % button, self.inp_motion, True)
         # add to held buttons dict (defualt False not held)
         ##self._held_buttons[button] = False
 
