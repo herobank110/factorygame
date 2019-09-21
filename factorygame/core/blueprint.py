@@ -142,6 +142,7 @@ class PolygonNode(NodeBase):
         ## in world coordinates. Should not be set directly.
         self._world_vertices = tuple()
 
+        ## Fill color of the polygon (FColor)
         self._fill_color = FColor.Default()
 
     @property
@@ -694,6 +695,56 @@ class FColor(Loc):
     def Default():
         """Return the default color."""
         return FColor(20)
+
+    @staticmethod
+    def Black():
+        """Return the black color."""
+        return FColor(0)
+
+    @staticmethod
+    def White():
+        """Return the white color."""
+        return FColor(255)
+
+    @staticmethod
+    def Red():
+        """Return the red color."""
+        return FColor(255, 0, 0)
+
+    @staticmethod
+    def Green():
+        """Return the green color."""
+        return FColor(0, 255, 0)
+
+    @staticmethod
+    def Blue():
+        """Return the blue color."""
+        return FColor(0, 0, 255)
+
+    @staticmethod
+    def Yellow():
+        """Return the yellow color."""
+        return FColor(255, 255, 0)
+
+    @staticmethod
+    def Cyan():
+        """Return the cyan color."""
+        return FColor(0, 255, 255)
+
+    @staticmethod
+    def Magenta():
+        """Return the magenta color."""
+        return FColor(255, 0, 255)
+
+    @staticmethod
+    def Turqoise():
+        """Return the turquoise color."""
+        return FColor(64, 224, 208)
+
+    @staticmethod
+    def Pink():
+        """Return the pink color."""
+        return FColor(255, 192, 203)
 
     def __init__(self, *args):
         """
