@@ -147,10 +147,10 @@ class PolygonNode(NodeBase):
         self._world_vertices = tuple()
 
         ## Fill color of the polygon (FColor)
-        self.fill_color = FColor.Default()
+        self.fill_color = FColor.default()
         
         ## Outline color of the polygon (FColor)
-        self.outline_color = FColor.Default()
+        self.outline_color = FColor.default()
 
         ## Width of outline of the polygon (float)
         self.outline_width = 1.0
@@ -623,6 +623,7 @@ class WorldGraph(World, GraphBase):
 
         my_poly = self.deferred_spawn_actor(PolygonNode, (-150, 150))
         my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0))
+        my_poly.fill_color = FColor.Red()
         self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
