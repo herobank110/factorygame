@@ -623,7 +623,7 @@ class WorldGraph(World, GraphBase):
 
         my_poly = self.deferred_spawn_actor(PolygonNode, (-150, 150))
         my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0))
-        my_poly.fill_color = FColor.Red()
+        my_poly.fill_color = FColor.red()
         self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
