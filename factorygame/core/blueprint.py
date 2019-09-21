@@ -1,3 +1,7 @@
+"""
+Defines all visual elements of the engine.
+"""
+
 from tkinter import Canvas
 from uuid import uuid4
 import itertools, math
