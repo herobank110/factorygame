@@ -569,7 +569,7 @@ class WorldGraph(World, GraphBase):
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
 
-        my_poly = self.deferred_spawn_actor(PolygonNode, (-100, 0))
+        my_poly = self.deferred_spawn_actor(PolygonNode, (-150, 150))
         my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0))
         self.finish_deferred_spawn_actor(my_poly)
 
@@ -619,13 +619,35 @@ class GeomHelper:
 
         center = kw.get("center", Loc(0, 0))
 
-        # Rotate the polygon so that the top has a flat side.
-        radial_offset = math.pi / num_sides
-        radial_offset += kw.get("radial_offset", 0.0)
+        # Rotate the polygon so that the bottom has a flat side.
+        radial_offset = GeomHelper.get_poly_start_angle(num_sides)
+        to_add = kw.get("radial_offset")
+        if to_add is not None:            
+            radial_offset += to_add
 
         for i in range(num_sides):
             yield GeomHelper.get_nth_vertex_offset(i, num_sides, radius, radial_offset) \
                 + center
+
+    @staticmethod
+    def get_poly_start_angle(num_sides):
+        """
+        Find the start angle of a regular polygon so that its
+        bottom is a flat side.
+
+        :param num_sides: (int) Number of sides of the polygon
+
+        :return: (float) Angle of polygon, in radians.
+        """
+
+        if num_sides % 2 == 1:
+            # Number is odd
+            # return math.pi / 2
+            return 0.0
+
+        # Number is even
+        center_angle = (2 * math.pi) / num_sides
+        return math.pi / 2 - (center_angle / 2)
 
     @staticmethod
     def get_nth_vertex_offset(n, num_sides, radius, radial_offset=0.0):
@@ -643,10 +665,10 @@ class GeomHelper:
 
         :return: (Loc) The offset of the nth vertex.        
         """
+
         # Angle of vertex in relation to first vertex.
-        theta = (2 * math.pi) / num_sides \
-            * n \
-            + radial_offset
+        center_angle = (2 * math.pi) / num_sides
+        theta = (center_angle * n) + radial_offset
 
         # Extend direction by the shape's radius.
         return GeomHelper.get_unit_vector(theta) * radius
