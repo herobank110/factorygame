@@ -142,6 +142,8 @@ class PolygonNode(NodeBase):
         ## in world coordinates. Should not be set directly.
         self._world_vertices = tuple()
 
+        self._fill_color = FColor.Default()
+
     @property
     def vertices(self):
         return self._vertices
@@ -181,7 +183,7 @@ class PolygonNode(NodeBase):
         transposed_verts = map(transpose_func, self.world_vertices)
 
         new_id = self.world.create_polygon(*transposed_verts,
-            tags=(self.unique_id))
+            tags=(self.unique_id), fill=self._fill_color.to_hex())
 
         self.register_canvas_id(new_id)
 
@@ -683,6 +685,69 @@ class GeomHelper:
         :return: (Loc) The unit vector.
         """
         return Loc(math.sin(angle), math.cos(angle))
+
+class FColor(Loc):
+    """Store color data in RGB with format conversions."""
+    _repr_items = "RGB"
+
+    @staticmethod
+    def Default():
+        """Return the default color."""
+        return FColor(20)
+
+    def __init__(self, *args):
+        """
+        Construct FColor from RGB components.
+        
+        0 arguments sets 0 for RGB values.
+        1 argument sets given value for RGB.
+        3 arguments set RGB values respectively.
+        """
+
+        num_args = len(args)
+        if num_args == 0:
+            # Setup rgb components
+            for i in range(3): self.append(0)
+
+        elif num_args == 1:
+            # Setup components linearly
+            for i in range(3): self.append(args[0])
+
+        elif num_args == 3:
+            # Setup components individually.
+            for i in range(3): self.append(args[i])
+
+        else:
+            raise ValueError("Invalid number of arguments to make RGB color")
+
+    @staticmethod
+    def hex_to_rgb(hex_string, digits=2):
+        """
+        Yield RGB values from a hexadecimal string.
+        """
+        for i in range(1, len(hex_string), digits):
+            yield int("0x%s" % hex_string[i:i + digits], 0)
+
+    @staticmethod
+    def from_hex(hex_string, digits=2):
+        """
+        Construct a FColor from a hex string containing RGB components.
+
+        :param hex_string: (str) Hex color in format "#rrggbb"
+
+        :param bits: (int) Number of digits per component.
+
+        :return: (FColor) RGB components as a FColor.
+        """
+        return FColor(*FColor.HexToRgb(hex_string, digits))
+
+    def to_hex(self):
+        """
+        Get hexadecimal representation of this color.
+
+        :return: (str) Hex color code
+        """
+        return "#%02x%02x%02x" % (self.r, self.g, self.b)
 
 class RenderManager(Actor, Drawable):
     def __init__(self):
