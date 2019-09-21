@@ -131,7 +131,8 @@ class NodeBase(DrawnActor):
 class PolygonNode(NodeBase):
     """
     A single polygon with a set of vertices.
-    Contains methods to create regular polygon vertex sets.
+
+    :see: GeomHelper for generating vertices.
     """
 
     def __init__(self):
