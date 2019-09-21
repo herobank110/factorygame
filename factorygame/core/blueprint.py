@@ -147,7 +147,13 @@ class PolygonNode(NodeBase):
         self._world_vertices = tuple()
 
         ## Fill color of the polygon (FColor)
-        self._fill_color = FColor.Default()
+        self.fill_color = FColor.Default()
+        
+        ## Outline color of the polygon (FColor)
+        self.outline_color = FColor.Default()
+
+        ## Width of outline of the polygon (float)
+        self.outline_width = 1.0
 
     @property
     def vertices(self):
@@ -171,6 +177,44 @@ class PolygonNode(NodeBase):
     def world_vertices(self):
         return self._world_vertices
 
+    @property
+    def fill_color(self):
+        return self._fill_color
+    
+    @fill_color.setter
+    def fill_color(self, value):
+        try:
+            hex_val = value.to_hex()
+        except AttributeError:
+            raise ValueError("Expecting FColor, but got '%s' instead" % type(value).__name__)
+        self._fill_color = value
+        self._fill_color_hex = hex_val
+
+    @property
+    def outline_color(self):
+        return self._outline_color
+
+    @outline_color.setter
+    def outline_color(self, value):
+        try:
+            hex_val = value.to_hex()
+        except AttributeError:
+            raise ValueError("Expecting FColor, but got '%s' instead" % type(value).__name__)
+        self._outline_color = value
+        self._outline_color_hex = hex_val
+
+    @property
+    def outline_width(self):
+        return self._outline_width
+
+    @outline_width.setter
+    def outline_width(self, value):
+        # Only allow positive numbers
+        if value < 0:
+            raise ValueError("Outline width must be positive")
+
+        self._outline_width = value
+
     def __getitem__(self, index):
         """Return the vertex at the given index."""
         return self._vertices[index]
@@ -188,7 +232,8 @@ class PolygonNode(NodeBase):
         transposed_verts = map(transpose_func, self.world_vertices)
 
         new_id = self.world.create_polygon(*transposed_verts,
-            tags=(self.unique_id), fill=self._fill_color.to_hex())
+            tags=(self.unique_id), fill=self._fill_color_hex,
+            outline=self._outline_color_hex, width=self.outline_width)
 
         self.register_canvas_id(new_id)
 
