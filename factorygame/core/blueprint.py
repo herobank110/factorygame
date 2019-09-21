@@ -138,6 +138,11 @@ class PolygonNode(NodeBase):
         """Set default values."""
         super().__init__()
 
+        self._fill_color = None
+        self._fill_color_hex = ""
+        self._outline_color = None
+        self._outline_color_hex = ""
+
         ## Set of vertex coordinates (Loc) that make up the polygon,
         ## relative to the polygon's location.
         self._vertices = tuple()
@@ -149,8 +154,8 @@ class PolygonNode(NodeBase):
         ## Fill color of the polygon (FColor)
         self.fill_color = FColor.default()
         
-        ## Outline color of the polygon (FColor)
-        self.outline_color = FColor.default()
+        ## Outline color of the polygon (FColor). If None, matches fill color
+        self.outline_color = None
 
         ## Width of outline of the polygon (float)
         self.outline_width = 1.0
@@ -190,12 +195,23 @@ class PolygonNode(NodeBase):
         self._fill_color = value
         self._fill_color_hex = hex_val
 
+        if self.outline_color is None:
+            # Update outline color to match
+            self._outline_color_hex = hex_val
+            pass
+
     @property
     def outline_color(self):
         return self._outline_color
 
     @outline_color.setter
     def outline_color(self, value):
+        if value is None:
+            # Match fill color
+            self._outline_color = None  # Keep track when fill color changes.
+            self._outline_color_hex = self._fill_color_hex
+            return
+
         try:
             hex_val = value.to_hex()
         except AttributeError:
@@ -623,7 +639,7 @@ class WorldGraph(World, GraphBase):
 
         my_poly = self.deferred_spawn_actor(PolygonNode, (-150, 150))
         my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0))
-        my_poly.fill_color = FColor.red()
+        my_poly.fill_color = FColor.green()
         self.finish_deferred_spawn_actor(my_poly)
 
         self.spawn_actor(NodeBase, Loc(200, 200))
