@@ -738,60 +738,65 @@ class GeomHelper:
 
 class FColor(Loc):
     """Store color data in RGB with format conversions."""
+
+    # The properties for r, g, b components are built in to Loc,
+    # so can be reused. In addition, accessing them from x, y, z
+    # is also allowed.
+
     _repr_items = "RGB"
 
     @staticmethod
-    def Default():
+    def default():
         """Return the default color."""
         return FColor(20)
 
     @staticmethod
-    def Black():
+    def black():
         """Return the black color."""
         return FColor(0)
 
     @staticmethod
-    def White():
+    def white():
         """Return the white color."""
         return FColor(255)
 
     @staticmethod
-    def Red():
+    def red():
         """Return the red color."""
         return FColor(255, 0, 0)
 
     @staticmethod
-    def Green():
+    def green():
         """Return the green color."""
         return FColor(0, 255, 0)
 
     @staticmethod
-    def Blue():
+    def blue():
         """Return the blue color."""
         return FColor(0, 0, 255)
 
     @staticmethod
-    def Yellow():
+    def yellow():
         """Return the yellow color."""
         return FColor(255, 255, 0)
 
     @staticmethod
-    def Cyan():
+    def cyan():
         """Return the cyan color."""
         return FColor(0, 255, 255)
 
     @staticmethod
-    def Magenta():
+    def magenta():
         """Return the magenta color."""
         return FColor(255, 0, 255)
 
     @staticmethod
-    def Turqoise():
+    def turqoise():
         """Return the turquoise color."""
         return FColor(64, 224, 208)
 
     @staticmethod
-    def Pink():
+    def pink():
         """Return the pink color."""
         return FColor(255, 192, 203)
 
@@ -847,7 +852,7 @@ class FColor(Loc):
 
         :return: (str) Hex color code
         """
-        return "#%02x%02x%02x" % (self.r, self.g, self.b)
+        return "#%02x%02x%02x" % tuple(self)
 
 class RenderManager(Actor, Drawable):
     def __init__(self):
