@@ -7,5 +7,5 @@ class FactoryEngine(GameEngine):
 
         # Set default properties.
         self._window_title      = "FactoryGame"
-        self._frame_rate        = 60
+        self._frame_rate        = 90
         self._starting_world    = WorldGraph
