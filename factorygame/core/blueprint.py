@@ -404,16 +404,20 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
-        screen_size_factor = self.get_screen_size_factor()
 
-        motion = event.delta \
-            * self.axis_inversion \
-            * self.zoom_ratio \
-            * math.e \
-            * screen_size_factor
+        # Calculate world displacement between 2 canvas pixels,
+        # but not necessarily touching pixels.
 
-        motion.x *= -1 # Invert x axis because delta motion is inverted
-        self._view_offset += motion
+        canvas_a = Loc(0, 0)  # Start from top left corner
+        canvas_b = canvas_a + event.delta
+
+        # MotionInput's delta in capped to 5 pixels of movement per event.
+        canvas_b *= 5
+
+        world_displacement = \
+            self.canvas_to_view(canvas_a) - self.canvas_to_view(canvas_b)
+
+        self._view_offset += world_displacement
 
     def on_graph_wheel_input(self, event):
         """Called when a mouse wheel event occurs on the graph."""
