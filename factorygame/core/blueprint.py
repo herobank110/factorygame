@@ -656,7 +656,10 @@ class WorldGraph(World, GraphBase):
 
         # Found ids are returned in order of creation, not necessarily what
         # is displayed at the top.
-        found_ids = self.find_overlapping(*center - 3, *center + 3)
+        coords = []
+        coords.extend(center - 3)
+        coords.extend(center + 3)
+        found_ids = self.find_overlapping(*coords)
         for it in found_ids:
             node = self.render_manager.node_canvas_ids.get(it)
             if node is not None:
