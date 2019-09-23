@@ -27,26 +27,45 @@ class MotionInput(object):
         self._bound_events = {}
         ##self._held_buttons = {}
 
+        self._bound_widget = None
+
         # bind to widget if extra args given
         if args:
             self.bind_to_widget(*args)
+
+            
 
     @property
     def delta(self):
         return Loc(self._delta)
 
-    def bind_to_widget(self, in_widget, button="1"):
+    def bind_to_widget(self, in_widget, button=1, *modifiers):
         """binds relevant inputs to in_widget, optionally using the
-        specified button (1=LMB, 2=MMB, 3=RMB)"""
-        in_widget.bind("<ButtonPress-%s>" % button, self.inp_press, True)
-        in_widget.bind("<ButtonRelease-%s>" % button, self.inp_release, True)
-        in_widget.bind("<Button%s-Motion>" % button, self.inp_motion, True)
-        # add to held buttons dict (defualt False not held)
-        ##self._held_buttons[button] = False
+        specified button (1=LMB, 2=MMB, 3=RMB)
+        
+        Optionally also require modifiers to be held. Modifiers must
+        be written as tkinter modifiers, eg Button1 for LMB, Button2 for MMB, etc,
+        or any keyboard key."""
+
+        mod_str = ""
+        if len(modifiers) > 0:
+            mod_str = "-".join(modifiers) + "-"
+
+        in_widget.bind("<%sButtonPress-%d>" % (mod_str, button), self.inp_press, True)
+        in_widget.bind("<%sButton%d-Motion>" % (mod_str, button), self.inp_motion, True)
+        # Stop listening when the critical button is not pressed.
+        for mod in modifiers:
+            if mod.startswith("Button"):
+                mod = mod.strip("Button")
+                in_widget.bind("<ButtonRelease-%d>" % mod, self.inp_release, True)
+        in_widget.bind("<ButtonRelease-%d>" % button, self.inp_release, True)
+
+        self._bound_widget = in_widget
 
     def bind(self, event_code=None, func=None, add=None):
         """Binds func to be called on event_code.
-        Event codes is written in the format <MODIFIER-MODIFIER-IDENTIFIER>.
+        Event codes is written in the format <<MODIFIER-IDENTIFIER>>.
+        Note the double << and >> for the virtual events.
         Available MODIFIERS:
             Motion
         Available IDENTIFIERS:
