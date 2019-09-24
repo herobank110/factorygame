@@ -394,7 +394,7 @@ class GraphBase(Canvas, Drawable):
         self.motioninput.bind("Motion-XY", self.on_graph_motion_input)
 
         # Bind mouse wheel events for zoom.
-        self.bind("<MouseWheel>", self.on_graph_wheel_input)
+        self.bind_all("<MouseWheel>", self.on_graph_wheel_input)
 
         # Since we aren't specifying the specific button to be pressed, tkinter
         # will not callback if a more specific event is given. In this case
