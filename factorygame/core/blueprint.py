@@ -647,6 +647,13 @@ class WorldGraph(World, GraphBase):
         my_poly.fill_color = FColor.green()
         self.finish_deferred_spawn_actor(my_poly)
 
+        my_dodecagon = self.deferred_spawn_actor(PolygonNode, Loc(300, 0))
+        my_dodecagon.vertices = list(GeomHelper.generate_reg_poly(12, radius=300))
+        my_dodecagon.fill_color = FColor.cyan()
+        my_dodecagon.outline_color = FColor.yellow()
+        my_dodecagon.outline_width = 2.5
+        self.finish_deferred_spawn_actor(my_dodecagon)
+
         self.spawn_actor(NodeBase, Loc(200, 200))
 
     def on_graph_button_press_input(self, event):
