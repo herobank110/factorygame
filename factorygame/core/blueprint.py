@@ -394,7 +394,7 @@ class GraphBase(Canvas, Drawable):
         self.motioninput.bind("Motion-XY", self.on_graph_motion_input)
 
         # Bind mouse wheel events for zoom.
-        self.bind("<MouseWheel>", self.on_graph_wheel_input)
+        self.bind_all("<MouseWheel>", self.on_graph_wheel_input)
 
         # Since we aren't specifying the specific button to be pressed, tkinter
         # will not callback if a more specific event is given. In this case
@@ -647,6 +647,13 @@ class WorldGraph(World, GraphBase):
         my_poly.fill_color = FColor.green()
         self.finish_deferred_spawn_actor(my_poly)
 
+        my_dodecagon = self.deferred_spawn_actor(PolygonNode, Loc(300, 0))
+        my_dodecagon.vertices = list(GeomHelper.generate_reg_poly(12, radius=300))
+        my_dodecagon.fill_color = FColor.cyan()
+        my_dodecagon.outline_color = FColor.yellow()
+        my_dodecagon.outline_width = 2.5
+        self.finish_deferred_spawn_actor(my_dodecagon)
+
         self.spawn_actor(NodeBase, Loc(200, 200))
 
     def on_graph_button_press_input(self, event):
@@ -656,7 +663,10 @@ class WorldGraph(World, GraphBase):
 
         # Found ids are returned in order of creation, not necessarily what
         # is displayed at the top.
-        found_ids = self.find_overlapping(*center - 3, *center + 3)
+        coords = []
+        coords.extend(center - 3)
+        coords.extend(center + 3)
+        found_ids = self.find_overlapping(*coords)
         for it in found_ids:
             node = self.render_manager.node_canvas_ids.get(it)
             if node is not None:
