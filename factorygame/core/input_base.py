@@ -88,6 +88,14 @@ class EngineInputMappings:
             cls._action_mappings[in_name] = set(keys)
 
     @classmethod
+    def remove_action_mapping(cls, in_name):
+        """
+        Remove an action mapping, including all keys that were previously
+        added to it.
+        """
+        cls._action_mappings.pop(in_name)
+
+    @classmethod
     def bind_action(cls, action_name, key_event, func):
         """
         Bind a function to an action defined in add_action_mapping.
