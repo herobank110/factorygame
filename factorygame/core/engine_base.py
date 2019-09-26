@@ -2,6 +2,7 @@
 
 from tkinter import Tk
 from factorygame.core.input_base import EngineInputMappings
+from factorygame.core.input_tk import TkInputHandler
 from factorygame.utils.loc import Loc
 from factorygame.utils.gameplay import GameplayStatics
 
@@ -98,7 +99,14 @@ class GameEngine(EngineObject):
         # Create input binding objects.
         
         # TODO: There needs to be a safer way to instantiate EngineObjects
+
+        # Let action mappings be added.
         self._engine_input_bindings = EngineInputMappings()
+
+        # Create GUI input receiver.
+        self._input_handler = TkInputHandler()
+        self._input_handler.bind_to_widget(GameplayStatics.root_window)
+
 
 
         # Start game window tkinter event loop.

@@ -125,22 +125,15 @@ class GUIInputHandler:
     Handle raw input from a GUI system to map it to an FKey
     """
 
-    def register_key_press(self, in_key):
+    def register_key_press(self, in_key, key_event):
         """
         Called when a key press is received to fire bound events.
 
         Only for action events (not axis events).
 
-        :param in_key: (FKey) Key that was pressed.
-        """
-        print("Key %s pressed" % in_key)
+        :param in_key: (EKeys) Key that was pressed.
 
-    def register_key_release(self, in_key):
+        :param key_event: (EInputEvent, int) Type of event to occur.
         """
-        Called when a key release is received to fire bound events.
-
-        Only for action events (not axis events).
-
-        :param in_key: (FKey) Key that was released.
-        """
-        print("Key %s released" % in_key)
+        print("Key %s was %s" % (in_key,
+            "pressed" if key_event == EInputEvent.IE_PRESSED else "released"))
