@@ -125,7 +125,7 @@ class GUIInputHandler:
     Handle raw input from a GUI system to map it to an FKey
     """
 
-    def register_key_press(self, in_key, key_event):
+    def register_key_event(self, in_key, key_event):
         """
         Called when a key press is received to fire bound events.
 
