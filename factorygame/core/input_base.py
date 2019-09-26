@@ -6,6 +6,7 @@ engine first. Then custom events can be set up when these events
 happen.
 """
 
+# from factorygame.core.engine_base import EngineObject
 
 class GameViewportClient(object):
     pass
@@ -62,15 +63,16 @@ class EngineInputMappings:
     Contains mappings between input events and functions to fire.
     """
 
-    ## Mappings of actions to keys. Each action has a set of keys.
-    _action_mappings = {}
+    def __init__(self):
 
-    # dictionary: keys -> action mapping CONCAT key_event : value -> set of callables
-    ## Functions to fire when relevant input is received.
-    _bound_events = {}
+        ## Mappings of actions to keys. Each action has a set of keys.
+        self._action_mappings = {}
 
-    @classmethod
-    def add_action_mapping(cls, in_name, *keys):
+        # dictionary: keys -> action mapping CONCAT key_event : value -> set of callables
+        ## Functions to fire when relevant input is received.
+        self._bound_events = {}
+
+    def add_action_mapping(self, in_name, *keys):
         """
         Add an action mapping to be called when input comes from keys.
 
@@ -78,25 +80,23 @@ class EngineInputMappings:
 
         :param keys: (EKeys) Keys to map to action name.
         """
-        key_set = cls._action_mappings.get(in_name)
+        key_set = self._action_mappings.get(in_name)
         if key_set is not None:
             # Needs to reassign returned set
             key_set.update(keys)
 
         else:
             # Create a new set of keys.
-            cls._action_mappings[in_name] = set(keys)
+            self._action_mappings[in_name] = set(keys)
 
-    @classmethod
-    def remove_action_mapping(cls, in_name):
+    def remove_action_mapping(self, in_name):
         """
         Remove an action mapping, including all keys that were previously
         added to it.
         """
-        cls._action_mappings.pop(in_name)
+        self._action_mappings.pop(in_name)
 
-    @classmethod
-    def bind_action(cls, action_name, key_event, func):
+    def bind_action(self, action_name, key_event, func):
         """
         Bind a function to an action defined in add_action_mapping.
 
@@ -110,14 +110,15 @@ class EngineInputMappings:
         # Concatenate action name and key event.
         binding = "%s:%d" % (action_name, key_event)
 
-        func_set = cls._bound_events.get(binding)
+        func_set = self._bound_events.get(binding)
         if func_set is not None:
             # Add to existing set.
             func_set.add(func)
 
         else:
             # Create a new set.
-            cls._bound_events[binding] = {func}
+            self._bound_events[binding] = {func}
+
 
 class GUIInputHandler:
     """
