@@ -125,14 +125,22 @@ class GUIInputHandler:
     Handle raw input from a GUI system to map it to an FKey
     """
 
-    def receive_tkinter_key_input(self, tk_event, input_event):
+    def register_key_press(self, in_key):
         """
-        Called when tkinter sends an input event.
+        Called when a key press is received to fire bound events.
 
-        :param tk_event: Tkinter event from widget.
+        Only for action events (not axis events).
 
-        :param input_event: (EInputEvent) Information about the event.
+        :param in_key: (FKey) Key that was pressed.
         """
+        print("Key %s pressed" % in_key)
 
-        # TODO: fire any bounds input functions
-        pass
+    def register_key_release(self, in_key):
+        """
+        Called when a key release is received to fire bound events.
+
+        Only for action events (not axis events).
+
+        :param in_key: (FKey) Key that was released.
+        """
+        print("Key %s released" % in_key)
