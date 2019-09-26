@@ -1,6 +1,7 @@
 """Game engine for FactoryGame."""
 
 from tkinter import Tk
+from factorygame.core.input_base import EngineInputMappings
 from factorygame.utils.loc import Loc
 from factorygame.utils.gameplay import GameplayStatics
 
@@ -92,6 +93,12 @@ class GameEngine(EngineObject):
             # The starting world is not a valid class.
             raise AttributeError("Starting world '%s' for engine '%s' is not valid. %s"
                 % (self._starting_world.__name__, type(self).__name__, e)) from e
+
+
+        # Create input binding objects.
+        
+        # TODO: There needs to be a safer way to instantiate EngineObjects
+        self._engine_input_bindings = EngineInputMappings()
 
 
         # Start game window tkinter event loop.
