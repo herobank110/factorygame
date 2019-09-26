@@ -8,6 +8,7 @@ happen.
 
 # from factorygame.core.engine_base import EngineObject
 
+
 class GameViewportClient(object):
     pass
 
@@ -125,6 +126,12 @@ class GUIInputHandler:
     Handle raw input from a GUI system to map it to an FKey
     """
 
+    def __init__(self):
+        """Set default values."""
+
+        ## Hold currently held buttons in a set.
+        self._held_keys = set()
+
     def register_key_event(self, in_key, key_event):
         """
         Called when a key press is received to fire bound events.
@@ -135,5 +142,22 @@ class GUIInputHandler:
 
         :param key_event: (EInputEvent, int) Type of event to occur.
         """
+
+        if key_event == EInputEvent.IE_PRESSED:
+            if in_key in self.held_keys:
+                # Don't fire events repeatedly if already held.
+                return
+
+            self.held_keys.add(in_key)
+        
+        elif key_event == EInputEvent.IE_RELEASED:
+            # Remove reference from held keys.
+            self.held_keys.remove(in_key)
+
+
         print("Key %s was %s" % (in_key,
             "pressed" if key_event == EInputEvent.IE_PRESSED else "released"))
+
+    @property
+    def held_keys(self):
+        return self._held_keys
