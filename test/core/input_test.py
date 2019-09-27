@@ -3,6 +3,7 @@ from factorygame.core.engine_base import GameEngine
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
 
 from tkinter.ttk import Label
+import random
 
 # Input testing
 from factorygame.core.input_base import EKeys, EInputEvent
@@ -12,9 +13,16 @@ class ActionMappingTest(GuiTest):
     _test_name = "Action Mapping"
 
     def show_jump_text(self):
-        self.label.config(text="Received a jump press")
-        self.after(150, lambda: self.label.config(text=""))
-        
+        if self.clear_timer is not None:
+            self.after_cancel(self.clear_timer)
+            self.clear_timer = None
+
+        # Show random number to make it easy to tell when a new
+        # input event has come in and the text hasn't been cleared yet.
+        self.label.config(text="%d Received a jump press" % random.randint(1000, 9999))
+
+        # Clear the text after a short delay.
+        self.clear_timer = self.after(300, lambda: self.label.config(text=""))        
 
     def start(self):
 
@@ -22,6 +30,7 @@ class ActionMappingTest(GuiTest):
 
         self.label = Label(self)
         self.label.pack()
+        self.clear_timer = None
 
         # Create the base class engine in this Toplevel window.
         game_engine = GameplayUtilities.create_game_engine(GameEngine, master=self)
