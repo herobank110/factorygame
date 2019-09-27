@@ -101,7 +101,7 @@ class GameEngine(EngineObject):
         # TODO: There needs to be a safer way to instantiate EngineObjects
 
         # Let action mappings be added.
-        self._engine_input_bindings = EngineInputMappings()
+        self._input_bindings = EngineInputMappings()
 
         # Create GUI input receiver.
         self._input_handler = TkInputHandler()
@@ -134,6 +134,10 @@ class GameEngine(EngineObject):
 
         # Delete gameplay statics, which holds many references.
         GameplayStatics.clear_all()
+
+    @property
+    def input_bindings(self):
+        return self._input_bindings
 
 class World(EngineObject):
     """
