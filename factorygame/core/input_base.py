@@ -125,7 +125,7 @@ class EngineInputMappings:
         """
         Bind a function to an action defined in add_action_mapping.
 
-        :param action_name: (EKeys) Name of existing action mapping.
+        :param action_name: (str) Name of existing action mapping.
 
         :param key_event: (EInputEvent, int) Key event to bind to.
 
