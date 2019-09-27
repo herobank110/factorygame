@@ -30,5 +30,9 @@ if RUN_GUI_TESTS:
     from test.core.engine_test import EngineTickTest
     gui_test_manager.add_test(EngineTickTest)
 
+    # Add test for input.
+    from test.core.input_test import ActionMappingTest
+    gui_test_manager.add_test(ActionMappingTest)
+
     # Start mainloop.
     gui_test_manager.mainloop()
