@@ -224,7 +224,10 @@ class GUIInputHandler:
         elif key_event == EInputEvent.RELEASED:
             # Remove reference from held keys.
             self.fire_action_events(in_key, EInputEvent.RELEASED)
-            self.held_keys.remove(in_key)
+            try:
+                self.held_keys.remove(in_key)
+            except KeyError:
+                pass
 
     @property
     def held_keys(self):
