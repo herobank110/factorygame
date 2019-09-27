@@ -67,11 +67,11 @@ class TkInputHandler(GUIInputHandler):
             for format_arg, key in mouse_bindings["keys"].items():
                 # Bind when the button is pressed.
                 in_widget.bind_all(press_format % format_arg, lambda e, k=key:
-                    self.register_key_event(k, EInputEvent.IE_PRESSED))
+                    self.register_key_event(k, EInputEvent.PRESSED))
 
                 # Bind when the button is released.
                 in_widget.bind_all(released_format % format_arg, lambda e, k=key:
-                    self.register_key_event(k, EInputEvent.IE_RELEASED))
+                    self.register_key_event(k, EInputEvent.RELEASED))
 
         # Bind keyboard events.
         keyboard_bindings = self.tk_key_mapping.get("keyboard")
@@ -82,8 +82,8 @@ class TkInputHandler(GUIInputHandler):
             for format_arg, key in keyboard_bindings["keys"].items():
                 # Bind when the button is pressed.
                 in_widget.bind_all(press_format % format_arg, lambda e, k=key:
-                    self.register_key_event(k, EInputEvent.IE_PRESSED))
+                    self.register_key_event(k, EInputEvent.PRESSED))
 
                 # Bind when the button is released.
                 in_widget.bind_all(released_format % format_arg, lambda e, k=key:
-                    self.register_key_event(k, EInputEvent.IE_RELEASED))
+                    self.register_key_event(k, EInputEvent.RELEASED))

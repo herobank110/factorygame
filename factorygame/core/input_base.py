@@ -7,56 +7,79 @@ happen.
 """
 
 # from factorygame.core.engine_base import EngineObject
+from enum import Enum
 
 
 class GameViewportClient(object):
     pass
 
 
-class EKeys:
+class FKey:
+    """
+    Holder for an input key. Should not be used directly, use EKeys instead.
+    """
+
+    def __init__(self, in_name):
+        self._key_name = in_name
+
+    @property
+    def key_name(self):
+        return self._key_name
+
+    def __eq__(self, other):
+        return self.key_name == other.key_name
+
+    def __hash__(self):
+        return hash(self.key_name)
+
+
+class EKeys():
+    """Enum of all input keys."""
 
     # Mouse keys
 
-	LeftMouseButton = "LeftMouseButton"
-	RightMouseButton = "RightMouseButton"
-	MiddleMouseButton = "MiddleMouseButton"
-	ThumbMouseButton = "ThumbMouseButton"
-	ThumbMouseButton2 = "ThumbMouseButton2"
+    LeftMouseButton = FKey("LeftMouseButton")
+    RightMouseButton = FKey("RightMouseButton")
+    MiddleMouseButton = FKey("MiddleMouseButton")
 
+    # Currently thumb buttons aren't recognised by tkinter.
+    ThumbMouseButton = FKey("ThumbMouseButton")
+    ThumbMouseButton2 = FKey("ThumbMouseButton2")
+    
     # Keyboard keys
+    
+    A = FKey("A")
+    B = FKey("B")
+    C = FKey("C")
+    D = FKey("D")
+    E = FKey("E")
+    F = FKey("F")
+    G = FKey("G")
+    H = FKey("H")
+    I = FKey("I")
+    J = FKey("J")
+    K = FKey("K")
+    L = FKey("L")
+    M = FKey("M")
+    N = FKey("N")
+    O = FKey("O")
+    P = FKey("P")
+    Q = FKey("Q")
+    R = FKey("R")
+    S = FKey("S")
+    T = FKey("T")
+    U = FKey("U")
+    V = FKey("V")
+    W = FKey("W")
+    X = FKey("X")
+    Y = FKey("Y")
+    Z = FKey("Z")
 
-	A = "A"
-	B = "B"
-	C = "C"
-	D = "D"
-	E = "E"
-	F = "F"
-	G = "G"
-	H = "H"
-	I = "I"
-	J = "J"
-	K = "K"
-	L = "L"
-	M = "M"
-	N = "N"
-	O = "O"
-	P = "P"
-	Q = "Q"
-	R = "R"
-	S = "S"
-	T = "T"
-	U = "U"
-	V = "V"
-	W = "W"
-	X = "X"
-	Y = "Y"
-	Z = "Z"
 
-
-class EInputEvent:
+class EInputEvent(Enum):
     """Type of event that can occur on a given key."""
-    IE_PRESSED = 0
-    IE_RELEASED = 1
+    PRESSED = 0
+    RELEASED = 1
 
 
 class EngineInputMappings:
@@ -143,20 +166,19 @@ class GUIInputHandler:
         :param key_event: (EInputEvent, int) Type of event to occur.
         """
 
-        if key_event == EInputEvent.IE_PRESSED:
+        if key_event == EInputEvent.PRESSED:
             if in_key in self.held_keys:
                 # Don't fire events repeatedly if already held.
                 return
 
             self.held_keys.add(in_key)
-        
-        elif key_event == EInputEvent.IE_RELEASED:
+
+        elif key_event == EInputEvent.RELEASED:
             # Remove reference from held keys.
             self.held_keys.remove(in_key)
 
-
         print("Key %s was %s" % (in_key,
-            "pressed" if key_event == EInputEvent.IE_PRESSED else "released"))
+                                 "pressed" if key_event == EInputEvent.PRESSED else "released"))
 
     @property
     def held_keys(self):
