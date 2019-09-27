@@ -307,12 +307,15 @@ class FTickFunction:
     def tick_enabled(self, value):
         if self.target is None: return
 
+        world = GameplayStatics.world
+        if world is None: return
+
         if value:
-            self.register_tick_function()
+            self.register_tick_function(world)
             self._tick_enabled = True
             return
 
-        self.unregister_tick_function()
+        self.unregister_tick_function(world)
         self._tick_enabled = False
 
     def __init__(self, target=None):
