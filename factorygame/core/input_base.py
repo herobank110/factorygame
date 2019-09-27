@@ -8,6 +8,7 @@ happen.
 
 # from factorygame.core.engine_base import EngineObject
 from enum import Enum
+from factorygame.utils.gameplay import GameplayStatics
 
 
 class GameViewportClient(object):
@@ -124,7 +125,7 @@ class EngineInputMappings:
         """
         Bind a function to an action defined in add_action_mapping.
 
-        :param action_name: (str) Name of existing action mapping.
+        :param action_name: (EKeys) Name of existing action mapping.
 
         :param key_event: (EInputEvent, int) Key event to bind to.
 
@@ -143,6 +144,32 @@ class EngineInputMappings:
             # Create a new set.
             self._bound_events[binding] = {func}
 
+    def get_mappings_for_key(self, key):
+        """
+        Return a list of mappings that contain a given key.
+
+        :param key: (EKeys) Key to search for.
+
+        :return: (list) List of corresponding mappings.
+        """
+        return [mapping
+            for mapping, key_set in self._action_mappings.items()
+            if key in key_set]
+
+    def fire_action_bindings(self, action_name, key_event):
+        """
+        Invoke all callables registered to a mapping.
+
+        :param action_name: (str) Name of existing mapping.
+
+        :param key_event: (EInputEvent) Type of key event.
+        """
+
+        event_code = "%s:%s" % (action_name, key_event)
+        bound_funcs = self._bound_events.get(event_code)
+        if bound_funcs is not None:
+            for func in bound_funcs:
+                func.__call__()
 
 class GUIInputHandler:
     """
@@ -154,6 +181,26 @@ class GUIInputHandler:
 
         ## Hold currently held buttons in a set.
         self._held_keys = set()
+
+        self.begin_play()
+
+    def begin_play(self):
+        # This is being called manually in the constructor, 
+        # but once the engine module is refactored this will
+        # be derived from EngineObject and it will be called
+        # automatically when it is appropriate.
+        self._input_mappings = GameplayStatics.game_engine.input_mappings
+
+    def fire_action_events(self, key, key_event):
+        """
+        Fire functions bound to action mappings that are bound
+        to the key.
+        """
+        # A single key could trigger several actions.
+        mappings = self._input_mappings.get_mappings_for_key(key)
+        for action_name in mappings:
+            # Fire events for each action.
+            self._input_mappings.fire_action_bindings(action_name, key_event)
 
     def register_key_event(self, in_key, key_event):
         """
@@ -171,10 +218,12 @@ class GUIInputHandler:
                 # Don't fire events repeatedly if already held.
                 return
 
+            self.fire_action_events(in_key, EInputEvent.PRESSED)
             self.held_keys.add(in_key)
 
         elif key_event == EInputEvent.RELEASED:
             # Remove reference from held keys.
+            self.fire_action_events(in_key, EInputEvent.RELEASED)
             self.held_keys.remove(in_key)
 
         print("Key %s was %s" % (in_key.key_name,
