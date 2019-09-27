@@ -148,8 +148,15 @@ class World(EngineObject):
     def __init__(self):
         """Set default values."""
 
-        ## All spawned actors to receive tick events.
-        self._ticking_actors    = set()
+        ## All spawned actors to receive tick events, grouped by tick priority.
+        self._ticking_actors = {
+            # Create an actor set for each ticking group.
+            ETickGroup.ENGINE:  set(),
+            ETickGroup.WORLD:   set(),
+            ETickGroup.PHYSICS: set(),
+            ETickGroup.GAME:    set(),
+            ETickGroup.UI:      set(),
+        }
 
         ## All spawned actors in the world.
         self._actors            = []
@@ -260,18 +267,51 @@ class World(EngineObject):
         # schedule next tick
         self._tk_obj.after(dt, self._tick_loop)
 
-    def set_actor_tick_enabled(self, actor, new_tick_enabled):
+    def set_actor_tick_enabled(self, tick_function, new_tick_enabled):
         """
         Set whether an actor should tick and schedule/cancel tick events
-        for the future. Shouldn't be called directly, call from the actor itself.
+        for the future.
+        
+        Shouldn't be called directly, call from the actor itself. Use actor's
+        tick_function like `primary_actor_tick.tick_enabled`.
+
+        :param tick_function: (FTickFunction) Data about the tick function to
+        modify.
         """
-        if new_tick_enabled:
-            self._ticking_actors.add(actor)
+
+        actor = tick_function.target
+
+        # Ensure we are adding a valid actor with a valid tick function.
+        try:
+            func = actor.tick
+        except AttributeError:
+            return
         else:
+            if not callable(func):
+                return
+
+        if new_tick_enabled:
+            # Add the actor to its specified tick group's actor set.
+
             try:
-                self._ticking_actors.remove(actor)
+                group = self._ticking_actors[tick_function.tick_group]
             except KeyError:
-                pass
+                return
+            else:
+                group.add(actor)
+
+        else:
+            # Remove the actor from its tick group's actor set.
+
+            try:
+                group = self._ticking_actors[tick_function.tick_group]
+            except KeyError:
+                return
+            else:
+                try:
+                    group.remove(actor)
+                except KeyError:
+                    pass
 
     def begin_destroy(self):
         """Destroy all actors."""
@@ -346,7 +386,7 @@ class FTickFunction:
         if self.target is None: return
 
         try:
-            world.set_actor_tick_enabled(self.target, True)
+            world.set_actor_tick_enabled(self, True)
         except AttributeError:
             raise RuntimeWarning("Tried to register tick function on invalid world")
 
@@ -362,7 +402,7 @@ class FTickFunction:
         if self.target is None: return
 
         try:
-            world.set_actor_tick_enabled(self.target, False)
+            world.set_actor_tick_enabled(self, False)
         except AttributeError:
             raise RuntimeWarning("Tried to unregister tick function on invalid world")
 
