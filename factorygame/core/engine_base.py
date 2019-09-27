@@ -231,8 +231,8 @@ class World(EngineObject):
         actor_object.begin_play()
 
         # schedule ticks if necessary
-        if actor_object.start_with_tick_enabled:
-            self.set_actor_tick_enabled(actor_object, True)
+        # if actor_object.primary_actor_tick.start_with_tick_enabled:
+        #     self.set_actor_tick_enabled(actor_object, True)
 
         # return the fully spawned actor for further use
         return actor_object
@@ -278,7 +278,10 @@ class World(EngineObject):
         for actor in self._actors:
             actor.begin_destroy()
             self._actors.pop(0)
-            self._ticking_actors.remove(actor)
+            try:
+                self._ticking_actors.remove(actor)
+            except KeyError:
+                pass
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Start of tick data structures
@@ -397,7 +400,7 @@ class Actor(EngineObject):
 
     def __init__(self):
         ## Tick options for this actor. Can be further modified by children.
-        primary_actor_tick = FTickFunction()
+        self.primary_actor_tick = FTickFunction()
 
     def tick(self, delta_time):
         """
