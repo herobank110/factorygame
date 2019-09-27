@@ -6,6 +6,9 @@ from factorygame.core.input_tk import TkInputHandler
 from factorygame.utils.loc import Loc
 from factorygame.utils.gameplay import GameplayStatics
 
+# Input testing
+from factorygame.core.input_base import EKeys, EInputEvent
+
 class EngineObjectBase(object):
     """
     Low level implementation of EngineObjectBase, should not be used directly
@@ -102,6 +105,10 @@ class GameEngine(EngineObject):
 
         # Let action mappings be added.
         self._input_mappings = EngineInputMappings()
+
+        # Test input mapping
+        self._input_mappings.add_action_mapping("Jump", EKeys.J, EKeys.U, EKeys.M, EKeys.P)
+        self._input_mappings.bind_action("Jump", EInputEvent.PRESSED, lambda: print("jumped"))
 
         # Create GUI input receiver.
         self._input_handler = TkInputHandler()

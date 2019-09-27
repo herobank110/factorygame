@@ -133,7 +133,7 @@ class EngineInputMappings:
         """
 
         # Concatenate action name and key event.
-        binding = "%s:%d" % (action_name, key_event)
+        binding = "%s:%d" % (action_name, key_event.value)
 
         func_set = self._bound_events.get(binding)
         if func_set is not None:
@@ -165,7 +165,7 @@ class EngineInputMappings:
         :param key_event: (EInputEvent) Type of key event.
         """
 
-        event_code = "%s:%s" % (action_name, key_event)
+        event_code = "%s:%d" % (action_name, key_event.value)
         bound_funcs = self._bound_events.get(event_code)
         if bound_funcs is not None:
             for func in bound_funcs:
@@ -225,9 +225,6 @@ class GUIInputHandler:
             # Remove reference from held keys.
             self.fire_action_events(in_key, EInputEvent.RELEASED)
             self.held_keys.remove(in_key)
-
-        print("Key %s was %s" % (in_key.key_name,
-            "pressed" if key_event == EInputEvent.PRESSED else "released"))
 
     @property
     def held_keys(self):
