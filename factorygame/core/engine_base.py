@@ -1,6 +1,8 @@
 """Game engine for FactoryGame."""
 
 from tkinter import Tk
+from factorygame.core.input_base import EngineInputMappings
+from factorygame.core.input_tk import TkInputHandler
 from factorygame.utils.loc import Loc
 from factorygame.utils.gameplay import GameplayStatics
 
@@ -94,6 +96,18 @@ class GameEngine(EngineObject):
                 % (self._starting_world.__name__, type(self).__name__, e)) from e
 
 
+        # Create input binding objects.
+        
+        # TODO: There needs to be a safer way to instantiate EngineObjects
+
+        # Let action mappings be added.
+        self._input_mappings = EngineInputMappings()
+
+        # Create GUI input receiver.
+        self._input_handler = TkInputHandler()
+        self._input_handler.bind_to_widget(GameplayStatics.root_window)
+
+
         # Start game window tkinter event loop.
 
         if master is None:
@@ -119,6 +133,10 @@ class GameEngine(EngineObject):
 
         # Delete gameplay statics, which holds many references.
         GameplayStatics.clear_all()
+
+    @property
+    def input_mappings(self):
+        return self._input_mappings
 
 class World(EngineObject):
     """
