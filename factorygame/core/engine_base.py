@@ -280,6 +280,78 @@ class World(EngineObject):
             self._actors.pop(0)
             self._ticking_actors.remove(actor)
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Start of tick data structures
+
+class ETickGroup:
+    """Groups for ticking objects. Lower value groups are fired first."""
+    ENGINE  = 0
+    WORLD   = 1
+    PHYSICS = 2
+    GAME    = 3
+    UI      = 4
+
+class FTickFunction:
+    """
+    Contains data about how a particular object should tick.
+    """
+
+    @property
+    def tick_enabled(self):
+        return self._tick_enabled
+
+    @tick_enabled.setter
+    def tick_enabled(self, value):
+        if value:
+            self.register_tick_function()
+            self._tick_enabled = True
+            return
+
+        self.unregister_tick_function()
+        self._tick_enabled = False
+
+    def __init__(self, target):
+        """
+        Set reasonable defaults.
+
+        :param target: (Actor) Object containing `tick` function.
+        """
+
+        self.can_ever_tick = True
+        self.start_with_tick_enabled = True
+        self.tick_group = ETickGroup.GAME
+        self.priority = 1
+
+        self._tick_enabled = False
+
+        # Pausing is not implemented yet.
+        self.tick_even_when_paused = False
+
+    def register_tick_function(self, world):
+        """
+        Register a tick function in the given world.
+
+        :param world: (World) World containing master list.
+
+        :see: Setter for tick_enabled.
+        """
+        raise NotImplementedError()
+
+    def unregister_tick_function(self, world):
+        """
+        Unregister the tick function from the master
+        list of tick functions.
+
+        :param world: (World) World containing master list.
+
+        :see: Setter for tick_enabled.
+        """
+        raise NotImplementedError()
+
+
+# End of tick data structures
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 class Actor(EngineObject):
     """
     An object that has a visual representation in the world. Actors
