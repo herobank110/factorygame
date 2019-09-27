@@ -343,13 +343,12 @@ class FTickFunction:
 
         :see: Setter for tick_enabled.
         """
-        # if self.target is None: return
+        if self.target is None: return
 
-        # world = GameplayStatics.world
-        # if world:
-        #     world.set_actor_tick_enabled(self.target, True)
-
-        raise NotImplementedError("Tried to register tick function")
+        try:
+            world.set_actor_tick_enabled(self.target, True)
+        except AttributeError:
+            raise RuntimeWarning("Tried to register tick function on invalid world")
 
     def unregister_tick_function(self, world):
         """
@@ -360,8 +359,12 @@ class FTickFunction:
 
         :see: Setter for tick_enabled.
         """
-        raise NotImplementedError("Tried to unregister tick function")
+        if self.target is None: return
 
+        try:
+            world.set_actor_tick_enabled(self.target, False)
+        except AttributeError:
+            raise RuntimeWarning("Tried to unregister tick function on invalid world")
 
 # End of tick data structures
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
