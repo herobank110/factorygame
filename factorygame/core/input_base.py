@@ -177,8 +177,8 @@ class GUIInputHandler:
             # Remove reference from held keys.
             self.held_keys.remove(in_key)
 
-        print("Key %s was %s" % (in_key,
-                                 "pressed" if key_event == EInputEvent.PRESSED else "released"))
+        print("Key %s was %s" % (in_key.key_name,
+            "pressed" if key_event == EInputEvent.PRESSED else "released"))
 
     @property
     def held_keys(self):
