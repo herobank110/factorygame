@@ -2,6 +2,8 @@ from test.template.template_gui import GuiTest
 from factorygame.core.engine_base import GameEngine
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
 
+from tkinter.ttk import Label
+
 # Input testing
 from factorygame.core.input_base import EKeys, EInputEvent
 
@@ -9,10 +11,18 @@ from factorygame.core.input_base import EKeys, EInputEvent
 class ActionMappingTest(GuiTest):
     _test_name = "Action Mapping"
 
-    def print_jump(self):
-        print("Jumping")
+    def show_jump_text(self):
+        self.label.config(text="Received a jump press")
+        self.after(150, lambda: self.label.config(text=""))
+        
 
     def start(self):
+
+        Label(self, text="Press any key in \"j-u-m-p\" to jump.").pack()
+
+        self.label = Label(self)
+        self.label.pack()
+
         # Create the base class engine in this Toplevel window.
         game_engine = GameplayUtilities.create_game_engine(GameEngine, master=self)
 
@@ -25,7 +35,7 @@ class ActionMappingTest(GuiTest):
 
         # Bind the test function to be triggered when "Jump" is pressed.
         game_engine.input_mappings.bind_action("Jump", EInputEvent.PRESSED,
-            self.print_jump)
+            self.show_jump_text)
 
         
         # Ensure we stop the game engine when closing the test, 
