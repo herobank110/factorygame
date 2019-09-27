@@ -131,7 +131,7 @@ AppendToFile=FALSE
 [Project\ChildNodes\Node1\ChildNodes\Node1\RunConfig\ExternalRun]
 Caption=External Run
 Description=Run script using an external Python Interpreter
-ApplicationName=$[PythonExe-Short]
+ApplicationName=\\chs-app01\apps\MU-Coding\Python\python.exe
 Parameters=$[ActiveScript-Short]
 WorkingDirectory=$[ActiveScript-Dir]
 ShortCut=0
@@ -155,38 +155,14 @@ AppendToFile=FALSE
 [Project\ChildNodes\Node1\ChildNodes\Node2\RunConfig\ExternalRun]
 Caption=External Run
 Description=Run script using an external Python Interpreter
-ApplicationName=$[PythonExe-Short]
+ApplicationName=\\chs-app01\apps\MU-Coding\Python\python.exe
 Parameters=$[ActiveScript-Short]
 WorkingDirectory=$[ActiveScript-Dir]
 ShortCut=0
 MessagesFormat=$[FileName] $[LineNumber]
 
-[Project\ChildNodes\Node1\ChildNodes\Node3]
-ClassName=TProjectRunConfiguationNode
-Name=Main School Py3.6
-
-[Project\ChildNodes\Node1\ChildNodes\Node3\RunConfig]
-ScriptName=$[Project-Dir]/main.py
-Description=Main project start for PyScripter in school using Py3.6
-EngineType=peRemote
-ReinitializeBeforeRun=TRUE
-Parameters=m
-WorkingDir=$[ActiveScript-Dir]
-WriteOutputToFile=FALSE
-OutputFileName=$[ActiveScript-NoExt].log
-AppendToFile=FALSE
-
-[Project\ChildNodes\Node1\ChildNodes\Node3\RunConfig\ExternalRun]
-Caption=External Run
-Description=Run script using an external Python Interpreter
-ApplicationName=\\chs-app01\apps\MU-Coding\Python\python.exe
-Parameters=$[ActiveScript-Short]
-WorkingDirectory=$[Project-Dir]
-ShortCut=0
-MessagesFormat=$[FileName] $[LineNumber]
-
 [Project\ChildNodes\Node1\ChildNodes]
-Count=4
+Count=3
 
 [Project\ChildNodes]
 Count=2

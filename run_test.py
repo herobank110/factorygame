@@ -4,6 +4,15 @@ Run start for FactoryGame test suite.
 
 import sys
 
+try:
+    # Py 3.6
+    py_36_path, _ = sys.argv[0].split("/")
+except ValueError:
+    # Py 3.2
+    sys.path.insert(0, "\\".join(sys.argv[0].split("\\")[:-1]))
+else:
+    sys.path.insert(0, py_36_path)
+
 ## Whether to run GUI tests.
 RUN_GUI_TESTS = "nogui" not in sys.argv
 
