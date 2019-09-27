@@ -302,6 +302,8 @@ class FTickFunction:
 
     @tick_enabled.setter
     def tick_enabled(self, value):
+        if self.target is None: return
+
         if value:
             self.register_tick_function()
             self._tick_enabled = True
@@ -310,13 +312,13 @@ class FTickFunction:
         self.unregister_tick_function()
         self._tick_enabled = False
 
-    def __init__(self, target):
+    def __init__(self, target=None):
         """
         Set reasonable defaults.
 
-        :param target: (Actor) Object containing `tick` function.
+        :param target: (Actor) Object containing `tick` method.
         """
-
+        self.target = target
         self.can_ever_tick = True
         self.start_with_tick_enabled = True
         self.tick_group = ETickGroup.GAME
@@ -335,7 +337,13 @@ class FTickFunction:
 
         :see: Setter for tick_enabled.
         """
-        raise NotImplementedError()
+        # if self.target is None: return
+
+        # world = GameplayStatics.world
+        # if world:
+        #     world.set_actor_tick_enabled(self.target, True)
+
+        raise NotImplementedError("Tried to register tick function")
 
     def unregister_tick_function(self, world):
         """
@@ -346,7 +354,7 @@ class FTickFunction:
 
         :see: Setter for tick_enabled.
         """
-        raise NotImplementedError()
+        raise NotImplementedError("Tried to unregister tick function")
 
 
 # End of tick data structures
@@ -358,25 +366,15 @@ class Actor(EngineObject):
     are directly managed by a world object and should only be created
     by using spawn_actor functions from the current world.
     """
-    start_with_tick_enabled = property(lambda self: True)
+
     world = property(lambda self: self._world)
     location = property(lambda self: self.__get_location(),
         lambda self, value: self.__set_location(value))
-    ##tick_enabled = property(__get_tick_enabled, __set_tick_enabled)
-    tick_enabled = property()
 
     def __get_location(self):
         return self._location
     def __set_location(self, value):
         self._location = Loc(value)
-
-    @tick_enabled.getter
-    def __get_tick_enabled(self):
-        return self._tick_enabled
-    @tick_enabled.setter
-    def __set_tick_enabled(self, value):
-        self._tick_enabled = value
-        self.world.set_actor_tick_enabled(self, value)
 
     def __spawn__(self, world, location):
         """Called when actor is spawned by world. Shouldn't be called directly."""
@@ -387,13 +385,19 @@ class Actor(EngineObject):
         ## Location of actor in world.
         self._location = location
 
-        ## Whether to receive tick events.
-        self._tick_enabled = self.start_with_tick_enabled
-        if self._tick_enabled:
-            world.set_actor_tick_enabled(self, True)
+        # Register the tick function for this actor.
+        try:
+            tick_func = self.primary_actor_tick
+        except AttributeError:
+            pass
+        else:
+            if tick_func.can_ever_tick:
+                tick_func.target = self
+                tick_func.tick_enabled = tick_func.start_with_tick_enabled
 
     def __init__(self):
-        pass
+        ## Tick options for this actor. Can be further modified by children.
+        primary_actor_tick = FTickFunction()
 
     def tick(self, delta_time):
         """
