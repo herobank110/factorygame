@@ -7,7 +7,6 @@ happen.
 """
 
 # from factorygame.core.engine_base import EngineObject
-from enum import Enum
 from factorygame.utils.gameplay import GameplayStatics
 
 
@@ -34,7 +33,7 @@ class FKey:
         return hash(self.key_name)
 
 
-class EKeys():
+class EKeys:
     """Enum of all input keys."""
 
     # Mouse keys
@@ -77,10 +76,12 @@ class EKeys():
     Z = FKey("Z")
 
 
-class EInputEvent(Enum):
+class EInputEvent:
     """Type of event that can occur on a given key."""
     PRESSED = 0
     RELEASED = 1
+
+    MAX = 2
 
 
 class EngineInputMappings:
@@ -127,13 +128,13 @@ class EngineInputMappings:
 
         :param action_name: (str) Name of existing action mapping.
 
-        :param key_event: (EInputEvent, int) Key event to bind to.
+        :param key_event: (EInputEvent) Key event to bind to.
 
         :param func: (callable) Function to call when input comes in.
         """
 
         # Concatenate action name and key event.
-        binding = "%s:%d" % (action_name, key_event.value)
+        binding = "%s:%d" % (action_name, key_event)
 
         func_set = self._bound_events.get(binding)
         if func_set is not None:
@@ -165,7 +166,7 @@ class EngineInputMappings:
         :param key_event: (EInputEvent) Type of key event.
         """
 
-        event_code = "%s:%d" % (action_name, key_event.value)
+        event_code = "%s:%d" % (action_name, key_event)
         bound_funcs = self._bound_events.get(event_code)
         if bound_funcs is not None:
             for func in bound_funcs:
