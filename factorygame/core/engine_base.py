@@ -148,15 +148,12 @@ class World(EngineObject):
     def __init__(self):
         """Set default values."""
 
+
         ## All spawned actors to receive tick events, grouped by tick priority.
         self._ticking_actors = {
             # Create an actor set for each ticking group.
-            ETickGroup.ENGINE:  set(),
-            ETickGroup.WORLD:   set(),
-            ETickGroup.PHYSICS: set(),
-            ETickGroup.GAME:    set(),
-            ETickGroup.UI:      set(),
-        }
+            group: set() for group in range(ETickGroup.MAX)
+            }
 
         ## All spawned actors in the world.
         self._actors            = []
