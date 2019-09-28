@@ -168,18 +168,6 @@ class World(EngineObject):
         self._tk_obj = tk_obj
         self.__try_start_tick_loop()
 
-# # # # #
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
-
     def spawn_actor(self, actor_class, loc):
         """
         Attempt to initialise a new actor in this world, from start
@@ -330,10 +318,10 @@ class World(EngineObject):
         for actor in self._actors:
             actor.begin_destroy()
             self._actors.pop(0)
-            try:
-                self._ticking_actors.remove(actor)
-            except KeyError:
-                pass
+            # try:
+            #     self._ticking_actors.remove(actor)
+            # except KeyError:
+            #     pass
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Start of tick data structures
