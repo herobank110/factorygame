@@ -85,15 +85,15 @@ class GameEngine(EngineObject):
             # Choose default world if not specified.
             self._starting_world = World
 
-        try:
-            world = self._starting_world()
-            world.__init_world__(self._window)
-            GameplayStatics.set_world(world)
-            world.begin_play()
-        except AttributeError as e:
-            # The starting world is not a valid class.
-            raise AttributeError("Starting world '%s' for engine '%s' is not valid. %s"
-                % (self._starting_world.__name__, type(self).__name__, e)) from e
+        # try:
+        world = self._starting_world()
+        world.__init_world__(self._window)
+        GameplayStatics.set_world(world)
+        world.begin_play()
+        # except AttributeError as e:
+        #     # The starting world is not a valid class.
+        #     raise AttributeError("Starting world '%s' for engine '%s' is not valid. %s"
+        #         % (self._starting_world.__name__, type(self).__name__, e)) from e
 
 
         # Create input binding objects.
@@ -170,6 +170,18 @@ class World(EngineObject):
         # Prepare for starting tick timer.
         self._tk_obj = tk_obj
         self.__try_start_tick_loop()
+
+# # # # #
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
 
     def spawn_actor(self, actor_class, loc):
         """
