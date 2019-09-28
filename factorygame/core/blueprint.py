@@ -59,6 +59,8 @@ class DrawnActor(Actor, Drawable):
     def __init__(self):
         """Set default values."""
 
+        super().__init__()
+
         ## Random, serialisable unique ID for this drawable object.
         self.unique_id = uuid4()
 
@@ -362,7 +364,7 @@ class GraphBase(Canvas, Drawable):
     zoom_ratio = property(__get_zoom_ratio, __set_zoom_ratio)
 
     def __init__(self, master=None, cnf={}, **kw):
-        """Initialiase blueprint graph in widget MASTER."""
+        """Initialiase blueprint graph in widget MASTER."""        
 
         # Set default values.
 
@@ -889,6 +891,8 @@ class FColor(Loc):
 class RenderManager(Actor, Drawable):
     def __init__(self):
         """Set default values."""
+        
+        super().__init__()
         
         ## Dictionary of canvas ids belongs to a Node object. Used to 
         ## map a given transient canvas id to a particular node.
