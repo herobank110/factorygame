@@ -273,8 +273,11 @@ class World(EngineObject):
         dt = GameplayStatics.game_engine.FRAME_TIME # in miliseconds, as integer
 
         # call tick event on other actors
-        for actor in self._ticking_actors:
-            actor.tick(dt)
+        for group in range(ETickGroup.MAX):
+            # Call the groups in order.
+            actor_set = self._ticking_actors[group]
+            for actor in actor_set:
+                actor.tick(dt)
 
         # schedule next tick
         self._tk_obj.after(dt, self._tick_loop)
@@ -345,6 +348,8 @@ class ETickGroup:
     PHYSICS = 2
     GAME    = 3
     UI      = 4
+
+    MAX     = 5
 
 class FTickFunction:
     """
