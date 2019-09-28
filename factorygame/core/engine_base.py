@@ -85,15 +85,15 @@ class GameEngine(EngineObject):
             # Choose default world if not specified.
             self._starting_world = World
 
-        try:
-            world = self._starting_world()
-            world.__init_world__(self._window)
-            GameplayStatics.set_world(world)
-            world.begin_play()
-        except AttributeError as e:
-            # The starting world is not a valid class.
-            raise AttributeError("Starting world '%s' for engine '%s' is not valid. %s"
-                % (self._starting_world.__name__, type(self).__name__, e)) from e
+        # try:
+        world = self._starting_world()
+        world.__init_world__(self._window)
+        GameplayStatics.set_world(world)
+        world.begin_play()
+        # except AttributeError as e:
+        #     # The starting world is not a valid class.
+        #     raise AttributeError("Starting world '%s' for engine '%s' is not valid. %s"
+        #         % (self._starting_world.__name__, type(self).__name__, e)) from e
 
 
         # Create input binding objects.
@@ -148,8 +148,12 @@ class World(EngineObject):
     def __init__(self):
         """Set default values."""
 
-        ## All spawned actors to receive tick events.
-        self._ticking_actors    = set()
+
+        ## All spawned actors to receive tick events, grouped by tick priority.
+        self._ticking_actors = {
+            # Create an actor set for each ticking group.
+            group: set() for group in range(ETickGroup.MAX)
+            }
 
         ## All spawned actors in the world.
         self._actors            = []
@@ -163,6 +167,18 @@ class World(EngineObject):
         # Prepare for starting tick timer.
         self._tk_obj = tk_obj
         self.__try_start_tick_loop()
+
+# # # # #
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
+######## TODO: MAKE THE WORLD ACTUALLY CALL THE TICK FUNCTIONS IN THE GROUPS!!!!
 
     def spawn_actor(self, actor_class, loc):
         """
@@ -231,8 +247,8 @@ class World(EngineObject):
         actor_object.begin_play()
 
         # schedule ticks if necessary
-        if actor_object.start_with_tick_enabled:
-            self.set_actor_tick_enabled(actor_object, True)
+        # if actor_object.primary_actor_tick.start_with_tick_enabled:
+        #     self.set_actor_tick_enabled(actor_object, True)
 
         # return the fully spawned actor for further use
         return actor_object
@@ -254,31 +270,158 @@ class World(EngineObject):
         dt = GameplayStatics.game_engine.FRAME_TIME # in miliseconds, as integer
 
         # call tick event on other actors
-        for actor in self._ticking_actors:
-            actor.tick(dt)
+        for group in range(ETickGroup.MAX):
+            # Call the groups in order.
+            actor_set = self._ticking_actors[group]
+            for actor in actor_set:
+                actor.tick(dt)
 
         # schedule next tick
         self._tk_obj.after(dt, self._tick_loop)
 
-    def set_actor_tick_enabled(self, actor, new_tick_enabled):
+    def set_actor_tick_enabled(self, tick_function, new_tick_enabled):
         """
         Set whether an actor should tick and schedule/cancel tick events
-        for the future. Shouldn't be called directly, call from the actor itself.
+        for the future.
+        
+        Shouldn't be called directly, call from the actor itself. Use actor's
+        tick_function like `primary_actor_tick.tick_enabled`.
+
+        :param tick_function: (FTickFunction) Data about the tick function to
+        modify.
         """
-        if new_tick_enabled:
-            self._ticking_actors.add(actor)
+
+        actor = tick_function.target
+
+        # Ensure we are adding a valid actor with a valid tick function.
+        try:
+            func = actor.tick
+        except AttributeError:
+            return
         else:
+            if not callable(func):
+                return
+
+        if new_tick_enabled:
+            # Add the actor to its specified tick group's actor set.
+
             try:
-                self._ticking_actors.remove(actor)
+                group = self._ticking_actors[tick_function.tick_group]
             except KeyError:
-                pass
+                return
+            else:
+                group.add(actor)
+
+        else:
+            # Remove the actor from its tick group's actor set.
+
+            try:
+                group = self._ticking_actors[tick_function.tick_group]
+            except KeyError:
+                return
+            else:
+                try:
+                    group.remove(actor)
+                except KeyError:
+                    pass
 
     def begin_destroy(self):
         """Destroy all actors."""
         for actor in self._actors:
             actor.begin_destroy()
             self._actors.pop(0)
-            self._ticking_actors.remove(actor)
+            try:
+                self._ticking_actors.remove(actor)
+            except KeyError:
+                pass
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Start of tick data structures
+
+class ETickGroup:
+    """Groups for ticking objects. Lower value groups are fired first."""
+    ENGINE  = 0
+    WORLD   = 1
+    PHYSICS = 2
+    GAME    = 3
+    UI      = 4
+
+    MAX     = 5
+
+class FTickFunction:
+    """
+    Contains data about how a particular object should tick.
+    """
+
+    @property
+    def tick_enabled(self):
+        return self._tick_enabled
+
+    @tick_enabled.setter
+    def tick_enabled(self, value):
+        if self.target is None: return
+
+        world = GameplayStatics.world
+        if world is None: return
+
+        if value:
+            self.register_tick_function(world)
+            self._tick_enabled = True
+            return
+
+        self.unregister_tick_function(world)
+        self._tick_enabled = False
+
+    def __init__(self, target=None):
+        """
+        Set reasonable defaults.
+
+        :param target: (Actor) Object containing `tick` method.
+        """
+        self.target = target
+        self.can_ever_tick = True
+        self.start_with_tick_enabled = True
+        self.tick_group = ETickGroup.GAME
+        self.priority = 1
+
+        self._tick_enabled = False
+
+        # Pausing is not implemented yet.
+        self.tick_even_when_paused = False
+
+    def register_tick_function(self, world):
+        """
+        Register a tick function in the given world.
+
+        :param world: (World) World containing master list.
+
+        :see: Setter for tick_enabled.
+        """
+        if self.target is None: return
+
+        try:
+            world.set_actor_tick_enabled(self, True)
+        except AttributeError:
+            raise RuntimeWarning("Tried to register tick function on invalid world")
+
+    def unregister_tick_function(self, world):
+        """
+        Unregister the tick function from the master
+        list of tick functions.
+
+        :param world: (World) World containing master list.
+
+        :see: Setter for tick_enabled.
+        """
+        if self.target is None: return
+
+        try:
+            world.set_actor_tick_enabled(self, False)
+        except AttributeError:
+            raise RuntimeWarning("Tried to unregister tick function on invalid world")
+
+# End of tick data structures
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Actor(EngineObject):
     """
@@ -286,25 +429,15 @@ class Actor(EngineObject):
     are directly managed by a world object and should only be created
     by using spawn_actor functions from the current world.
     """
-    start_with_tick_enabled = property(lambda self: True)
+
     world = property(lambda self: self._world)
     location = property(lambda self: self.__get_location(),
         lambda self, value: self.__set_location(value))
-    ##tick_enabled = property(__get_tick_enabled, __set_tick_enabled)
-    tick_enabled = property()
 
     def __get_location(self):
         return self._location
     def __set_location(self, value):
         self._location = Loc(value)
-
-    @tick_enabled.getter
-    def __get_tick_enabled(self):
-        return self._tick_enabled
-    @tick_enabled.setter
-    def __set_tick_enabled(self, value):
-        self._tick_enabled = value
-        self.world.set_actor_tick_enabled(self, value)
 
     def __spawn__(self, world, location):
         """Called when actor is spawned by world. Shouldn't be called directly."""
@@ -315,13 +448,19 @@ class Actor(EngineObject):
         ## Location of actor in world.
         self._location = location
 
-        ## Whether to receive tick events.
-        self._tick_enabled = self.start_with_tick_enabled
-        if self._tick_enabled:
-            world.set_actor_tick_enabled(self, True)
+        # Register the tick function for this actor.
+        try:
+            tick_func = self.primary_actor_tick
+        except AttributeError:
+            pass
+        else:
+            if tick_func.can_ever_tick:
+                tick_func.target = self
+                tick_func.tick_enabled = tick_func.start_with_tick_enabled
 
     def __init__(self):
-        pass
+        ## Tick options for this actor. Can be further modified by children.
+        self.primary_actor_tick = FTickFunction()
 
     def tick(self, delta_time):
         """

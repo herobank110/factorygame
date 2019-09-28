@@ -9,7 +9,7 @@ from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput, ScalingImage
 from factorygame.utils.gameplay import GameplayStatics
 from factorygame.utils.mymath import MathStat
-from factorygame.core.engine_base import World, Actor
+from factorygame.core.engine_base import World, Actor, ETickGroup
 
 class Drawable(object):
     """
@@ -58,6 +58,8 @@ class DrawnActor(Actor, Drawable):
 
     def __init__(self):
         """Set default values."""
+
+        super().__init__()
 
         ## Random, serialisable unique ID for this drawable object.
         self.unique_id = uuid4()
@@ -362,7 +364,7 @@ class GraphBase(Canvas, Drawable):
     zoom_ratio = property(__get_zoom_ratio, __set_zoom_ratio)
 
     def __init__(self, master=None, cnf={}, **kw):
-        """Initialiase blueprint graph in widget MASTER."""
+        """Initialiase blueprint graph in widget MASTER."""        
 
         # Set default values.
 
@@ -520,6 +522,8 @@ class GridGismo(DrawnActor):
         self.grid_size = 300
 
         super().__init__()
+
+        self.primary_actor_tick.tick_group = ETickGroup.UI
         
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -889,6 +893,8 @@ class FColor(Loc):
 class RenderManager(Actor, Drawable):
     def __init__(self):
         """Set default values."""
+        
+        super().__init__()
         
         ## Dictionary of canvas ids belongs to a Node object. Used to 
         ## map a given transient canvas id to a particular node.
