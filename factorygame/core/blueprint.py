@@ -9,7 +9,7 @@ from factorygame.utils.loc import Loc
 from factorygame.utils.tkutils import MotionInput, ScalingImage
 from factorygame.utils.gameplay import GameplayStatics
 from factorygame.utils.mymath import MathStat
-from factorygame.core.engine_base import World, Actor
+from factorygame.core.engine_base import World, Actor, ETickGroup
 
 class Drawable(object):
     """
@@ -522,6 +522,8 @@ class GridGismo(DrawnActor):
         self.grid_size = 300
 
         super().__init__()
+
+        self.primary_actor_tick.tick_group = ETickGroup.UI
         
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
