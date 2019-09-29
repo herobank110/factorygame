@@ -1,6 +1,6 @@
 # FactoryGame
 
-Python game to create an automated factory production line.
+Python game engine to have a 2d movable "graph".
 
 ## Overview
 
