@@ -571,6 +571,9 @@ class GridGismo(DrawnActor):
         tr, bl = graph.get_view_coords()
         dim = graph.get_canvas_dim()
 
+        line_color = self.grid_line_color.to_hex()
+        text_color = self.grid_text_color.to_hex()
+
         # Gap between lines, in world units.
         grid_mult = graph.zoom_ratio // 10 # Density of grid lines.
         gap_size = self.grid_size
@@ -592,13 +595,15 @@ class GridGismo(DrawnActor):
             c1 = graph.view_to_canvas(draw_pos)
             c1.y = 0
             c2 = c1 + (0, dim.y)
-            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_vertical"), fill="cyan")
+            graph.create_line(c1, c2, fill=line_color,
+                tags=(self.unique_id, "grid_line_vertical"))
 
             if draw_axis_numbers:
                 c1.x += 3
                 c1.y = dim.y - 5
                 graph.create_text(c1, text="%d" % draw_pos.x,
-                anchor="sw", tags=(self.unique_id, "axis_number_vertical"), fill="cyan")
+                anchor="sw", fill=text_color,
+                tags=(self.unique_id, "axis_number_vertical"))
 
             draw_pos.x += gap_size
 
@@ -610,12 +615,14 @@ class GridGismo(DrawnActor):
             c1 = graph.view_to_canvas(draw_pos)
             c1.x = 0
             c2 = c1 + (dim.x, 0)
-            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_horizontal"), fill="cyan")
+            graph.create_line(c1, c2, fill=line_color,
+                tags=(self.unique_id, "grid_line_horizontal"))
 
             if draw_axis_numbers:
                 c1.x = 5
                 graph.create_text(c1, text="%d" % draw_pos.y,
-                anchor="nw", tags=(self.unique_id, "axis_number_horizontal"), fill="cyan")
+                    anchor="nw", fill=text_color,
+                    tags=(self.unique_id, "axis_number_horizontal"))
 
             draw_pos.y += gap_size
 
@@ -625,19 +632,23 @@ class GridGismo(DrawnActor):
         graph = self.world
         dim = graph.get_canvas_dim()
 
+        line_color = self.origin_line_color.to_hex()
+
         # Vertical
         c1 = graph.view_to_canvas(Loc(0, 0))
         if c1.x > 0 and c1.x < dim.x:
             c1.y = 0
             c2 = c1 + (0, dim.y)
-            graph.create_line(c1, c2, fill="blue", width=3, tags=(self.unique_id, "origin_line_vertical"))
+            graph.create_line(c1, c2, fill=line_color, width=3,
+                tags=(self.unique_id, "origin_line_vertical"))
 
         # Horizontal
         c1 = graph.view_to_canvas(Loc(0, 0))
         if c1.y > 0 and c1.y < dim.y:
             c1.x = 0
             c2 = c1 + (dim.x, 0)
-            graph.create_line(c1, c2, fill="blue", width=3, tags=(self.unique_id, "origin_line_horizontal"))
+            graph.create_line(c1, c2, fill=line_color, width=3,
+            tags=(self.unique_id, "origin_line_horizontal"))
 
 class WorldGraph(World, GraphBase):
     """
