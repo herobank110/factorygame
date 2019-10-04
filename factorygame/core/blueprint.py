@@ -568,7 +568,7 @@ class GridGismo(DrawnActor):
         # Adjust density for zoom.
         # When further zoomed out, increase
         # density (decrease gap size).
-        gap_size += self.grid_size * grid_mult
+        gap_size += self.grid_size * ((2 ** grid_mult) - 1)
 
         # Offset of the first leftmost line from the
         # bottom left viewport corner.
