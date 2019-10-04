@@ -98,6 +98,36 @@ class GameplayUtilities(object):
         # Return newly created engine object.
         return obj
 
+    @staticmethod
+    def travel(world_class):
+        """
+        Travel to the specified world.
+
+        Will invalidate old world and all existing actors.
+        """
+        old_world = GameplayStatics.world
+        if old_world is None: return
+
+        # Will destroy all old actors
+        old_world.begin_destroy()
+
+        # Create new input bindings just in case old actors still exist.
+        GameplayStatics.game_engine.input_mappings._bound_events = {}
+
+        new_world = world_class()
+        new_world.__init_world__(GameplayStatics.root_window)
+        GameplayStatics.set_world(new_world)
+        new_world.begin_play()
+
+        # Return newly created world
+        return new_world
+
+        # world = self._starting_world()
+        # world.__init_world__(self._window)
+        # GameplayStatics.set_world(world)
+        # world.begin_play()
+
+
 # Initialise an object to work with properties.
 GameplayStatics = __GameplayStatics()
 
