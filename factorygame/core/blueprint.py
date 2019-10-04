@@ -391,6 +391,7 @@ class GraphBase(Canvas, Drawable):
 
         # Initialise canvas parent.
         Canvas.__init__(self, master, cnf, **kw)
+        self.config(bg=FColor(240).to_hex())
 
         self.__setup_input_bindings()
 
@@ -527,6 +528,15 @@ class GridGismo(DrawnActor):
         
         ## Average size of each square grid, in pixels.
         self.grid_size = 300
+
+        ## Color of grid lines.
+        self.grid_line_color = FColor(215)
+
+        ## Color of grid text.
+        self.grid_text_color = FColor(150)
+
+        ## Color of origin lines.
+        self.origin_line_color = FColor(145)
 
         super().__init__()
 
