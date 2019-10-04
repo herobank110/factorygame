@@ -183,6 +183,9 @@ class PolygonNode(NodeBase):
 
     @property
     def world_vertices(self):
+        # Calculate each time it is called.
+        # return tuple(map(lambda v: self.location + v, self.vertices))
+
         return self._world_vertices
 
     @property
@@ -258,6 +261,10 @@ class PolygonNode(NodeBase):
 
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+    def begin_destroy(self):
+        super().begin_destroy()
+        self._clear()
 
     # TODO: create more robust input handling system
     def on_click(self, event):
@@ -523,7 +530,7 @@ class GridGismo(DrawnActor):
 
         super().__init__()
 
-        self.primary_actor_tick.tick_group = ETickGroup.UI
+        self.primary_actor_tick.tick_group = ETickGroup.WORLD
         
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -575,13 +582,13 @@ class GridGismo(DrawnActor):
             c1 = graph.view_to_canvas(draw_pos)
             c1.y = 0
             c2 = c1 + (0, dim.y)
-            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_vertical"))
+            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_vertical"), fill="cyan")
 
             if draw_axis_numbers:
                 c1.x += 3
                 c1.y = dim.y - 5
                 graph.create_text(c1, text="%d" % draw_pos.x,
-                anchor="sw", tags=(self.unique_id, "axis_number_vertical"))
+                anchor="sw", tags=(self.unique_id, "axis_number_vertical"), fill="cyan")
 
             draw_pos.x += gap_size
 
@@ -593,12 +600,12 @@ class GridGismo(DrawnActor):
             c1 = graph.view_to_canvas(draw_pos)
             c1.x = 0
             c2 = c1 + (dim.x, 0)
-            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_horizontal"))
+            graph.create_line(c1, c2, tags=(self.unique_id, "grid_line_horizontal"), fill="cyan")
 
             if draw_axis_numbers:
                 c1.x = 5
                 graph.create_text(c1, text="%d" % draw_pos.y,
-                anchor="nw", tags=(self.unique_id, "axis_number_horizontal"))
+                anchor="nw", tags=(self.unique_id, "axis_number_horizontal"), fill="cyan")
 
             draw_pos.y += gap_size
 
@@ -613,14 +620,14 @@ class GridGismo(DrawnActor):
         if c1.x > 0 and c1.x < dim.x:
             c1.y = 0
             c2 = c1 + (0, dim.y)
-            graph.create_line(c1, c2, fill="red", width=3, tags=(self.unique_id, "origin_line_vertical"))
+            graph.create_line(c1, c2, fill="blue", width=3, tags=(self.unique_id, "origin_line_vertical"))
 
         # Horizontal
         c1 = graph.view_to_canvas(Loc(0, 0))
         if c1.y > 0 and c1.y < dim.y:
             c1.x = 0
             c2 = c1 + (dim.x, 0)
-            graph.create_line(c1, c2, fill="red", width=3, tags=(self.unique_id, "origin_line_horizontal"))
+            graph.create_line(c1, c2, fill="blue", width=3, tags=(self.unique_id, "origin_line_horizontal"))
 
 class WorldGraph(World, GraphBase):
     """
@@ -646,19 +653,11 @@ class WorldGraph(World, GraphBase):
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, Loc(0, 0))
 
-        my_poly = self.deferred_spawn_actor(PolygonNode, (-150, 150))
-        my_poly.vertices = list(GeomHelper.generate_reg_poly(5, radius=150.0))
-        my_poly.fill_color = FColor.green()
-        self.finish_deferred_spawn_actor(my_poly)
+    def begin_destroy(self):
+        super().begin_destroy()
 
-        my_dodecagon = self.deferred_spawn_actor(PolygonNode, Loc(300, 0))
-        my_dodecagon.vertices = list(GeomHelper.generate_reg_poly(12, radius=300))
-        my_dodecagon.fill_color = FColor.cyan()
-        my_dodecagon.outline_color = FColor.yellow()
-        my_dodecagon.outline_width = 2.5
-        self.finish_deferred_spawn_actor(my_dodecagon)
-
-        self.spawn_actor(NodeBase, Loc(200, 200))
+        # Destroy the tkinter graph canvas.
+        self.destroy()
 
     def on_graph_button_press_input(self, event):
         """Call input events on nodes that are clicked."""
@@ -899,6 +898,9 @@ class RenderManager(Actor, Drawable):
         ## Dictionary of canvas ids belongs to a Node object. Used to 
         ## map a given transient canvas id to a particular node.
         self.node_canvas_ids = {}
+
+        # ENSURE we tick before any other actors!
+        self.primary_actor_tick.tick_group = ETickGroup.ENGINE
 
     def _draw(self):
         """This should be called before any other nodes receive draw calls."""
