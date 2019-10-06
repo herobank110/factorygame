@@ -2,6 +2,7 @@ from test.template.template_gui import GuiTest
 from factorygame.core.engine_base import GameEngine, Actor
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
 from tkinter.ttk import Label, Button, Frame
+from tkinter import Text
 
 import random
 
@@ -104,12 +105,16 @@ class ActorDestroyTest(GuiTest):
             text=self.active_actor_tick_format.format(rand))
 
     def start(self):
-        Label(self, text=
-            "Actors in a world can be destroyed by the world. The actor's\n"
-            "begin_destroy will be called and it will no longer receive\n"
-            "ticks.\nThe actor is removed from the world's master list, but\n"
-            "to be GC'd all references must be removed!"
-            ).pack(padx=3, pady=3)
+        t = Text(
+            self, height=4, relief="flat",
+            wrap="word", bg="SystemButtonFace",
+            font="Chicken 10")
+        t.insert("end",
+            "Actors in a world can be destroyed by the world. The actor's "
+            "begin_destroy will be called and it will no longer receive "
+            "ticks.The actor is removed from the world's master list, but "
+            "to be GC'd all references must be removed!")
+        t.pack(fill="x", expand="true", padx=10, pady=3)
 
         # List of spawned actors, to track creation by this test.
         # Although, the world has the true master list of actors
