@@ -1,5 +1,5 @@
 from test.template.template_gui import GuiTest
-from factorygame.core.engine_base import GameEngine, Actor
+from factorygame.core.engine_base import GameEngine, Actor, ETickGroup
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
 from tkinter.ttk import Label, Button, Frame
 from tkinter import Text
@@ -53,13 +53,24 @@ class CounterRefreshActor(Actor):
         ## GuiTest object to refresh each frame.
         self.test_object = None
 
+        self.primary_actor_tick.tick_group = ETickGroup.ENGINE
+
     def tick(self, delta_time):
         self.test_object.refresh_actor_count()
 
-class DestroyingActor(CounterRefreshActor):
+class DestroyingActor(Actor):
+
+    def __init__(self):
+        super().__init__()
+
+        ## GuiTest object to refresh each frame.
+        self.test_object = None
+
+        self.primary_actor_tick.tick_group = ETickGroup.GAME
 
     def tick(self, delta_time):
-        self.test_object.refresh_active_actor_tick()
+        self.test_object.refresh_active_actor_tick(
+            random.randint(0, 9))
 
 class SlowTickEngine(GameEngine):
     """Engine with really slow tick for easy demonstration."""
@@ -98,11 +109,13 @@ class ActorDestroyTest(GuiTest):
 
         self.actor_count_label.config(text=new_text)
 
-    def refresh_active_actor_tick(self):
-        # Get a random 4 digit number.
-        rand = random.randint(1000, 9999)
+        # Also clear previous active actor ticks.
         self.active_actor_tick_label.config(
-            text=self.active_actor_tick_format.format(rand))
+            text="")
+
+    def refresh_active_actor_tick(self, new_digit):
+        new_text = self.active_actor_tick_label.cget("text") + str(new_digit)
+        self.active_actor_tick_label.config(text=new_text)
 
     def start(self):
         t = Text(
@@ -146,7 +159,7 @@ class ActorDestroyTest(GuiTest):
 
         # Create a label to show when actors are spawned.
         
-        self.active_actor_tick_format = "This number is changed by actors to {:d}."
+        self.active_actor_tick_format = "This number is changed by actors to {}"
 
         self.active_actor_tick_label = Label(
             self, text="This text is changed by spawned actors")
