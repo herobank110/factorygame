@@ -132,7 +132,7 @@ class ActorDestroyTest(GuiTest):
             "begin_destroy will be called and it will no longer receive "
             "ticks.The actor is removed from the world's master list, but "
             "to be GC'd all references must be removed!")
-        t.pack(fill="x", expand="true", padx=10, pady=3)
+        t.pack(fill="both", expand="true", padx=10, pady=3)
 
         # List of spawned actors, to track creation by this test.
         # Although, the world has the true master list of actors
