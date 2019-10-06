@@ -60,6 +60,13 @@ class DestroyingActor(CounterRefreshActor):
     def tick(self, delta_time):
         self.test_object.refresh_active_actor_tick()
 
+class SlowTickEngine(GameEngine):
+    """Engine with really slow tick for easy demonstration."""
+
+    def __init__(self):
+        super().__init__()
+        self._frame_rate = 5  # Frames per second.
+
 class ActorDestroyTest(GuiTest):
     _test_name = "Actor Destroy"
 
@@ -93,7 +100,8 @@ class ActorDestroyTest(GuiTest):
     def refresh_active_actor_tick(self):
         # Get a random 4 digit number.
         rand = random.randint(1000, 9999)
-        self.active_actor_tick_label.config(text=str(rand))
+        self.active_actor_tick_label.config(
+            text=self.active_actor_tick_format.format(rand))
 
     def start(self):
         Label(self, text=
@@ -109,7 +117,7 @@ class ActorDestroyTest(GuiTest):
         self.spawned_actors = []
 
         # Create label to show number of active actors.
-        self.actor_count_format = "There are currently {:d} actors in the world"
+        self.actor_count_format = "There are currently {:d} actors in the world."
 
         self.actor_count_label = Label(
             self, text=self.actor_count_format.format(0))
@@ -132,12 +140,15 @@ class ActorDestroyTest(GuiTest):
         command_frame.pack(pady=10)
 
         # Create a label to show when actors are spawned.
+        
+        self.active_actor_tick_format = "This number is changed by actors to {:d}."
+
         self.active_actor_tick_label = Label(
             self, text="This text is changed by spawned actors")
         self.active_actor_tick_label.pack()
 
         # Create the base class engine in this Toplevel window.
-        GameplayUtilities.create_game_engine(GameEngine, master=self)
+        GameplayUtilities.create_game_engine(SlowTickEngine, master=self)
 
         # Create actor to refresh actor count.
         counter_refresh_actor = GameplayStatics.world.spawn_actor(
