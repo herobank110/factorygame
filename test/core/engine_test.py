@@ -3,6 +3,7 @@ from factorygame.core.engine_base import GameEngine, Actor
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
 from tkinter.ttk import Label, Button, Frame
 
+import random
 
 class MyActor(Actor):
     def __init__(self):
@@ -42,12 +43,6 @@ class EngineTickTest(GuiTest):
         GameplayUtilities.close_game()
 
 
-class DestroyingActor(Actor):
-    def tick(self, delta_time):
-        # Make sure we receive ticks for testing, but don't actually
-        # do anything.
-        pass
-
 class CounterRefreshActor(Actor):
     """Refresh how many actors are in the world each frame."""
 
@@ -60,11 +55,17 @@ class CounterRefreshActor(Actor):
     def tick(self, delta_time):
         self.test_object.refresh_actor_count()
 
+class DestroyingActor(CounterRefreshActor):
+
+    def tick(self, delta_time):
+        self.test_object.refresh_active_actor_tick()
+
 class ActorDestroyTest(GuiTest):
     _test_name = "Actor Destroy"
 
     def spawn_new_actor(self):
         new_actor = GameplayStatics.world.spawn_actor(DestroyingActor, (0, 0))
+        new_actor.test_object = self
 
         self.spawned_actors.append(new_actor)
 
@@ -76,7 +77,7 @@ class ActorDestroyTest(GuiTest):
         except IndexError:
             # No more actors to destroy.
             return
-        
+
         GameplayStatics.world.destroy_actor(last_actor)
 
         self.refresh_actor_count()
@@ -88,6 +89,11 @@ class ActorDestroyTest(GuiTest):
         new_text = self.actor_count_format.format(num_actors)
 
         self.actor_count_label.config(text=new_text)
+
+    def refresh_active_actor_tick(self):
+        # Get a random 4 digit number.
+        rand = random.randint(1000, 9999)
+        self.active_actor_tick_label.config(text=str(rand))
 
     def start(self):
         Label(self, text=
