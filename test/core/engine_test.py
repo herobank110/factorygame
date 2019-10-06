@@ -1,7 +1,7 @@
 from test.template.template_gui import GuiTest
 from factorygame.core.engine_base import GameEngine, Actor
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities
-from tkinter.ttk import Label, Button
+from tkinter.ttk import Label, Button, Frame
 
 
 class MyActor(Actor):
@@ -90,17 +90,17 @@ class ActorDestroyTest(GuiTest):
         self.actor_count_label.config(text=new_text)
 
     def start(self):
+        Label(self, text=
+            "Actors in a world can be destroyed by the world. The actor's\n"
+            "begin_destroy will be called and it will no longer receive\n"
+            "ticks.\nThe actor is removed from the world's master list, but\n"
+            "to be GC'd all references must be removed!"
+            ).pack(padx=3, pady=3)
+
         # List of spawned actors, to track creation by this test.
         # Although, the world has the true master list of actors
         # in the world. This is just to destroy the actors we made.
         self.spawned_actors = []
-
-
-        # Create a button to create a new actor.
-        Button(self, text="Spawn", command=self.spawn_new_actor).pack()
-
-        # Create a button to destroy last spawned actor.
-        Button(self, text="Destroy", command=self.destroy_newest_actor).pack()
 
         # Create label to show number of active actors.
         self.actor_count_format = "There are currently {:d} actors in the world"
@@ -109,6 +109,26 @@ class ActorDestroyTest(GuiTest):
             self, text=self.actor_count_format.format(0))
         self.actor_count_label.pack()
 
+        command_frame = Frame(self)
+
+        # Create a button to create a new actor.
+        Button(
+            command_frame, text="Spawn",
+            command=self.spawn_new_actor
+            ).pack(side="left")
+
+        # Create a button to destroy last spawned actor.
+        Button(
+            command_frame, text="Destroy",
+            command=self.destroy_newest_actor
+            ).pack(side="right")
+        
+        command_frame.pack(pady=10)
+
+        # Create a label to show when actors are spawned.
+        self.active_actor_tick_label = Label(
+            self, text="This text is changed by spawned actors")
+        self.active_actor_tick_label.pack()
 
         # Create the base class engine in this Toplevel window.
         GameplayUtilities.create_game_engine(GameEngine, master=self)
