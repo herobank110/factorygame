@@ -111,14 +111,13 @@ class ActorDestroyTest(GuiTest):
 
         # Also clear previous active actor ticks.
         self.active_actor_digits = []
-        self.active_actor_tick_label.config(
-            text=self.active_actor_tick_format.format(0))
+        # self.active_actor_tick_label.config(
+        #     text=self.active_actor_tick_format.format(0))
 
     def refresh_active_actor_tick(self, new_digit):
         self.active_actor_digits.append(new_digit)
 
-        concat_digits = sum(n * (10 ** i)
-            for i, n in enumerate(reversed(self.active_actor_digits)))
+        concat_digits = "".join(map(lambda x: str(x), self.active_actor_digits))
 
         self.active_actor_tick_label.config(
             text=self.active_actor_tick_format.format(concat_digits))
@@ -165,7 +164,7 @@ class ActorDestroyTest(GuiTest):
 
         # Create a label to show when actors are spawned.
         
-        self.active_actor_tick_format = "This number is changed by actors to {:d}."
+        self.active_actor_tick_format = "This number is changed by actors to {:s}."
         self.active_actor_digits = []  # Random chosen digits this frame.
 
         self.active_actor_tick_label = Label(
