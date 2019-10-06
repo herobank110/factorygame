@@ -36,8 +36,9 @@ if RUN_GUI_TESTS:
     gui_test_manager.add_test(GraphResizeTest)
 
     # Add test for engine.
-    from test.core.engine_test import EngineTickTest
+    from test.core.engine_test import EngineTickTest, ActorDestroyTest
     gui_test_manager.add_test(EngineTickTest)
+    gui_test_manager.add_test(ActorDestroyTest)
 
     # Add test for input.
     from test.core.input_test import ActionMappingTest
