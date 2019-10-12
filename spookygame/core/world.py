@@ -9,12 +9,9 @@ class HighwayWorld(WorldGraph):
 
         ## Density of the road on x-axis to appear perspective-aligned.
         self.density_x = Gradient()
-
-        self.density_x.add_key(0.2, 0.2)
-
-        self.density_x.add_key(1.0, 0.5)
-
-        self.density_x.add_key(0.2, 0.8)
+        self.density_x.add_key(0.4, 0)
+        self.density_x.add_key(-0.001, 0.5)
+        self.density_x.add_key(0.4, 1)
 
     def begin_play(self):
         super().begin_play()
@@ -54,7 +51,6 @@ class HighwayWorld(WorldGraph):
         view_percent = MathStat.getpercent(in_coords, bl, tr)
 
         warp_amount = 1 - self.density_x.sample(view_percent.x)
-
         center_offset.x *= warp_amount
 
         return center + center_offset
