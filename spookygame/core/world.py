@@ -1,5 +1,6 @@
-from factorygame.core.blueprint import WorldGraph, GridGismo
-from factorygame import Loc, MathStat
+from factorygame.core.blueprint import (WorldGraph, GridGismo,
+    PolygonNode, GeomHelper)
+from factorygame import Loc, MathStat, FColor
 from spookygame.utils.gradient import Gradient
 
 
@@ -10,7 +11,7 @@ class HighwayWorld(WorldGraph):
         ## Density of the road on x-axis to appear perspective-aligned.
         self.density_x = Gradient()
         self.density_x.add_key(0.4, 0)
-        self.density_x.add_key(-0.001, 0.5)
+        self.density_x.add_key(0.001, 0.5)
         self.density_x.add_key(0.4, 1)
 
     def begin_play(self):
@@ -18,6 +19,20 @@ class HighwayWorld(WorldGraph):
 
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, (0, 0))
+
+        my_poly = self.deferred_spawn_actor(PolygonNode, Loc(3000, 1800))
+        my_poly.vertices = list(GeomHelper.generate_reg_poly(8, radius=400.0))
+        my_poly.fill_color = FColor.cyan()
+        my_poly.total_time = 0.0
+
+        def my_poly_tick(delta_time):
+            my_poly.total_time += delta_time * 0.001
+            my_poly.vertices = list(GeomHelper.generate_reg_poly(
+                8, radius=400.0, radial_offset=my_poly.total_time))
+            super(PolygonNode, my_poly).tick(delta_time)
+        my_poly.tick = my_poly_tick
+
+        self.finish_deferred_spawn_actor(my_poly)
 
     def view_to_canvas(self, in_coords, clamp_to_viewport=False):
         """
