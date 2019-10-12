@@ -590,8 +590,7 @@ class GridGismo(DrawnActor):
         # Create vertical grid lines.   
         # Find left most line, then draw lines towards the right.
         draw_pos = bl + bl_line_offset
-        for _ in itertools.count():
-            if draw_pos.x > tr.x or draw_pos.x < bl.x: break
+        while bl.x < draw_pos.x < tr.x:
             c1 = graph.view_to_canvas(draw_pos)
             c1.y = 0
             c2 = c1 + (0, dim.y)
@@ -610,8 +609,7 @@ class GridGismo(DrawnActor):
         # Create horizontal grid lines.
         # Start at the bottom left corner.
         draw_pos = bl + bl_line_offset
-        for _ in itertools.count():
-            if draw_pos.y > tr.y or draw_pos.y < bl.y: break
+        while bl.y < draw_pos.y < tr.y:
             c1 = graph.view_to_canvas(draw_pos)
             c1.x = 0
             c2 = c1 + (dim.x, 0)
