@@ -33,6 +33,13 @@ class TestGraph(GraphBase):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
 
+    def start_cycle(self):
+        try:
+            super().start_cycle()
+        except:
+            # This widget was destroyed already.
+            return
+
     def _draw(self):
 
         self.draw_view_offset()
