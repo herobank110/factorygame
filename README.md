@@ -4,7 +4,7 @@ Python game with spooky zombie chase.
 
 ## Project Overview
 
-In the midst of a zombie apocalpyse, the player has woken up in a car, driving
+In the midst of a zombie apocalypse, the player has woken up in a car, driving
 down a highway.
 
 Zombies chase the car and jump in front of it occasionally. The player must
