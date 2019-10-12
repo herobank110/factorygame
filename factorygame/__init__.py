@@ -23,6 +23,7 @@ references to ensure that actors can be destroyed safely.
 # Import useful classes.
 
 from factorygame.core.engine_base import Actor, GameEngine
+from factorygame.core.blueprint import FColor
 from factorygame.utils.loc import Loc
 from factorygame.utils.mymath import MathStat
 from factorygame.utils.gameplay import GameplayStatics, GameplayUtilities

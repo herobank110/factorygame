@@ -1,4 +1,4 @@
-from factorygame import MathStat
+from factorygame import MathStat, FColor
 
 
 class Gradient:
@@ -20,16 +20,12 @@ class Gradient:
         :return: (int) Index new key was added at if successful.
         """
 
-        location = MathStat.clamp(location)  # ensure location between 0 and 1
-        # validate color
-        if color[0] != "#":
-            return
-        try:  # check each pair of values is a valid hexadecimal digit
-            for i in range(1, len(color)):
-                if i % 2 == 1:
-                    int("0x%s" % color[i:i+2], 0)
-        except ValueError:
-            return
+        # Ensure location between [0, 1].
+        location = MathStat.clamp(location)
+
+        if isinstance(color, str):
+            # Convert to FColor if necessary.
+            color = FColor.from_hex(color)
 
         # adjust location if value already exists at that location
         while self._key_exists_at_loc(location):
