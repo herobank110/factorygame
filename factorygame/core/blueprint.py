@@ -869,11 +869,11 @@ class FColor(Loc):
 
         elif num_args == 1:
             # Setup components linearly
-            for i in range(3): self.append(args[0])
+            for i in range(3): self.append(round(args[0]))
 
         elif num_args == 3:
             # Setup components individually.
-            for i in range(3): self.append(args[i])
+            for i in range(3): self.append(round(args[i]))
 
         else:
             raise ValueError("Invalid number of arguments to make RGB color")
@@ -897,7 +897,7 @@ class FColor(Loc):
 
         :return: (FColor) RGB components as a FColor.
         """
-        return FColor(*FColor.HexToRgb(hex_string, digits))
+        return FColor(*FColor.hex_to_rgb(hex_string, digits))
 
     def to_hex(self):
         """
