@@ -1,5 +1,5 @@
 """
-Default program start for FactoryGame.
+Default program start for SpookyGame.
 """
 
 import sys
@@ -13,12 +13,12 @@ except ValueError:
 else:
     sys.path.insert(0, py_36_path)
 
-from factorygame.factory_engine import FactoryEngine
+from spookygame import SpookyEngine
 from factorygame.utils.gameplay import GameplayUtilities
 
 def main():
     # Create the game.
-    GameplayUtilities.create_game_engine(FactoryEngine)
+    GameplayUtilities.create_game_engine(SpookyEngine)
 
 if __name__ == '__main__':
     main()
