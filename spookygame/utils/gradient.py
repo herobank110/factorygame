@@ -9,13 +9,13 @@ class Gradient:
         ## Stores sorted list of dicts.
         self.color_keys = []
 
-    def add_key(self, color, location):
+    def add_key(self, value, location):
         """Insert a new key to the gradient at the given location.
         
-        :param color: (FColor, str) Color at this key. Can also be a
-        string containing hex values.
+        :param value: (FColor) Color at this key. Can also be a
+        string containing hex values, or any lerp-able value.
 
-        :param location: (float) Should be normalised between 0 and 1
+        :param location: (float) Should be normalised between 0 and 1.
         
         :return: (int) Index new key was added at if successful.
         """
@@ -23,9 +23,9 @@ class Gradient:
         # Ensure location between [0, 1].
         location = MathStat.clamp(location)
 
-        if isinstance(color, str):
+        if isinstance(value, str):
             # Convert to FColor if necessary.
-            color = FColor.from_hex(color)
+            value = FColor.from_hex(value)
 
         # adjust location if value already exists at that location
         while self._key_exists_at_loc(location):
@@ -37,7 +37,7 @@ class Gradient:
         new_idx = self._get_index_for_loc(location)
 
         # create dictionary to store key in
-        new_key = {"location": location, "color": color}
+        new_key = {"location": location, "color": value}
 
         # insert the new key at the specified location
         self.color_keys.insert(new_idx, new_key)
@@ -59,8 +59,8 @@ class Gradient:
         self.color_keys.remove(index)
         return True  # success
 
-    def get_color(self, location, default=None):
-        """Return color at any location on the gradient.
+    def sample(self, location, default=None):
+        """Return value at any location on the gradient.
         
         :param location: (float) Location on the gradient, between
         [0, 1].
@@ -83,8 +83,8 @@ class Gradient:
 
         return MathStat.lerp(key_min["color"], key_max["color"], bias)
 
-    def set_color(self, color, index=None, location=None):
-        """Set color of the key at the given index or location.
+    def set_value(self, in_value, index=None, location=None):
+        """Set value of the key at the given index or location.
         
         :return: (bool) Whether it was successful.
         """
@@ -96,7 +96,7 @@ class Gradient:
         if index not in range(len(self.color_keys)):
             return False
         # set color
-        self.color_keys[index]["color"] = color
+        self.color_keys[index]["color"] = in_value
         return True  # success
 
     def get_key(self, location, radius=0.01):

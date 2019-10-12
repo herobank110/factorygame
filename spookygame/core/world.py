@@ -6,16 +6,16 @@ class HighwayWorld(WorldGraph):
     def __init__(self):
         super().__init__()
 
+        self.density_x = Gradient()
+        self.density_x.add_key(1.0, 0.3)
+        self.density_x.add_key(0.5, 0.9)
+        print("Gradient sample:", self.density_x.sample(0.4))
+
     def begin_play(self):
         super().begin_play()
 
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, (0, 0))
-
-        gradient = Gradient()
-        gradient.add_key("#000000", 0.1)
-        gradient.add_key("#ffffff", 0.9)
-        print(gradient.get_color(0.5))
 
     def view_to_canvas(self, in_coords, clamp_to_viewport=False):
         """
