@@ -2,14 +2,23 @@ from factorygame.core.blueprint import WorldGraph, GridGismo
 from factorygame import Loc, MathStat
 from spookygame.utils.gradient import Gradient
 
+
 class HighwayWorld(WorldGraph):
     def __init__(self):
         super().__init__()
 
+        ## Density of the road on x-axis to appear perspective-aligned.
         self.density_x = Gradient()
-        self.density_x.add_key(1.0, 0.3)
-        self.density_x.add_key(0.5, 0.9)
-        print("Gradient sample:", self.density_x.sample(0.4))
+
+        self.density_x.add_key(1.0, 0.1)
+        self.density_x.add_key(0.5, 0.3)
+
+        self.density_x.add_key(1.0, 0.5)
+
+        self.density_x.add_key(0.5, 0.7)
+        self.density_x.add_key(1.0, 0.9)
+
+        print("Gradient sample:", self.density_x.sample(0.5))
 
     def begin_play(self):
         super().begin_play()
@@ -33,12 +42,13 @@ class HighwayWorld(WorldGraph):
 
         if clamp_to_viewport:
             coords = Loc(
-            MathStat.map_range_clamped(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
-            MathStat.map_range_clamped(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
+                MathStat.map_range_clamped(
+                    in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
+                MathStat.map_range_clamped(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
 
         else:
             coords = Loc(
-            MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
-            MathStat.map_range(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
+                MathStat.map_range(in_coords.x, bl.x, tr.x, 0, canvas_dim.x),
+                MathStat.map_range(in_coords.y, bl.y, tr.y, canvas_dim.y, 0))
 
         return coords
