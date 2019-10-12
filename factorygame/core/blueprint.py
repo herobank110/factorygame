@@ -671,9 +671,6 @@ class WorldGraph(World, GraphBase):
         # Spawn the world render manager first for tick priority.
         self._render_manager = self.spawn_actor(RenderManager, Loc(0, 0))
 
-        # Spawn the grid lines actor to show grid lines.
-        self.spawn_actor(GridGismo, Loc(0, 0))
-
     def begin_destroy(self):
         super().begin_destroy()
 

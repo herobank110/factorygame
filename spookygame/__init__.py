@@ -1,5 +1,5 @@
 from factorygame.core.engine_base import GameEngine
-from factorygame.core.blueprint import WorldGraph
+from spookygame.core.world import HighwayWorld
 
 class SpookyEngine(GameEngine):
     """Game engine class for a zombie apocalypse."""
@@ -9,4 +9,4 @@ class SpookyEngine(GameEngine):
         # Set default properties.
         self._window_title      = "SpookyGame"
         self._frame_rate        = 90
-        self._starting_world    = WorldGraph
+        self._starting_world    = HighwayWorld
