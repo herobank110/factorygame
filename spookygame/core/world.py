@@ -1,5 +1,6 @@
 from factorygame.core.blueprint import WorldGraph, GridGismo
 from factorygame import Loc, MathStat
+from spookygame.utils.gradient import Gradient
 
 class HighwayWorld(WorldGraph):
     def __init__(self):
@@ -10,6 +11,11 @@ class HighwayWorld(WorldGraph):
 
         # Spawn the grid lines actor to show grid lines.
         self.spawn_actor(GridGismo, (0, 0))
+
+        gradient = Gradient()
+        gradient.add_key("#000000", 0.1)
+        gradient.add_key("#ffffff", 0.9)
+        print(gradient.get_color(0.5))
 
     def view_to_canvas(self, in_coords, clamp_to_viewport=False):
         """
