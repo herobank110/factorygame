@@ -541,7 +541,8 @@ class GridGismo(DrawnActor):
         super().__init__()
 
         self.primary_actor_tick.tick_group = ETickGroup.WORLD
-        
+
+        self._canvas_cache = {}        
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
@@ -549,11 +550,14 @@ class GridGismo(DrawnActor):
     def _clear(self):
         """Clear old drawn canvas elements."""
         # Delete old grid lines.
-        self.world.delete(self.unique_id)
+        self.world.delete("axis_number_vertical")
+        self.world.delete("grid_line_horizontal")
+        self.world.delete("axis_number_horizontal")
+        self.world.delete("origin_line_vertical")
+        self.world.delete("origin_line_horizontal")
 
     def _draw(self):
-        """Create new grid lines."""
-
+        """Create new grid lines."""        
         # Draw the grid lines.
         self.__draw_grid()
         self.__draw_grid_origin_lines()
@@ -587,15 +591,34 @@ class GridGismo(DrawnActor):
         # bottom left viewport corner.
         bl_line_offset = -bl % gap_size
 
+        num_lines = 0
+        draw_pos = bl.x + bl_line_offset.x
+        while bl.x < draw_pos < tr.x:
+            num_lines += 1
+            draw_pos += gap_size
+
+        should_recache = not self._canvas_cache \
+            or len(self._canvas_cache["grid_line_vertical"]) != num_lines
+        if should_recache:
+            graph.delete("grid_line_vertical")
+            self._canvas_cache["grid_line_vertical"] = []
+
         # Create vertical grid lines.   
         # Find left most line, then draw lines towards the right.
         draw_pos = bl + bl_line_offset
         while bl.x < draw_pos.x < tr.x:
             c1 = graph.view_to_canvas(draw_pos)
             c1.y = 0
-            c2 = c1 + (0, dim.y)
-            graph.create_line(c1, c2, fill=line_color,
+            c2 = c1 + (0, dim.y)            
+            if should_recache:
+                new_id = graph.create_line(c1, c2, fill=line_color,
                 tags=(self.unique_id, "grid_line_vertical"))
+
+                self._canvas_cache["grid_line_vertical"].append(new_id)
+            else:
+                old_id = self._canvas_cache["grid_line_vertical"].pop(0)
+                graph.coords(old_id, c1.x,c1.y, c2.x,c2.y)
+                self._canvas_cache["grid_line_vertical"].append(old_id)
 
             if draw_axis_numbers:
                 c1.x += 3
