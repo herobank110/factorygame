@@ -9,7 +9,7 @@ exit 1
 )
 
 Rem Copy icon to spec directory
-copy skull.ico Saved\Build\WindowsNoEditor
+copy saturn.ico Saved\Build\WindowsNoEditor
 
 python -O -m ^
  PyInstaller ^
