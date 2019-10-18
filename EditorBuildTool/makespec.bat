@@ -3,6 +3,6 @@ cd ..\
 
 pyi-makespec -w ^
 --onefile ^
--i "saturn.ico" ^
+-i "skull.ico" ^
 --specpath "Saved/Build/WindowsNoEditor" ^
 main.py
