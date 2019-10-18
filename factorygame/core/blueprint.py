@@ -541,8 +541,7 @@ class GridGismo(DrawnActor):
         super().__init__()
 
         self.primary_actor_tick.tick_group = ETickGroup.WORLD
-
-        self._canvas_cache = {}        
+        
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
@@ -550,14 +549,11 @@ class GridGismo(DrawnActor):
     def _clear(self):
         """Clear old drawn canvas elements."""
         # Delete old grid lines.
-        self.world.delete("axis_number_vertical")
-        self.world.delete("grid_line_horizontal")
-        self.world.delete("axis_number_horizontal")
-        self.world.delete("origin_line_vertical")
-        self.world.delete("origin_line_horizontal")
+        self.world.delete(self.unique_id)
 
     def _draw(self):
-        """Create new grid lines."""        
+        """Create new grid lines."""
+
         # Draw the grid lines.
         self.__draw_grid()
         self.__draw_grid_origin_lines()
@@ -591,34 +587,16 @@ class GridGismo(DrawnActor):
         # bottom left viewport corner.
         bl_line_offset = -bl % gap_size
 
-        num_lines = 0
-        draw_pos = bl.x + bl_line_offset.x
-        while bl.x < draw_pos < tr.x:
-            num_lines += 1
-            draw_pos += gap_size
-
-        should_recache = not self._canvas_cache \
-            or len(self._canvas_cache["grid_line_vertical"]) != num_lines
-        if should_recache:
-            graph.delete("grid_line_vertical")
-            self._canvas_cache["grid_line_vertical"] = []
-
         # Create vertical grid lines.   
         # Find left most line, then draw lines towards the right.
         draw_pos = bl + bl_line_offset
-        while bl.x < draw_pos.x < tr.x:
+        for _ in itertools.count():
+            if draw_pos.x > tr.x or draw_pos.x < bl.x: break
             c1 = graph.view_to_canvas(draw_pos)
             c1.y = 0
-            c2 = c1 + (0, dim.y)            
-            if should_recache:
-                new_id = graph.create_line(c1, c2, fill=line_color,
+            c2 = c1 + (0, dim.y)
+            graph.create_line(c1, c2, fill=line_color,
                 tags=(self.unique_id, "grid_line_vertical"))
-
-                self._canvas_cache["grid_line_vertical"].append(new_id)
-            else:
-                old_id = self._canvas_cache["grid_line_vertical"].pop(0)
-                graph.coords(old_id, c1.x,c1.y, c2.x,c2.y)
-                self._canvas_cache["grid_line_vertical"].append(old_id)
 
             if draw_axis_numbers:
                 c1.x += 3
@@ -632,7 +610,8 @@ class GridGismo(DrawnActor):
         # Create horizontal grid lines.
         # Start at the bottom left corner.
         draw_pos = bl + bl_line_offset
-        while bl.y < draw_pos.y < tr.y:
+        for _ in itertools.count():
+            if draw_pos.y > tr.y or draw_pos.y < bl.y: break
             c1 = graph.view_to_canvas(draw_pos)
             c1.x = 0
             c2 = c1 + (dim.x, 0)
@@ -691,6 +670,9 @@ class WorldGraph(World, GraphBase):
     def begin_play(self):
         # Spawn the world render manager first for tick priority.
         self._render_manager = self.spawn_actor(RenderManager, Loc(0, 0))
+
+        # Spawn the grid lines actor to show grid lines.
+        self.spawn_actor(GridGismo, Loc(0, 0))
 
     def begin_destroy(self):
         super().begin_destroy()
@@ -890,11 +872,11 @@ class FColor(Loc):
 
         elif num_args == 1:
             # Setup components linearly
-            for i in range(3): self.append(round(args[0]))
+            for i in range(3): self.append(args[0])
 
         elif num_args == 3:
             # Setup components individually.
-            for i in range(3): self.append(round(args[i]))
+            for i in range(3): self.append(args[i])
 
         else:
             raise ValueError("Invalid number of arguments to make RGB color")
@@ -918,7 +900,7 @@ class FColor(Loc):
 
         :return: (FColor) RGB components as a FColor.
         """
-        return FColor(*FColor.hex_to_rgb(hex_string, digits))
+        return FColor(*FColor.HexToRgb(hex_string, digits))
 
     def to_hex(self):
         """
