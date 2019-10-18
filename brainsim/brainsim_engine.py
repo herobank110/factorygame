@@ -1,5 +1,5 @@
 from factorygame import GameEngine
-from factorygame.core.blueprint import WorldGraph
+from brainsim.core.world import BrainWorld
 
 
 class BrainsimEngine(GameEngine):
@@ -8,4 +8,4 @@ class BrainsimEngine(GameEngine):
 
         self._frame_rate = 90
         self._window_title = "Brain Simulator"
-        self._starting_world = WorldGraph
+        self._starting_world = BrainWorld
