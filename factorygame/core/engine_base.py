@@ -112,7 +112,10 @@ class GameEngine(EngineObject):
         #         % (self._starting_world.__name__, type(self).__name__, e)) from e
 
 
-        # Start game window tkinter event loop.
+        # Call begin play.
+        self.begin_play()
+
+        # Start game window tkinter event loop.        
 
         if master is None:
             return self._window.mainloop()
@@ -140,6 +143,9 @@ class GameEngine(EngineObject):
         world = GameplayStatics.world
         if world is not None:
             world.begin_destroy()
+
+        # Begin destroying self.
+        self.begin_destroy()
 
         # Delete gameplay statics, which holds many references.
         GameplayStatics.clear_all()
