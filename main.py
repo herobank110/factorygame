@@ -1,7 +1,6 @@
 """
-Default program start for SpookyGame.
+Default program start for FactoryGame.
 """
-
 import sys
 
 try:
@@ -13,12 +12,13 @@ except ValueError:
 else:
     sys.path.insert(0, py_36_path)
 
-from spookygame import SpookyEngine
-from factorygame.utils.gameplay import GameplayUtilities
+from factorygame import GameplayUtilities, GameplayStatics
+from factorygame.factory_engine import FactoryEngine
+from factorygame.core.blueprint import GridGismo
 
 def main():
     # Create the game.
-    GameplayUtilities.create_game_engine(SpookyEngine)
+    GameplayUtilities.create_game_engine(FactoryEngine)
 
 if __name__ == '__main__':
     main()
