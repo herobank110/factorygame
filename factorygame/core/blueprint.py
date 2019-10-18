@@ -591,11 +591,10 @@ class GridGismo(DrawnActor):
         # bottom left viewport corner.
         bl_line_offset = -bl % gap_size
 
-        num_lines = 0
-        draw_pos = bl.x + bl_line_offset.x
-        while bl.x < draw_pos < tr.x:
-            num_lines += 1
-            draw_pos += gap_size
+        # Find number of vertical lines to draw
+        first = bl.x + bl_line_offset.x
+        last = tr.x - (first % gap_size)
+        num_lines = ((last - first) // gap_size ) + 1
 
         should_recache = not self._canvas_cache \
             or len(self._canvas_cache["grid_line_vertical"]) != num_lines
