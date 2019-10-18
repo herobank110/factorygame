@@ -79,6 +79,22 @@ class GameEngine(EngineObject):
         GameplayStatics.set_root_window(self._window)
 
 
+        # Create input binding objects.
+        
+        # TODO: There needs to be a safer way to instantiate EngineObjects
+
+        # Let action mappings be added.
+        self._input_mappings = EngineInputMappings()
+
+        # Create GUI input receiver.
+        self._input_handler = TkInputHandler()
+        self._input_handler.bind_to_widget(GameplayStatics.root_window)
+
+        # Override in child game engines to set up the action mappings,
+        # possibly from a config file.
+        self.setup_input_mappings()
+
+
         # Create the starting world.
 
         if self._starting_world is None:
@@ -96,22 +112,16 @@ class GameEngine(EngineObject):
         #         % (self._starting_world.__name__, type(self).__name__, e)) from e
 
 
-        # Create input binding objects.
-        
-        # TODO: There needs to be a safer way to instantiate EngineObjects
-
-        # Let action mappings be added.
-        self._input_mappings = EngineInputMappings()
-
-        # Create GUI input receiver.
-        self._input_handler = TkInputHandler()
-        self._input_handler.bind_to_widget(GameplayStatics.root_window)
-
-
         # Start game window tkinter event loop.
 
         if master is None:
             return self._window.mainloop()
+
+    def setup_input_mappings(self):
+        """
+        Set up input mappings associated with a set of keys.
+        """
+        pass
 
     def close_game(self):
         """
@@ -157,6 +167,9 @@ class World(EngineObject):
 
         ## All spawned actors in the world.
         self._actors            = []
+
+        ## List of actors to destroy next tick.
+        self._to_destroy        = []
 
         ## Tkinter object reference for tick loop timer.
         self._tk_obj            = None
@@ -241,6 +254,31 @@ class World(EngineObject):
         # return the fully spawned actor for further use
         return actor_object
 
+    def destroy_actor(self, actor):
+        """
+        Remove an actor from this world.
+
+        :warning: EXPERIMENTAL FEATURE!!! MAY NOT WORK!!!
+
+        :param actor: (Actor) Actor to destroy.
+        """
+
+        # TODO:  check if the actor is actually in this world!
+
+        self._to_destroy.append(actor)
+
+    def _destroy_pending(self):
+        """
+        Called to remove actors pending destruction.
+        """
+
+        for actor in self._to_destroy:
+            actor.begin_destroy()
+            self._actors.remove(actor)
+
+        # Clear pending destruction. It's done already!
+        self._to_destroy = []
+
     def __try_start_tick_loop(self):
         """
         Attempt to start a tick loop.
@@ -254,6 +292,9 @@ class World(EngineObject):
         return True        
 
     def _tick_loop(self):
+        # Perform actor cleanup.
+        self._destroy_pending()
+
         # get delta time
         dt = GameplayStatics.game_engine.FRAME_TIME # in miliseconds, as integer
 
@@ -318,6 +359,8 @@ class World(EngineObject):
         for actor in self._actors:
             actor.begin_destroy()
             self._actors.pop(0)
+        
+        self._ticking_actors = {group: set() for group in range(ETickGroup.MAX)}
             # try:
             #     self._ticking_actors.remove(actor)
             # except KeyError:
@@ -457,3 +500,9 @@ class Actor(EngineObject):
         """
         raise NotImplementedError("Actor %s has tick enabled but default tick "
               "function is being called" % self)
+
+    def begin_destroy(self):
+        super().begin_destroy()
+        
+        # Stop ticking
+        self.world.set_actor_tick_enabled(self.primary_actor_tick, False)
