@@ -14,7 +14,7 @@ from factorygame.core.engine_base import World, Actor, ETickGroup
 class Drawable(object):
     """
     Abstract base class for objects receiving draw calls.
-    
+
     Each draw cycle must be invoked with `start_cycle`, and
     consists of these stages:
     _clear, _should_draw, _draw
@@ -29,7 +29,7 @@ class Drawable(object):
     def _clear(self):
         """
         Called every draw cycle before drawing to clear previous drawing.
-        
+
         Override for clearing behaviour.
         """
         pass
@@ -156,7 +156,7 @@ class PolygonNode(NodeBase):
 
         ## Fill color of the polygon (FColor)
         self.fill_color = FColor.default()
-        
+
         ## Outline color of the polygon (FColor). If None, matches fill color
         self.outline_color = None
 
@@ -191,7 +191,7 @@ class PolygonNode(NodeBase):
     @property
     def fill_color(self):
         return self._fill_color
-    
+
     @fill_color.setter
     def fill_color(self, value):
         try:
@@ -268,6 +268,9 @@ class PolygonNode(NodeBase):
 
     # TODO: create more robust input handling system
     def on_click(self, event):
+        print("hello")
+
+    def on_release(self, event):
         print("hello")
 
 class ImageNode(NodeBase):
@@ -348,9 +351,9 @@ class ImageNode(NodeBase):
 class GraphBase(Canvas, Drawable):
     """
     Base blueprint graph for displaying drawable objects.
-    
+
     :warning: Does not redraw graph automatically, to avoid
-    redraw lags with constant motion. Call `start_cycle()` to 
+    redraw lags with constant motion. Call `start_cycle()` to
     redraw.
     """
 
@@ -371,7 +374,7 @@ class GraphBase(Canvas, Drawable):
     zoom_ratio = property(__get_zoom_ratio, __set_zoom_ratio)
 
     def __init__(self, master=None, cnf={}, **kw):
-        """Initialiase blueprint graph in widget MASTER."""        
+        """Initialiase blueprint graph in widget MASTER."""
 
         # Set default values.
 
@@ -411,6 +414,7 @@ class GraphBase(Canvas, Drawable):
         # motioninput uses right mouse button explicitly, se we won't receive
         # RMB press events.
         self.bind("<ButtonPress>", self.on_graph_button_press_input, True)
+        self.bind("<ButtonRelease>", self.on_graph_button_release_input, True)
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
@@ -441,6 +445,10 @@ class GraphBase(Canvas, Drawable):
         """Called when a mouse button press event occurs on the graph."""
         pass
 
+    def on_graph_button_release_input(self, event):
+        """Called when a mouse button release event occurs on the graph."""
+        pass
+
     def get_canvas_dim(self):
         """Return dimensions of canvas in pixels as a Loc."""
         return Loc(self.winfo_width(), self.winfo_height())
@@ -468,7 +476,7 @@ class GraphBase(Canvas, Drawable):
     def view_to_canvas(self, in_coords, clamp_to_viewport=False):
         """
         Return viewport coordinates in canvas coordinates as a Loc.
-        
+
         :param in_coords: Viewport coordinates as a Loc.
 
         :param clamp_to_viewport: Whether to clamp coordinates to valid
@@ -494,7 +502,7 @@ class GraphBase(Canvas, Drawable):
     def canvas_to_view(self, in_coords, clamp_to_canvas=False):
         """
         Return canvas coordinates in viewport coordinates as a Loc.
-        
+
         :param in_coords: Canvas coordinates as a Loc.
 
         :param clamp_to_canvas: Whether to clamp coordinates to valid
@@ -522,10 +530,10 @@ class GridGismo(DrawnActor):
     Actor class to show grid lines on the viewport area
     which is currently visible.
     """
-    
+
     def __init__(self):
         """Set default values."""
-        
+
         ## Average size of each square grid, in pixels.
         self.grid_size = 300
 
@@ -542,7 +550,7 @@ class GridGismo(DrawnActor):
 
         self.primary_actor_tick.tick_group = ETickGroup.WORLD
 
-        self._canvas_cache = {}        
+        self._canvas_cache = {}
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Start of drawable interface.
@@ -557,7 +565,7 @@ class GridGismo(DrawnActor):
         self.world.delete("origin_line_horizontal")
 
     def _draw(self):
-        """Create new grid lines."""        
+        """Create new grid lines."""
         # Draw the grid lines.
         self.__draw_grid()
         self.__draw_grid_origin_lines()
@@ -602,13 +610,13 @@ class GridGismo(DrawnActor):
             graph.delete("grid_line_vertical")
             self._canvas_cache["grid_line_vertical"] = []
 
-        # Create vertical grid lines.   
+        # Create vertical grid lines.
         # Find left most line, then draw lines towards the right.
         draw_pos = bl + bl_line_offset
         while bl.x < draw_pos.x < tr.x:
             c1 = graph.view_to_canvas(draw_pos)
             c1.y = 0
-            c2 = c1 + (0, dim.y)            
+            c2 = c1 + (0, dim.y)
             if should_recache:
                 new_id = graph.create_line(c1, c2, fill=line_color,
                 tags=(self.unique_id, "grid_line_vertical"))
@@ -701,17 +709,47 @@ class WorldGraph(World, GraphBase):
         """Call input events on nodes that are clicked."""
         # Find the node we pressed.
         center = Loc(event.x, event.y)
+        found_nodes = []
+        self.multi_box_trace_for_objects(center, 2, found_nodes)
+        for node in found_nodes:
+            node.on_click(event)
+
+    def on_graph_button_release_input(self, event):
+        """Call input events on nodes that are released."""
+        # Find the node we released.
+        center = Loc(event.x, event.y)
+        found_nodes = []
+        self.multi_box_trace_for_objects(center, 2, found_nodes)
+        for node in found_nodes:
+            node.on_release(event)
+
+    def multi_box_trace_for_objects(self, start, half_size, found=None):
+        """Get nodes at the position in a radius.
+
+        :param start: (Loc) Location to start from.
+
+        :param half_size: (float) Radius of box, in pixels.
+
+        :param found: (list) Optionally add items to passed in list.
+
+        :return: (list) Objects that collided.
+        """
+
+        if found is None: found = []
+
+        coords = []
+        coords.extend(start - half_size)
+        coords.extend(start + half_size)
 
         # Found ids are returned in order of creation, not necessarily what
         # is displayed at the top.
-        coords = []
-        coords.extend(center - 3)
-        coords.extend(center + 3)
         found_ids = self.find_overlapping(*coords)
         for it in found_ids:
             node = self.render_manager.node_canvas_ids.get(it)
             if node is not None:
-                node.on_click(event)
+                found.append(node)
+
+        return found
 
     @property
     def render_manager(self):
@@ -726,11 +764,11 @@ class GeomHelper:
         Generate a set of vertices for a regular polygon.
 
         :param num_sides: (int) Number of sides of the polygon.
-        
+
         :keyword center: (Loc) Center point of the polygon, in relative
         coordinates.
         Defaults to origin.
-        
+
         :keyword radius: (float) Radius of the circle bounds by the polygon's
         vertices, in world units.
         Defaults to 1.0.
@@ -747,7 +785,7 @@ class GeomHelper:
         # Rotate the polygon so that the bottom has a flat side.
         radial_offset = GeomHelper.get_poly_start_angle(num_sides)
         to_add = kw.get("radial_offset")
-        if to_add is not None:            
+        if to_add is not None:
             radial_offset += to_add
 
         for i in range(num_sides):
@@ -778,7 +816,7 @@ class GeomHelper:
     def get_nth_vertex_offset(n, num_sides, radius, radial_offset=0.0):
         """
         Find the offset of the nth vertex of a round shape.
-        
+
         :param n: (int) Vertex index to get offset of.
 
         :param num_sides: (int) Total number of sides of the polygon.
@@ -788,7 +826,7 @@ class GeomHelper:
         :param radial_offset: (float) Angle to rotate the polygon, in radians.
         Defaults to 0.0.
 
-        :return: (Loc) The offset of the nth vertex.        
+        :return: (Loc) The offset of the nth vertex.
         """
 
         # Angle of vertex in relation to first vertex.
@@ -802,7 +840,7 @@ class GeomHelper:
     def get_unit_vector(angle):
         """
         Find the unit vector in the direction of the angle.
-        
+
         :param angle: (float) Angle of vector, in radians.
 
         :return: (Loc) The unit vector.
@@ -876,7 +914,7 @@ class FColor(Loc):
     def __init__(self, *args):
         """
         Construct FColor from RGB components.
-        
+
         0 arguments sets 0 for RGB values.
         1 argument sets given value for RGB.
         3 arguments set RGB values respectively.
@@ -930,10 +968,10 @@ class FColor(Loc):
 class RenderManager(Actor, Drawable):
     def __init__(self):
         """Set default values."""
-        
+
         super().__init__()
-        
-        ## Dictionary of canvas ids belongs to a Node object. Used to 
+
+        ## Dictionary of canvas ids belongs to a Node object. Used to
         ## map a given transient canvas id to a particular node.
         self.node_canvas_ids = {}
 
