@@ -130,6 +130,16 @@ class NodeBase(DrawnActor):
     # End of drawable interface.
     # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+    # TODO: create more robust input handling system
+    def on_click(self, event):
+        print("hello")
+
+    def on_release(self, event):
+        print("hello")
+
+    def on_mouse_over(self, event):
+        print("hello")
+
 class PolygonNode(NodeBase):
     """
     A single polygon with a set of vertices.
@@ -265,13 +275,6 @@ class PolygonNode(NodeBase):
     def begin_destroy(self):
         super().begin_destroy()
         self._clear()
-
-    # TODO: create more robust input handling system
-    def on_click(self, event):
-        print("hello")
-
-    def on_release(self, event):
-        print("hello")
 
 class ImageNode(NodeBase):
     """Node that shows an image. EXPERIMENTAL!!!"""
