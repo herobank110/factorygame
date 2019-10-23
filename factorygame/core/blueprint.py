@@ -733,7 +733,10 @@ class WorldGraph(World, GraphBase):
 
     def on_graph_pointer_movement_input(self, event):
         """Call input events on nodes that that are hovered."""
-        pass
+        center = Loc(event.x, event.y)
+        found_nodes = []
+        self.multi_box_trace_for_objects(center, 2, found_nodes)
+        all(map(lambda node: node.on_mouse_over(event), found_nodes))
 
     def multi_box_trace_for_objects(self, start, half_size, found=None):
         """Get nodes at the position in a radius.
