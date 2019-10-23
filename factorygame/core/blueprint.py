@@ -418,6 +418,7 @@ class GraphBase(Canvas, Drawable):
         # RMB press events.
         self.bind("<ButtonPress>", self.on_graph_button_press_input, True)
         self.bind("<ButtonRelease>", self.on_graph_button_release_input, True)
+        self.bind("<Motion>", self.on_graph_pointer_movement_input, True)
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
@@ -450,6 +451,10 @@ class GraphBase(Canvas, Drawable):
 
     def on_graph_button_release_input(self, event):
         """Called when a mouse button release event occurs on the graph."""
+        pass
+
+    def on_graph_pointer_movement_input(self, event):
+        """Called when a mouse pointer movement event occurs on the graph."""
         pass
 
     def get_canvas_dim(self):
@@ -725,6 +730,10 @@ class WorldGraph(World, GraphBase):
         self.multi_box_trace_for_objects(center, 2, found_nodes)
         for node in found_nodes:
             node.on_release(event)
+
+    def on_graph_pointer_movement_input(self, event):
+        """Call input events on nodes that that are hovered."""
+        pass
 
     def multi_box_trace_for_objects(self, start, half_size, found=None):
         """Get nodes at the position in a radius.
