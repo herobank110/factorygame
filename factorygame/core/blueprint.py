@@ -140,6 +140,9 @@ class NodeBase(DrawnActor):
     def on_mouse_over(self, event):
         print("hello")
 
+    def on_mouse_leave(self, event):
+        print("hello")
+
 class PolygonNode(NodeBase):
     """
     A single polygon with a set of vertices.
@@ -736,7 +739,23 @@ class WorldGraph(World, GraphBase):
         center = Loc(event.x, event.y)
         found_nodes = []
         self.multi_box_trace_for_objects(center, 2, found_nodes)
-        all(map(lambda node: node.on_mouse_over(event), found_nodes))
+
+        # Use sets for easy intersection and overlaps.
+        found_nodes = set(found_nodes)
+        hovered_nodes = self.render_manager.hovered_nodes
+
+        # Call mouse leave events on nodes that are no longer hovered.
+        for node in hovered_nodes.difference(found_nodes):
+            node.on_mouse_leave(event)
+        
+        # Call mouse over events on nodes that are newly hovered.
+        for node in found_nodes.difference(hovered_nodes):
+            node.on_mouse_over(event)
+        
+        # Save state for next call.
+        self.render_manager.hovered_nodes = found_nodes
+
+        # all(map(lambda node: node.on_mouse_over(event), found_nodes))
 
     def multi_box_trace_for_objects(self, start, half_size, found=None):
         """Get nodes at the position in a radius.
@@ -1005,6 +1024,9 @@ class RenderManager(Actor, Drawable):
         ## Dictionary of canvas ids belongs to a Node object. Used to
         ## map a given transient canvas id to a particular node.
         self.node_canvas_ids = {}
+
+        ## Set of nodes the mouse is currently hovering over.
+        self.hovered_nodes = set()
 
         # ENSURE we tick before any other actors!
         self.primary_actor_tick.tick_group = ETickGroup.ENGINE
