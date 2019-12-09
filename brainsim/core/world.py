@@ -2,7 +2,7 @@ from tkinter import Canvas
 
 from factorygame import FColor, GameplayStatics, Loc
 from factorygame.core.blueprint import WorldGraph, GridGismo
-from factorygame.core.input_base import EKeys, EInputEvent
+from factorygame.core.input_base import EInputEvent
 from brainsim.neuron_node.nodes import NeuronNodeBase
 
 
@@ -20,8 +20,7 @@ class BrainWorld(WorldGraph):
         grid.origin_line_color = FColor(45, 45, 17)
         self.finish_deferred_spawn_actor(grid)
 
-        input_comp = GameplayStatics.game_engine._input_mappings
-        input_comp.add_action_mapping("AddNode", EKeys.E)
+        input_comp = GameplayStatics.game_engine.input_mappings
         input_comp.bind_action("AddNode", EInputEvent.PRESSED, self.on_add_node)
 
     def on_add_node(self):

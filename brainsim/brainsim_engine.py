@@ -1,4 +1,5 @@
 from factorygame import GameEngine
+from factorygame.core.input_base import EKeys
 from brainsim.core.world import BrainWorld
 
 
@@ -9,3 +10,6 @@ class BrainsimEngine(GameEngine):
         self._frame_rate = 90
         self._window_title = "Brain Simulator"
         self._starting_world = BrainWorld
+
+    def setup_input_mappings(self):
+        self.input_mappings.add_action_mapping("AddNode", EKeys.E)

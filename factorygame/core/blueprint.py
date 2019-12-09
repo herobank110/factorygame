@@ -766,6 +766,22 @@ class WorldGraph(World, GraphBase):
 
         return found
 
+    def multi_box_trace_for_objects2(self, start, half_size, found=None):
+        if found is None: found = []
+
+        coords = []
+        coords.extend(start - half_size)
+        coords.extend(start + half_size)
+
+        found.extend(
+            node
+            for node in map(
+                self.render_manager.node_canvas_ids.get,
+                self.find_overlapping(*coords))
+            if node is not None)
+
+        return found
+
     @property
     def render_manager(self):
         return self._render_manager
