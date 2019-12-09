@@ -418,7 +418,7 @@ class GraphBase(Canvas, Drawable):
         # RMB press events.
         self.bind("<ButtonPress>", self.on_graph_button_press_input, True)
         self.bind("<ButtonRelease>", self.on_graph_button_release_input, True)
-        self.bind("<Motion>", self.on_graph_pointer_movement_input, True)
+        # self.bind("<Motion>", self.on_graph_pointer_movement_input, True)
 
     def on_graph_motion_input(self, event):
         """Called when a motion event occurs on the graph."""
@@ -1020,4 +1020,14 @@ class RenderManager(Actor, Drawable):
             self.node_canvas_ids = {}
 
     def tick(self, dt):
+        # Call motion input every frame rather than on mouse movement.
+        canvas = self.world
+        event = type(
+            "MyTkEvent", (), {
+                "x": canvas.winfo_pointerx() - canvas.winfo_rootx(),
+                "y": canvas.winfo_pointery() - canvas.winfo_rooty()})
+
+        self.world.on_graph_pointer_movement_input(event)
+
+
         self.start_cycle()
