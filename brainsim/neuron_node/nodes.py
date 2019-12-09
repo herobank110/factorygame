@@ -62,5 +62,8 @@ class NeuronNodeBase(PolygonNode):
     def on_release(self, event):
         print("released")
 
-    def on_mouse_over(self, event):
+    def on_begin_cursor_over(self, event):
         print("mouse over")
+
+    def on_end_cursor_over(self, event):
+        print("mouse left")

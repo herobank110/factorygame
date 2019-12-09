@@ -137,10 +137,10 @@ class NodeBase(DrawnActor):
     def on_release(self, event):
         print("hello")
 
-    def on_mouse_over(self, event):
+    def on_begin_cursor_over(self, event):
         print("hello")
 
-    def on_mouse_leave(self, event):
+    def on_end_cursor_over(self, event):
         print("hello")
 
 class PolygonNode(NodeBase):
@@ -746,11 +746,11 @@ class WorldGraph(World, GraphBase):
 
         # Call mouse leave events on nodes that are no longer hovered.
         for node in hovered_nodes.difference(found_nodes):
-            node.on_mouse_leave(event)
+            node.on_end_cursor_over(event)
         
         # Call mouse over events on nodes that are newly hovered.
         for node in found_nodes.difference(hovered_nodes):
-            node.on_mouse_over(event)
+            node.on_begin_cursor_over(event)
         
         # Save state for next call.
         self.render_manager.hovered_nodes = found_nodes
