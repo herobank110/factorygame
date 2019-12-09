@@ -22,14 +22,14 @@ class BrainWorld(WorldGraph):
         grid.origin_line_color = FColor(45, 45, 17)
         self.finish_deferred_spawn_actor(grid)
 
-        # self.default_node_network = self.spawn_actor(
-        #     NeuronNodeNetwork, Loc(0, 0))
-        self.spawn_actor(NeuronNodeNetwork, Loc(0, 0))
+        self.default_node_network = self.spawn_actor(
+            NeuronNodeNetwork, Loc(0, 0))
 
         # Setup input bindings.
 
         input_comp = GameplayStatics.game_engine.input_mappings
-        input_comp.bind_action("AddNode", EInputEvent.PRESSED, self.on_add_node)
+        input_comp.bind_action(
+            "AddNode", EInputEvent.PRESSED, self.on_add_node)
 
     def on_add_node(self):
         if self.default_node_network is None:
