@@ -13,3 +13,4 @@ class BrainsimEngine(GameEngine):
 
     def setup_input_mappings(self):
         self.input_mappings.add_action_mapping("AddNode", EKeys.E)
+        self.input_mappings.add_action_mapping("ConnectNode", EKeys.LeftMouseButton)

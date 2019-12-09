@@ -1,5 +1,6 @@
-from factorygame import FColor, Actor
+from factorygame import FColor, Actor, GameplayStatics
 from factorygame.core.blueprint import PolygonNode, GeomHelper
+from factorygame.core.input_base import EInputEvent
 
 
 class NeuronNodeNetwork(Actor):
@@ -22,6 +23,12 @@ class NeuronNodeNetwork(Actor):
 
         ## All nodes in this group.
         self.nodes = []
+
+    def begin_play(self):
+        # Bind inputs
+        input_component = GameplayStatics.game_engine.input_mappings
+        input_component.bind_action(
+            "ConnectNode", EInputEvent.RELEASED, self.on_end_connect_node)
 
     def add_node(self, location, node_class=None):
         """Add a new node to the network.
@@ -47,9 +54,35 @@ class NeuronNodeNetwork(Actor):
         self.world.finish_deferred_spawn_actor(new_node)
         return new_node
 
+    def on_end_connect_node(self):
+        pass
+
+    def on_node_clicked(self, node):
+        """Handle a click on a node in this network.
+        """
+
+    def on_node_released(self, node):
+        """Handle a release of a node in this network.
+        """
+
+    def on_node_start_cursor_over(self, node):
+        """Handle the start of a cursor over a node in this network.
+        """
+
+    def on_node_end_cursor_over(self, node):
+        """Handle the end of a cursor over a node in this network.
+        """
+
+
 class NeuronNodeBase(PolygonNode):
     """Base class for neuron nodes.
     """
+
+    def __init__(self):
+        super().__init__()
+
+        ## Neural network this neuron belongs to.
+        self.network = None  # type: NeuronNodeNetwork
 
     def begin_play(self):
         super().begin_play()
@@ -57,13 +90,17 @@ class NeuronNodeBase(PolygonNode):
         self.fill_color = FColor.white()
 
     def on_click(self, event):
-        print("clicked!")
+        if self.network is not None:
+            self.network.on_node_clicked(self)
 
     def on_release(self, event):
-        print("released")
+        if self.network is not None:
+            self.network.on_node_released(self)
 
     def on_begin_cursor_over(self, event):
-        print("mouse over")
+        if self.network is not None:
+            self.network.on_node_start_cursor_over(self)
 
     def on_end_cursor_over(self, event):
-        print("mouse left")
+        if self.network is not None:
+            self.network.on_node_end_cursor_over(self)
