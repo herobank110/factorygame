@@ -80,7 +80,6 @@ class NeuronNodeNetwork(Actor):
         if self.held_node is not None:
             # Make connection between nodes
             if self.held_node.can_connect_to(node):
-                print("connecting nodes")
                 self.held_node.to_trigger.append(node)
                 self.held_node = None
                 self.hovered_node = None

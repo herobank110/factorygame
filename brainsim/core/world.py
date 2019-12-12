@@ -43,7 +43,5 @@ class BrainWorld(WorldGraph):
             canvas.winfo_pointerx() - canvas.winfo_rootx(),
             canvas.winfo_pointery() - canvas.winfo_rooty())
 
-        print("Adding node at %s" % mouse_position)
-
         spawn_position = self.canvas_to_view(mouse_position)
         self.default_node_network.add_node(spawn_position)
