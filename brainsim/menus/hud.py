@@ -9,9 +9,17 @@ class BrainWorldHud(DrawnActor):
         super().__init__()
         self.primary_actor_tick.tick_group = ETickGroup.UI
 
+    def _should_draw(self):
+        # Only draw on close up zoom.
+        return super()._should_draw() and self.world.zoom_ratio < 10
+
+    def tick(self, dt):
+        super().tick(dt)
+        # Always draw the active connection line
+        self.__draw_active_connection()
+
     def _draw(self):
         self.__draw_existing_connections()
-        self.__draw_active_connection()
 
     def __draw_existing_connections(self):
         """Draw lines for nodes that are already connected.
@@ -22,8 +30,16 @@ class BrainWorldHud(DrawnActor):
 
         canvas = self.world
         for start_node in network.nodes:
+            if not start_node._should_draw():
+                # Don't draw lines for nodes we can't see.
+                continue
+
             start = canvas.view_to_canvas(start_node.location)
+
             for end_node in start_node.to_trigger:
+                if not end_node._should_draw:
+                    continue
+
                 end = canvas.view_to_canvas(end_node.location)
 
                 # Draw a line connecting two center points.
