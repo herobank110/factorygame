@@ -1,4 +1,5 @@
 from tkinter import Canvas
+from tkinter.ttk import Button
 
 from factorygame import FColor, GameplayStatics, Loc
 from factorygame.core.blueprint import WorldGraph, GridGismo
@@ -28,6 +29,9 @@ class BrainWorld(WorldGraph):
 
         self.hud = self.spawn_actor(BrainWorldHud, Loc(0, 0))
 
+        my_button = Button(self, text="Save", command=self.on_save_polygon)
+        self.create_window(Loc(20, 20), window=my_button, anchor="nw")
+
         # Setup input bindings.
 
         input_comp = GameplayStatics.game_engine.input_mappings
@@ -45,3 +49,17 @@ class BrainWorld(WorldGraph):
 
         spawn_position = self.canvas_to_view(mouse_position)
         self.default_node_network.add_node(spawn_position)
+
+    def on_save_polygon(self):
+        polygon_coords = [
+            "Loc(%s, %s)" % (node.location.x, node.location.y)
+            for node in self.default_node_network.nodes]
+        coords_as_str = str(polygon_coords).replace("'", "")
+        self.clipboard_append(coords_as_str)
+
+        msg = ("Generating Polygon Coordinates".center(60) + "\n"
+               + "\n"
+               + "Coords: %s" % coords_as_str[:40].replace("\n", " ") + "..." + "\n"
+               + "Copied to clipboard")
+
+        print(msg)
