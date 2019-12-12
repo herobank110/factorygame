@@ -4,6 +4,7 @@ from factorygame import FColor, GameplayStatics, Loc
 from factorygame.core.blueprint import WorldGraph, GridGismo
 from factorygame.core.input_base import EInputEvent
 from brainsim.neuron_node.nodes import NeuronNodeBase, NeuronNodeNetwork
+from brainsim.menus.hud import BrainWorldHud
 
 
 class BrainWorld(WorldGraph):
@@ -24,6 +25,8 @@ class BrainWorld(WorldGraph):
 
         self.default_node_network = self.spawn_actor(
             NeuronNodeNetwork, Loc(0, 0))
+
+        self.hud = self.spawn_actor(BrainWorldHud, Loc(0, 0))
 
         # Setup input bindings.
 
