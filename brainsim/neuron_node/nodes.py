@@ -24,6 +24,9 @@ class NeuronNodeNetwork(Actor):
         ## All nodes in this group.
         self.nodes = []
 
+        ## Timer reference for cancelling active connection attempt.
+        self._force_cancel_connect_timer = None
+
     def begin_play(self):
         # Bind inputs
         input_component = GameplayStatics.game_engine.input_mappings
@@ -65,6 +68,15 @@ class NeuronNodeNetwork(Actor):
         `on_node_released` are called but `on_node_released` should
         have higher priority to make the actual connection.
         """
+        self._force_cancel_connect_timer = self.world.after(
+            0, self.force_cancel_connect)
+
+    def force_cancel_connect(self):
+        """Forcefully cancel an active connection.
+        """
+        self.held_node = None
+        self.hovered_node = None
+        self._force_cancel_connect_timer = None
 
     def on_node_clicked(self, node):
         """Handle a click on a node in this network.
@@ -78,11 +90,16 @@ class NeuronNodeNetwork(Actor):
         """Handle a release of a node in this network.
         """
         if self.held_node is not None:
-            # Make connection between nodes
+            # Make connection between nodes.
             if self.held_node.can_connect_to(node):
                 self.held_node.to_trigger.append(node)
                 self.held_node = None
                 self.hovered_node = None
+
+                # Cancel the failed connection timer.
+                if self._force_cancel_connect_timer is not None:
+                    self.world.after_cancel(self._force_cancel_connect_timer)
+                    self._force_cancel_connect_timer = None
 
     def on_node_start_cursor_over(self, node):
         """Handle the start of a cursor over a node in this network.
