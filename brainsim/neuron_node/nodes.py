@@ -16,10 +16,10 @@ class NeuronNodeNetwork(Actor):
         self.default_node_class = NeuronNodeBase
 
         ## Node currently being connected from.
-        self.held_node = None
+        self.held_node = None  # type: NeuronNodeBase
 
         ## Node currently being connected to.
-        self.hovered_node = None
+        self.hovered_node = None  # type: NeuronNodeBase
 
         ## All nodes in this group.
         self.nodes = []
@@ -27,8 +27,7 @@ class NeuronNodeNetwork(Actor):
     def begin_play(self):
         # Bind inputs
         input_component = GameplayStatics.game_engine.input_mappings
-        input_component.bind_action(
-            "ConnectNode", EInputEvent.RELEASED, self.on_end_connect_node)
+        input_component.bind_action("ConnectNode", EInputEvent.RELEASED, self.on_release_connect)
 
     def add_node(self, location, node_class=None):
         """Add a new node to the network.
@@ -54,24 +53,49 @@ class NeuronNodeNetwork(Actor):
         self.world.finish_deferred_spawn_actor(new_node)
         return new_node
 
-    def on_end_connect_node(self):
-        pass
+    def on_release_connect(self):
+        """Handle connection release anywhere in the synapse.
+        
+        Called every time the node connect button is released when
+        the cursor may or may be over a particular node. If the cursor
+        is not directly over a node, the connection attempt should be
+        ended.
+        
+        If a release event did occur over a node, both this method and
+        `on_node_released` are called but `on_node_released` should
+        have higher priority to make the actual connection.
+        """
 
     def on_node_clicked(self, node):
         """Handle a click on a node in this network.
+
+        :see: `on_release_connect`
         """
+        if self.held_node is None:
+            self.held_node = node
 
     def on_node_released(self, node):
         """Handle a release of a node in this network.
         """
+        if self.held_node is not None:
+            # Make connection between nodes
+            if self.held_node.can_connect_to(node):
+                print("connecting nodes")
+                self.held_node.to_trigger.append(node)
+                self.held_node = None
+                self.hovered_node = None
 
     def on_node_start_cursor_over(self, node):
         """Handle the start of a cursor over a node in this network.
         """
+        if self.hovered_node is None:
+            self.hovered_node = node
 
     def on_node_end_cursor_over(self, node):
         """Handle the end of a cursor over a node in this network.
         """
+        if self.hovered_node is not None and self.hovered_node is node:
+            self.hovered_node = None
 
 
 class NeuronNodeBase(PolygonNode):
@@ -83,6 +107,9 @@ class NeuronNodeBase(PolygonNode):
 
         ## Neural network this neuron belongs to.
         self.network = None  # type: NeuronNodeNetwork
+
+        ## List of nodes to trigger when signal passes to this node.
+        self.to_trigger = [] # type: List[NeuronNodeBase]
 
     def begin_play(self):
         super().begin_play()
@@ -104,3 +131,17 @@ class NeuronNodeBase(PolygonNode):
     def on_end_cursor_over(self, event):
         if self.network is not None:
             self.network.on_node_end_cursor_over(self)
+
+    def can_connect_to(self, other_node):
+        return (
+            # Only connect valid nodes.
+            other_node is not None
+
+            # Can't connect to itself.
+            and self is not other_node
+
+            # Don't allow duplicate connections.
+            and other_node not in self.to_trigger
+            
+            # Don't allow circular connections.
+            and self not in other_node.to_trigger)
