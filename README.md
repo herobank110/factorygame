@@ -1,17 +1,39 @@
-# Brain Simulator
+# FactoryGame
 
-Simulation of neurons in a brain.
+Python game engine to have a 2d movable "graph".
 
 ## Overview
 
-This project aims to simulate the neural network of a human brain
-by allowing the user to manually create, share, learn about and
-use neural networks.
+### Design
 
-Neurons can be placed in the synapses of the brain and connected to
-one another. When an action potential is sent to the neural network,
-it will be passed down the chain of neurons to produce some output.
+Factorygame is a game engine meant for simple, minimalist games. It supports
+a large array of graphical features such as shapes, colors and lines. The
+framework is developed with the idea to enable rapid game development and
+prototyping, with a robust and extendable toolset.
 
-There will be a premade neural network to interpret a drawn numeral
-into an actual number, simulating several areas of the brain's visual
-cortex.
+### Flexibility
+
+The use of the Python scripting language throughout makes this engine highly
+flexible. It has an open source policy to support understanding and extending
+any part of the engine with ease. By letting users choose their workflow, it
+empowers them to use their existing techniques to speed up build times.
+
+### Development Operations
+
+This game engine can cater to many experience levels. Python is already
+vastly popular and the number of users is growing. Nothing in the framework
+is preventing users from building a game as it's designed to be a streamlined
+hassle-free time. Previous users of Godot's scripting language will feel at
+home.
+
+## Installation
+
+Just download it and start working straight away. It is recommended to have
+some Python knowledge, although this is optional. First take a look at the
+included samples by executing `run_test.py`. This will showcase all the current
+included features.
+
+## Usage
+
+You are free to use this engine as you wish. We would love to know if you have
+made a game with it.
