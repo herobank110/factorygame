@@ -99,6 +99,12 @@ class NodeBase(DrawnActor):
         ## Amount of viewport padding to give when deciding whether to draw
         self.drawable_padding = Loc(300, 300)
 
+        ## Whether to generate cursor over events.
+        self.generate_cursor_over_events = True
+
+        ## Whether to generate click events (default LMB).
+        self.generate_click_events = True
+
     def register_canvas_id(self, canvas_id):
         """
         Register a canvas id with the graph to enable input.
@@ -132,16 +138,20 @@ class NodeBase(DrawnActor):
 
     # TODO: create more robust input handling system
     def on_click(self, event):
-        print("hello")
+        """Called when press occurs over a registered component. (default LMB)
+        """
 
     def on_release(self, event):
-        print("hello")
+        """Called when release occurs over a registered component. (default LMB)
+        """
 
     def on_begin_cursor_over(self, event):
-        print("hello")
+        """Called when cursor enters a registered component.
+        """
 
     def on_end_cursor_over(self, event):
-        print("hello")
+        """Called when cursor leaves a registered component.
+        """
 
 class PolygonNode(NodeBase):
     """
@@ -723,6 +733,8 @@ class WorldGraph(World, GraphBase):
         found_nodes = []
         self.multi_box_trace_for_objects(center, 2, found_nodes)
         for node in found_nodes:
+            if not node.generate_click_events:
+                continue
             node.on_click(event)
 
     def on_graph_button_release_input(self, event):
@@ -732,6 +744,8 @@ class WorldGraph(World, GraphBase):
         found_nodes = []
         self.multi_box_trace_for_objects(center, 2, found_nodes)
         for node in found_nodes:
+            if not node.generate_click_events:
+                continue
             node.on_release(event)
 
     def on_graph_pointer_movement_input(self, event):
@@ -746,10 +760,14 @@ class WorldGraph(World, GraphBase):
 
         # Call mouse leave events on nodes that are no longer hovered.
         for node in hovered_nodes.difference(found_nodes):
+            if not node.generate_cursor_over_events:
+                continue
             node.on_end_cursor_over(event)
         
         # Call mouse over events on nodes that are newly hovered.
         for node in found_nodes.difference(hovered_nodes):
+            if not node.generate_cursor_over_events:
+                continue
             node.on_begin_cursor_over(event)
         
         # Save state for next call.
