@@ -28,14 +28,14 @@ class EngineTickTest(GuiTest):
         # Create the base class engine in this Toplevel window.
         GameplayUtilities.create_game_engine(GameEngine, master=self)
 
-        # Spawn the ticking actor.        
+        # Spawn the ticking actor.
         actor = GameplayStatics.world.deferred_spawn_actor(MyActor, (0, 0))
         # Set properties before calling tick.
         actor.label = frame_count_label
         actor.frame_count = 0
         GameplayStatics.world.finish_deferred_spawn_actor(actor)
-        
-        # Ensure we stop the game engine when closing the test, 
+
+        # Ensure we stop the game engine when closing the test,
         # so that subsequent runs are fully restarted.
         self.bind("<Destroy>", self.on_destroy)
 
@@ -159,11 +159,11 @@ class ActorDestroyTest(GuiTest):
             command_frame, text="Destroy",
             command=self.destroy_newest_actor
             ).pack(side="right")
-        
+
         command_frame.pack(pady=10)
 
         # Create a label to show when actors are spawned.
-        
+
         self.active_actor_tick_format = "This number is changed by actors to {:s}."
         self.active_actor_digits = []  # Random chosen digits this frame.
 

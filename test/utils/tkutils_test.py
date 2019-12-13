@@ -1,6 +1,7 @@
 from factorygame.utils.tkutils import MotionInput, ScalingImage
 from test.template.template_gui import GuiTest
 from factorygame.utils.loc import Loc
+from factorygame import MathStat
 from tkinter import Label, Canvas, Toplevel, IntVar, DoubleVar
 from tkinter.ttk import Labelframe, Button, Scale, LabelFrame
 import base64
@@ -11,6 +12,11 @@ class MotionInputTest(GuiTest):
     hcol = "dark green"
     vcol = "dark cyan"
     acol = "dark red"
+
+    last_h_pos = Loc(0, 0)
+    last_v_pos = Loc(0, 0)
+    last_a_pos = Loc(0, 0)
+    interp_speed = 0.4
 
     _test_name = "Motion Input Visualisation"
 
@@ -29,7 +35,9 @@ class MotionInputTest(GuiTest):
         # WARNING: The delta will contain x and y components, even if
         # this function is only called on changes to one axis!
         offset = Loc(event.delta.x * 50, 0)
-        coords2 = center + offset
+        target = center + offset
+        coords2 = MathStat.lerp(self.last_h_pos, target, self.interp_speed)
+        self.last_h_pos = coords2
 
         self.hcanvas.create_line(center, coords2,
                                  fill=self.hcol, width=5, tags=("delta", "line"))
@@ -58,7 +66,9 @@ class MotionInputTest(GuiTest):
         # WARNING: The delta will contain x and y components, even if
         # this function is only called on changes to one axis!
         offset = Loc(0, event.delta.y * 50)
-        coords2 = center + offset
+        target = center + offset
+        coords2 = MathStat.lerp(self.last_v_pos, target, self.interp_speed)
+        self.last_v_pos = coords2
 
         self.vcanvas.create_line(center, coords2,
                                  fill=self.vcol, width=5, tags=("delta", "line"))
@@ -85,7 +95,9 @@ class MotionInputTest(GuiTest):
                      int(self.acanvas.cget("height"))) // 2
 
         offset = event.delta * 50
-        coords2 = center + offset
+        target = center + offset
+        coords2 = MathStat.lerp(self.last_a_pos, target, self.interp_speed)
+        self.last_a_pos = coords2
 
         self.acanvas.create_line(center, coords2,
                                  fill=self.acol, width=5, tags=("delta", "line"))
@@ -108,7 +120,8 @@ class MotionInputTest(GuiTest):
         self.vtimer = self.htimer = self.atimer = None
 
         Label(self, text="WARNING: The delta will contain x and y components, "
-              "even if that function is only called on changes to one axis!"
+              "even if that function is only called on changes to one axis!\n"
+              "WARNING 2: Smoothing not included"
               ).pack()
 
         # Horizontal movement

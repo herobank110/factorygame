@@ -24,16 +24,18 @@ if RUN_GUI_TESTS:
     # Create gui_test_manager object for root window.
     from test.template.template_gui import GuiTestManager
     gui_test_manager = GuiTestManager()
-    
+
     # Add test for tkutils.
     from test.utils.tkutils_test import MotionInputTest, ScalingImageTest
     gui_test_manager.add_test(MotionInputTest)
     gui_test_manager.add_test(ScalingImageTest)
 
     # Add test for blueprints.
-    from test.core.blueprint_test import GraphMotionTest, GraphResizeTest
+    from test.core.blueprint_test import (GraphMotionTest,
+        GraphResizeTest, NodesInputTest)
     gui_test_manager.add_test(GraphMotionTest)
     gui_test_manager.add_test(GraphResizeTest)
+    gui_test_manager.add_test(NodesInputTest)
 
     # Add test for engine.
     from test.core.engine_test import EngineTickTest, ActorDestroyTest
