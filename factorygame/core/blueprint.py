@@ -763,13 +763,13 @@ class WorldGraph(World, GraphBase):
             if not node.generate_cursor_over_events:
                 continue
             node.on_end_cursor_over(event)
-        
+
         # Call mouse over events on nodes that are newly hovered.
         for node in found_nodes.difference(hovered_nodes):
             if not node.generate_cursor_over_events:
                 continue
             node.on_begin_cursor_over(event)
-        
+
         # Save state for next call.
         self.render_manager.hovered_nodes = found_nodes
 
