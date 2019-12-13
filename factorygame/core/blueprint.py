@@ -138,24 +138,20 @@ class NodeBase(DrawnActor):
 
     # TODO: create more robust input handling system
     def on_click(self, event):
-        raise NotImplementedError(
-            "Actor '%s' is set to generate click events but '%s' is "
-            "not defined " % (repr(self), self.on_click.__name__)
+        """Called when press occurs over a registered component. (default LMB)
+        """
 
     def on_release(self, event):
-        raise NotImplementedError(
-            "Actor '%s' is set to generate click events but '%s' is "
-            "not defined " % (repr(self), self.on_release.__name__)
+        """Called when release occurs over a registered component. (default LMB)
+        """
 
     def on_begin_cursor_over(self, event):
-        raise NotImplementedError(
-            "Actor '%s' is set to generate click events but '%s' is "
-            "not defined " % (repr(self), self.on_begin_cursor_over.__name__)
+        """Called when cursor enters a registered component.
+        """
 
     def on_end_cursor_over(self, event):
-        raise NotImplementedError(
-            "Actor '%s' is set to generate click events but '%s' is "
-            "not defined " % (repr(self), self.on_end_cursor_over.__name__)
+        """Called when cursor leaves a registered component.
+        """
 
 class PolygonNode(NodeBase):
     """
