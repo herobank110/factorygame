@@ -13,12 +13,11 @@ else:
     sys.path.insert(0, py_36_path)
 
 from factorygame import GameplayUtilities, GameplayStatics
-from factorygame.factory_engine import FactoryEngine
-from factorygame.core.blueprint import GridGismo
+from brainsim import BrainsimEngine
 
 def main():
     # Create the game.
-    GameplayUtilities.create_game_engine(FactoryEngine)
+    GameplayUtilities.create_game_engine(BrainsimEngine)
 
 if __name__ == '__main__':
     main()

@@ -5,21 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: FactoryGame Main",
+            "name": "Python: BrainSim Main",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "console": "internalConsole"
         },
         {
-            "name": "Python: FactoryGame Run Test",
+            "name": "Python: BrainSim Run Test",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/run_test.py",
             "console": "internalConsole"
         },
         {
-            "name": "Python: FactoryGame Run Test NOGUI",
+            "name": "Python: BrainSim Run Test NOGUI",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/run_test.py",
