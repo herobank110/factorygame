@@ -1,10 +1,12 @@
 """Create a new project.
 
-Functions:
-    make_project - Use this to create a project.
+Classes
+- `Project` Represents a Factorygame project.
+  Methods
+  - `Project.new_project` Helper function to make a project.
 
-Classes:
-    EProjectTemplates - Available project templates.
+- `EProjectTemplates` - Available project templates.
+
 
 
 Format Arguments - Argument instances (surrounded in braces {}) are
@@ -12,7 +14,7 @@ replaced with their values when creating a project.
 Available arguments:
     {display_name} - Chosen display name of project.
     {project_name} - Chosen internal name of project.
-        Variants: {ProjectName} - Pascal case conversion.
+    {ProjectName} - Chosen internal name in PascalCase.
     {project_dir} - Root directory of project.
     {project_desc} - Short description of project.
     {copyright_notice} - Copyright notice of project.
@@ -120,17 +122,43 @@ _PROJECT_TEMPLATES[EProjectTemplates.EMPTY] = _ProjectTemplate(
         _FileTemplate(
             "main.py", (
 
-            '"""Default project start for {project_name}.',
+            '"""Default project start for {display_name}.',
             '',
             '{copyright_notice}',
             '"""',
             '',
-            'from factorygame import GameplayUtilities',
+            'try:',
+            '    from factorygame import GameplayUtilities',
+            'except ImportError as e:',
+            '    raise ImportError("factorygame engine not installed. Run '
+            'the command "',
+            '                      "\'python -m pip install -r requirements'
+            '.txt\' to "',
+            '                      "install required modules.") from e',
+            '',
             'from {project_name} import {ProjectName}Engine',
             '',
             'if __name__ == "__main__":',
             '   # Create the game.',
-            '   GameplayUtilities.create_game_engine({ProjectName}Engine)')
+            '   GameplayUtilities.create_game_engine({ProjectName}Engine)',
+            '')
+            ),
+
+        _FileTemplate((
+            "requirements.txt"), (
+
+            'factorygame-dave22153',
+            '')
+            ),
+
+        _FileTemplate((
+            "{project_name}.fproject"), (
+
+            '{{',
+            '    "Name": "{project_name}",',
+            '    "Description": "{description}"',
+            '}}',
+            '')
             ),
 
         _FileTemplate((
@@ -152,30 +180,30 @@ _PROJECT_TEMPLATES[EProjectTemplates.EMPTY] = _ProjectTemplate(
             "{project_name}",
                 "{project_name}_engine.py"), (
 
-            '"""Game engine class for {display_name}.\n',
+            '"""Game engine class for {display_name}.',
             '"""',
             '',
             'from factorygame import GameEngine',
-            'from factorygame.core.input_base import EKeys'
+            'from factorygame.core.input_base import EKeys',
             '',
             'class {ProjectName}Engine(GameEngine):',
-            '   """',
-            '   """',
+            '    """',
+            '    """',
             '',
-            '   def __init__(self):',
-            '       """Set default values.',
-            '       """',
+            '    def __init__(self):',
+            '        """Set default values.',
+            '        """',
             '',
-            '       super().__init__()',
-            '       self._frame_rate = 60',
-            '       self._window_title = "{display_name}"',
-            '       # self._starting_world = WorldGraph',
+            '        super().__init__()',
+            '        self._frame_rate = 60',
+            '        self._window_title = "{display_name}"',
+            '        # self._starting_world = WorldGraph',
             '',
-            '   def setup_input_mappings(self):',
-            '       """Declare any input mappings.',
-            '       """',
+            '    def setup_input_mappings(self):',
+            '        """Declare any input mappings.',
+            '        """',
             '',
-            '       # self.input_mappings.add_action_mapping('
+            '        # self.input_mappings.add_action_mapping('
             '"MappingName", EKeys.M)',
             '')
             )
@@ -192,6 +220,19 @@ def make_project(root_dir, name, template=None):
     if template is None:
         template = EProjectTemplates.EMPTY
 
+    def replace_all(s, chars):
+        for char in not_allowed_in_name:
+            s = s.replace(char, "")
+        return s
+
+
+    # Helper to remove instances of not_allowed_chars in string s.
+    remove_all = lambda not_allowed_chars, s: (
+        "".join(filter(lambda c: c not in not_allowed_chars, s)))
+
+    not_allowed_in_format_args = r"{}\"'"
+    name = remove_all(not_allowed_in_format_args, name)
+
     # Format arguments will be templated in templates.
     format_args = {
         "project_dir": os.path.join(root_dir, name),
@@ -200,7 +241,9 @@ def make_project(root_dir, name, template=None):
         "ProjectName": to_pascal(name),
         "project_desc": "",
         "copyright_notice": ("Fill out your copyright notice in the "
-                             "Description page of Project Settings.")}
+                             "Description page of Project Settings."),
+        "description": ("Fill out your project description in the "
+                        "Description page of Project Settings.")}
 
     # All projects need minimum files.
     basic_template_data = _PROJECT_TEMPLATES[EProjectTemplates.EMPTY]
