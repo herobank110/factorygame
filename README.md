@@ -28,7 +28,11 @@ home.
 
 ## Installation
 
-Just download it and start working straight away. It is recommended to have
+ Available now on PyPI. Install using pip package manager using the command
+ `python -m pip install factorygame-dave22153`.
+ 
+ Otherwise clone/fork/download this repository and start working straight away.
+ It is recommended to have
 some Python knowledge, although this is optional. First take a look at the
 included samples by executing `run_test.py`. This will showcase all the current
 included features.
