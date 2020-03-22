@@ -1,4 +1,5 @@
-from tkinter.ttk import Label
+from tkinter import DoubleVar, StringVar
+from tkinter.ttk import Label, Scale, Frame
 from math import atan2
 from random import randrange
 from test.template.template_gui import GuiTest
@@ -31,9 +32,10 @@ class Bullet(PolygonNode):
             ProjectileMovementComponent
         )
         proj.owning_actor = self
-        proj.max_speed = 1000
+        proj.max_speed = max_speed_var.get()
         proj.max_num_bounces = 10
         proj.bounce_speed_multiplier = 1.0 # don't lose speed on bounce
+        proj.gravity_strength = grav_scale_var.get()
 
     def begin_play(self):
         super().begin_play()
@@ -204,6 +206,33 @@ class ProjectileTestEngine(GameEngine):
         self.input_mappings.add_action_mapping("Fire", EKeys.LeftMouseButton)
 
 
+grav_scale_var = DoubleVar()
+grav_scale_display_var = StringVar()
+
+max_speed_var = DoubleVar()
+max_speed_display_var = StringVar()
+
+def on_grav_strength_changed(new_gravity):
+    if not GameplayStatics.is_game_valid():
+        return
+
+    grav_scale_display_var.set(str(round(float(new_gravity), 3)).ljust(5, "0"))
+
+    for actor in GameplayStatics.world._actors:
+        if isinstance(actor, Bullet):
+            actor.projectile_movement.gravity_strength = float(new_gravity)
+
+def on_max_speed_changed(new_max_speed):
+    if not GameplayStatics.is_game_valid():
+        return
+
+    max_speed_display_var.set(str(round(float(new_max_speed))).rjust(4, "0"))
+
+    for actor in GameplayStatics.world._actors:
+        if isinstance(actor, Bullet):
+            actor.projectile_movement.max_speed = float(new_max_speed)
+
+
 class ProjectileMovementTest(GuiTest):
     _test_name = "Projectile Movement"
 
@@ -214,6 +243,41 @@ class ProjectileMovementTest(GuiTest):
                 "Drag Right Mouse Button to move\n"
                 "Drag Left Mouse Button to launch bullets")
             ).pack(pady=10)
+
+        grav_strength_frame = Frame(self)
+        grav_strength_frame.pack()
+        Label(grav_strength_frame, text="Gravity Scale"
+            ).pack(side="left")
+        Scale(
+            grav_strength_frame,
+            from_=0.1, to=5.0, value=1.0,
+            orient="horizontal",
+            variable=grav_scale_var,
+            command=on_grav_strength_changed
+            ).pack(side="left")
+        Label(grav_strength_frame, textvariable=grav_scale_display_var
+            ).pack(side="left")
+
+
+        max_speed_frame = Frame(self)
+        max_speed_frame.pack()
+        Label(max_speed_frame, text="   Max Speed"
+            ).pack(side="left")
+        Scale(
+            max_speed_frame,
+            from_=0.0, to=9999.0, value=1000.0,
+            orient="horizontal",
+            variable=max_speed_var,
+            command=on_max_speed_changed
+            ).pack(side="left")
+        Label(max_speed_frame, textvariable=max_speed_display_var
+            ).pack(side="left")
+
+        grav_scale_var.set(1.0)
+        grav_scale_display_var.set("1.000")  # always set to show 3 decimals
+
+        max_speed_var.set(1000.0)
+        max_speed_display_var.set("1000")
 
         # Create the projectile test engine in this Toplevel window.
         GameplayUtilities.create_game_engine(ProjectileTestEngine, master=self)
