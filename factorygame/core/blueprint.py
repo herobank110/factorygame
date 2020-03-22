@@ -775,6 +775,23 @@ class WorldGraph(World, GraphBase):
 
         # all(map(lambda node: node.on_mouse_over(event), found_nodes))
 
+    def get_mouse_viewport_position(self):
+        """Returns mouse position in viewport screen coordinates.
+
+        :rtype: Loc
+        """
+        return (
+            self.get_mouse_screen_position()
+            - Loc(self.winfo_rootx(), self.winfo_rooty())
+        )
+
+    def get_mouse_screen_position(self):
+        """Returns mouse position in absolute screen coordinates.
+
+        :rtype: Loc
+        """
+        return Loc(self.winfo_pointerx(), self.winfo_pointery())
+
     def multi_box_trace_for_objects(self, start, half_size, found=None):
         """Get nodes at the position in a radius.
 
