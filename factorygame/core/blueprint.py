@@ -780,17 +780,24 @@ class WorldGraph(World, GraphBase):
 
         :rtype: Loc
         """
-        return (
-            self.get_mouse_screen_position()
-            - Loc(self.winfo_rootx(), self.winfo_rooty())
-        )
+
+        screen_pos = self.get_mouse_screen_position()
+        if screen_pos is None:
+            return
+
+        return screen_pos - Loc(self.winfo_rootx(), self.winfo_rooty())
 
     def get_mouse_screen_position(self):
         """Returns mouse position in absolute screen coordinates.
 
         :rtype: Loc
         """
-        return Loc(self.winfo_pointerx(), self.winfo_pointery())
+        if (GameplayStatics.is_game_valid()
+            and self.winfo_exists()
+            and GameplayStatics.game_engine._window.winfo_exists()
+        ):
+            return Loc(self.winfo_pointerx(), self.winfo_pointery())
+        return None
 
     def multi_box_trace_for_objects(self, start, half_size, found=None):
         """Get nodes at the position in a radius.

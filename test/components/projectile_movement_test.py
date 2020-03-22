@@ -105,6 +105,8 @@ class AimingPlayer(DrawnActor):
 
         # Get the mouse position currently.
         mouse_pos = self.world.get_mouse_viewport_position()
+        if mouse_pos is None:
+            return
 
         # Convert to world coordinates.
         world_over_pos = self.world.canvas_to_view(mouse_pos)
@@ -125,10 +127,10 @@ class AimingPlayer(DrawnActor):
             # Finalise setup to let projectile move in the world.
             self.world.finish_deferred_spawn_actor(proj)
 
-            print(
-                "Launched bullet from: %s, with initial velocity: %s"
-                % (round(spawn_pos), round(self._aim_struct.fire_velocity))
-            )
+##            print(
+##                "Launched bullet from: %s, with initial velocity: %s"
+##                % (round(spawn_pos), round(self._aim_struct.fire_velocity))
+##            )
 
         # Delete aiming data to stop aiming.
         self._aim_struct = None
