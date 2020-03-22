@@ -76,7 +76,9 @@ class DrawnActor(Actor, Drawable):
     # Start of drawable interface.
 
     def _clear(self):
-        self.world.delete(self.unique_id)
+        if GameplayStatics.is_game_valid() and self.world.winfo_exists():
+            # Check canvas is valid before attempting to clear
+            self.world.delete(self.unique_id)
         try:
             self.canvas_ids.clear()
         except AttributeError:
