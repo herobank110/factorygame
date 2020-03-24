@@ -46,5 +46,9 @@ if RUN_GUI_TESTS:
     from test.core.input_test import ActionMappingTest
     gui_test_manager.add_test(ActionMappingTest)
 
+    # Add test for components.
+    from test.components.projectile_movement_test import ProjectileMovementTest
+    gui_test_manager.add_test(ProjectileMovementTest)
+
     # Start mainloop.
     gui_test_manager.mainloop()

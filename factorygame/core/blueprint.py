@@ -76,7 +76,9 @@ class DrawnActor(Actor, Drawable):
     # Start of drawable interface.
 
     def _clear(self):
-        self.world.delete(self.unique_id)
+        if GameplayStatics.is_game_valid() and self.world.winfo_exists():
+            # Check canvas is valid before attempting to clear
+            self.world.delete(self.unique_id)
         try:
             self.canvas_ids.clear()
         except AttributeError:
@@ -774,6 +776,30 @@ class WorldGraph(World, GraphBase):
         self.render_manager.hovered_nodes = found_nodes
 
         # all(map(lambda node: node.on_mouse_over(event), found_nodes))
+
+    def get_mouse_viewport_position(self):
+        """Returns mouse position in viewport screen coordinates.
+
+        :rtype: Loc
+        """
+
+        screen_pos = self.get_mouse_screen_position()
+        if screen_pos is None:
+            return
+
+        return screen_pos - Loc(self.winfo_rootx(), self.winfo_rooty())
+
+    def get_mouse_screen_position(self):
+        """Returns mouse position in absolute screen coordinates.
+
+        :rtype: Loc
+        """
+        if (GameplayStatics.is_game_valid()
+            and self.winfo_exists()
+            and GameplayStatics.game_engine._window.winfo_exists()
+        ):
+            return Loc(self.winfo_pointerx(), self.winfo_pointery())
+        return None
 
     def multi_box_trace_for_objects(self, start, half_size, found=None):
         """Get nodes at the position in a radius.
