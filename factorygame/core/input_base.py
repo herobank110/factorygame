@@ -215,6 +215,18 @@ class EngineInputMappings:
             for mapping, key_set in self._action_mappings.items()
             if key in key_set]
 
+    def get_axis_mapping_for_key(self, key):
+        """
+        Return a list of axis mapping that contain a given key.
+
+        :param key: (EKeys) Key to search for.
+
+        :return: (list) List of corresponding mappings.
+        """
+        return [mapping
+            for mapping, key_set in self._axis_mappings.items()
+            if key in key_set]
+
     def fire_action_bindings(self, action_name, key_event):
         """
         Invoke all callables registered to a mapping.
@@ -229,6 +241,26 @@ class EngineInputMappings:
         if bound_funcs is not None:
             for func in bound_funcs:
                 func.__call__()
+
+    def visit_action_mappings(self, visitor):
+        """Iterate through axis mappings.
+
+        :param visitor: (callable) Function to call at each action
+        mapping, taking the mapping name and axis key as arguments.
+
+        :return: (generator) Generator to visit action mappings.
+        """
+        return map(lambda kvp: visitor(*kvp), self._action_mappings.items())
+
+    def visit_axis_mappings(self, visitor):
+        """Iterate through axis mappings.
+
+        :param visitor: (callable) Function to call at each axis
+        mapping, taking the mapping name and axis key as arguments.
+
+        :return: (generator) Generator to visit axis mappings.
+        """
+        return map(lambda kvp: visitor(*kvp), self._axis_mappings.items())
 
 class GUIInputHandler:
     """
