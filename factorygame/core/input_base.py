@@ -142,7 +142,7 @@ class EngineInputMappings:
         if key_set is not None:
             # Needs to reassign returned set.
             key_set.update(axis_keys)
-        
+
         else:
             # Create a new set of keys.
             self._axis_mappings[in_name] = set(axis_keys)
@@ -153,6 +153,13 @@ class EngineInputMappings:
         added to it.
         """
         self._action_mappings.pop(in_name)
+
+    def remove_axis_mapping(self, in_name):
+        """
+        Remove an axis mapping, including all axis keys that were
+        previously added to it.
+        """
+        self._axis_mappings.pop(in_name)
 
     def bind_action(self, action_name, key_event, func):
         """
@@ -176,6 +183,25 @@ class EngineInputMappings:
         else:
             # Create a new set.
             self._bound_events[binding] = {func}
+
+    def bind_axis(self, axis_name, func):
+        """
+        Bind a function to an axis defined in add_axis_mapping.
+
+        :param axis_name: (str) Name of existing axis mapping.
+
+        :param func: (callable) Function to call continuously. The axis
+        extent is supplied as a float argument.
+        """
+
+        func_set = self._bound_axis_events.get(axis_name)
+        if func_set is not None:
+            # Add to existing set.
+            func_set.add(func)
+
+        else:
+            # Create a new set.
+            self._bound_axis_events[axis_name] = {func}
 
     def get_mappings_for_key(self, key):
         """
