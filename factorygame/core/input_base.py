@@ -45,9 +45,9 @@ class EKeys:
     # Currently thumb buttons aren't recognised by tkinter.
     ThumbMouseButton = FKey("ThumbMouseButton")
     ThumbMouseButton2 = FKey("ThumbMouseButton2")
-    
+
     # Keyboard keys
-    
+
     A = FKey("A")
     B = FKey("B")
     C = FKey("C")
@@ -84,6 +84,14 @@ class EInputEvent:
     MAX = 2
 
 
+class AxisKey:
+    ## (FKey) Key in the axis mapping.
+    key = None
+
+    ## (float) The extent to which to exert itself upon axis.
+    strength = 0.0
+
+
 class EngineInputMappings:
     """
     Contains mappings between input events and functions to fire.
@@ -97,6 +105,13 @@ class EngineInputMappings:
         # dictionary: keys -> action mapping CONCAT key_event : value -> set of callables
         ## Functions to fire when relevant input is received.
         self._bound_events = {}
+
+        ## Mappings of axis to axis keys. Each axis has a set of keys.
+        self._axis_mappings = {}
+
+        # dictionary: keys -> axis mapping : value -> list of callables
+        ## Functions that fire continuously on axis input.
+        self.bound_axis_events = {}
 
     def add_action_mapping(self, in_name, *keys):
         """
@@ -114,6 +129,23 @@ class EngineInputMappings:
         else:
             # Create a new set of keys.
             self._action_mappings[in_name] = set(keys)
+
+    def add_axis_mapping(self, in_name, *axis_keys):
+        """Add an axis mapping to be called continuously.
+
+        :param in_name: (str) Name of (existing) axis mapping.
+
+        :param axis_keys: (list<AxisKey>) Keys and their
+        strength to map to axis name.
+        """
+        key_set = self._axis_mappings.get(in_name)
+        if key_set is not None:
+            # Needs to reassign returned set.
+            key_set.update(axis_keys)
+        
+        else:
+            # Create a new set of keys.
+            self._axis_mappings[in_name] = set(axis_keys)
 
     def remove_action_mapping(self, in_name):
         """
@@ -186,7 +218,7 @@ class GUIInputHandler:
         self.begin_play()
 
     def begin_play(self):
-        # This is being called manually in the constructor, 
+        # This is being called manually in the constructor,
         # but once the engine module is refactored this will
         # be derived from EngineObject and it will be called
         # automatically when it is appropriate.
