@@ -111,7 +111,7 @@ class EngineInputMappings:
 
         # dictionary: keys -> axis mapping : value -> list of callables
         ## Functions that fire continuously on axis input.
-        self.bound_axis_events = {}
+        self._bound_axis_events = {}
 
     def add_action_mapping(self, in_name, *keys):
         """
