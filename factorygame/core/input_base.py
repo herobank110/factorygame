@@ -320,6 +320,21 @@ class GUIInputHandler:
             except KeyError:
                 pass
 
+    def register_analogue_event(self, in_axis_key, raw_value):
+        """
+        Called when an analogue key is changed.
+
+        Only for axis events.
+
+        :param in_axis_key: (EKeys) Key that was pressed. For
+        multidimensional axis keys this is also the axis that was
+        pressed. Each axis should be registered separately.
+
+        :param raw_value: (float) How much the key is pressed. 1 means
+        fully pressed and 0 means fully released. Negative numbers
+        should only be used for bidirectional axis keys.
+        """
+
     @property
     def held_keys(self):
         return self._held_keys
